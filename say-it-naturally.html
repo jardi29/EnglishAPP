@@ -1,0 +1,2466 @@
+<title>Say It Naturally</title>
+<meta name="description" content="A personal English coach: conversation practice, writing feedback, daily practice and progress tracking.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+  --paper:#F3F5F9;--surface:#FFFFFF;--surface-2:#EBEEF5;--sunk:#E6EAF2;
+  --ink:#151A2D;--ink-2:#465071;--ink-3:#6B7392;--line:#DCE1EB;--line-2:#C5CCDC;
+  --accent:#2A3CC0;--accent-ink:#2536B0;--accent-soft:#E7EAFB;--on-accent:#FFFFFF;
+  --err:#BA3027;--err-soft:#FBEAE8;--fix:#15714A;--fix-soft:#E0F2E8;
+  --hl:#E9C22C;--hl-band:#FBE38A;--hl-soft:#FFF6CF;--warn:#935700;--warn-soft:#FCF0DA;
+  --shadow:0 1px 2px rgba(21,26,45,.05),0 8px 24px -12px rgba(21,26,45,.16);
+  --f-display:"Bricolage Grotesque","Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r-sm:8px;--r:12px;--r-lg:16px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E111B;--surface:#161A28;--surface-2:#1F2436;--sunk:#12151F;
+    --ink:#E6E8F1;--ink-2:#AAB0C8;--ink-3:#8189A7;--line:#272D42;--line-2:#363D58;
+    --accent:#8E9BFF;--accent-ink:#A9B3FF;--accent-soft:#222A55;--on-accent:#0E111B;
+    --err:#FF8D80;--err-soft:#3B1D21;--fix:#62D3A0;--fix-soft:#123127;
+    --hl:#E2C13B;--hl-band:rgba(226,193,59,.34);--hl-soft:#35301A;--warn:#F1B65E;--warn-soft:#372A14;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px -14px rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E111B;--surface:#161A28;--surface-2:#1F2436;--sunk:#12151F;
+  --ink:#E6E8F1;--ink-2:#AAB0C8;--ink-3:#8189A7;--line:#272D42;--line-2:#363D58;
+  --accent:#8E9BFF;--accent-ink:#A9B3FF;--accent-soft:#222A55;--on-accent:#0E111B;
+  --err:#FF8D80;--err-soft:#3B1D21;--fix:#62D3A0;--fix-soft:#123127;
+  --hl:#E2C13B;--hl-band:rgba(226,193,59,.34);--hl-soft:#35301A;--warn:#F1B65E;--warn-soft:#372A14;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px -14px rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--paper)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.5}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3,h4{font-family:var(--f-display);font-weight:700;letter-spacing:-.015em;line-height:1.15;text-wrap:balance;margin:0}
+p,ul,ol,dl,dd{margin:0}
+ul,ol{padding-left:1.25em}
+.lbl{font-family:var(--f-mono);font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.muted{color:var(--ink-2)}
+.small{font-size:13.5px}
+.grow{flex:1}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.boot{padding:64px 16px;text-align:center;color:var(--ink-2)}
+.err{color:var(--err);font-size:14.5px}
+.empty{padding:20px;border:1px dashed var(--line-2);border-radius:var(--r);color:var(--ink-2)}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--paper);background:color-mix(in srgb,var(--paper) 86%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:960px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px}
+.brand{border:0;background:none;padding:4px 0;font-family:var(--f-display);font-weight:700;font-size:19px;letter-spacing:-.02em;color:var(--ink);white-space:nowrap}
+.hlw{background:linear-gradient(transparent 56%,var(--hl-band) 56%,var(--hl-band) 94%,transparent 94%);padding:0 3px}
+.topnav{display:flex;gap:2px;margin-left:8px}
+.navlink{border:0;background:none;padding:7px 11px;border-radius:8px;color:var(--ink-2);font-size:14.5px}
+.navlink:hover{background:var(--surface-2);color:var(--ink)}
+.navlink.on{color:var(--accent-ink);background:var(--accent-soft)}
+.top-r{margin-left:auto;display:flex;align-items:center;gap:8px}
+.lvl{border:1px solid var(--line-2);background:var(--surface);border-radius:999px;padding:3px 11px;font-family:var(--f-mono);font-size:12.5px;font-weight:500}
+.iconbtn{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:10px;border:1px solid transparent;background:none;color:var(--ink-2)}
+.iconbtn:hover{background:var(--surface-2);color:var(--ink)}
+@media (max-width:760px){.topnav{display:none}}
+
+/* layout */
+.wrap{max-width:960px;margin:0 auto;padding-inline:16px;padding-block:28px 72px}
+@media (min-width:760px){.wrap{padding-inline:28px;padding-block:40px 88px}}
+.page{display:flex;flex-direction:column;gap:28px}
+.page-h{display:flex;flex-direction:column;gap:8px}
+.page-h h1{font-size:clamp(30px,5vw,40px)}
+.lead{font-size:17px;color:var(--ink-2);max-width:64ch}
+.block{display:flex;flex-direction:column;gap:14px}
+.block-h{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 16px}
+.block-h h2{font-size:21px}
+.banner{padding:12px 16px;border-radius:var(--r);background:var(--warn-soft);color:var(--ink);border:1px solid color-mix(in srgb,var(--warn) 30%,transparent);font-size:14.5px;margin-bottom:24px}
+
+/* buttons, chips, inputs */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 16px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);font-weight:700;font-size:15px;line-height:1.2;transition:border-color .15s,background .15s}
+.btn:hover:not(:disabled){border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover:not(:disabled){filter:brightness(1.08)}
+.btn.sm{padding:6px 11px;font-size:13.5px;border-radius:9px}
+.btn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
+.linkbtn{border:0;background:none;padding:2px 0;color:var(--accent-ink);font-weight:700;font-size:14.5px;display:inline-flex;align-items:center;gap:5px}
+.linkbtn:hover{text-decoration:underline}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 13px;font-size:14.5px;color:var(--ink)}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.chip.big{padding:9px 16px;font-size:15.5px}
+.chip.mist{display:inline-flex;gap:8px;align-items:center}
+.chip.mist b{font-family:var(--f-mono);font-size:12.5px;color:var(--err)}
+.tag{display:inline-block;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:5px;background:var(--surface-2);color:var(--ink-2);white-space:nowrap}
+.tag.err{background:var(--err-soft);color:var(--err)}
+.tag.warn{background:var(--warn-soft);color:var(--warn)}
+.tag.acc{background:var(--accent-soft);color:var(--accent-ink)}
+.input{width:100%;border:1px solid var(--line-2);background:var(--surface);border-radius:10px;padding:10px 12px;font-size:16px;line-height:1.5}
+.input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+textarea.input{resize:vertical;min-height:44px}
+.area{min-height:200px}
+.kbd{font-family:var(--f-mono);font-size:12px;border:1px solid var(--line-2);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--surface)}
+.note{padding:14px 16px;border-radius:var(--r);background:var(--surface-2);color:var(--ink-2);font-size:14.5px}
+.note b{color:var(--ink)}
+.say{border:0;background:none;padding:3px;color:var(--ink-3);display:inline-grid;place-items:center;border-radius:6px;vertical-align:middle}
+.say:hover{color:var(--accent-ink);background:var(--accent-soft)}
+.dots{display:inline-flex;gap:3px;vertical-align:middle}
+.dots i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.35;animation:dot 1.2s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,80%,100%{opacity:.25}40%{opacity:.9}}
+.thinking{display:inline-flex;align-items:center;gap:10px;color:var(--ink-2);font-size:15px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:9px 16px;border-radius:10px;font-size:14.5px;z-index:50;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+
+/* home */
+.hero{display:flex;flex-direction:column;gap:10px;padding-top:4px}
+.hero h1{font-size:clamp(34px,6vw,50px);letter-spacing:-.03em;max-width:15ch}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:620px){.tiles{grid-template-columns:1fr}}
+.tile{text-align:left;display:flex;flex-direction:column;gap:6px;padding:22px 22px 18px;border-radius:var(--r-lg);border:1px solid var(--line);background:var(--surface);color:var(--ink);min-height:188px;transition:border-color .15s,transform .15s,box-shadow .15s}
+.tile:hover{border-color:var(--accent);box-shadow:var(--shadow);transform:translateY(-1px)}
+.tile.accent{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 35%,transparent)}
+.tile-ic{color:var(--accent-ink);margin-bottom:6px}
+.tile-t{font-family:var(--f-display);font-weight:700;font-size:26px;letter-spacing:-.02em;line-height:1.1}
+.tile-d{color:var(--ink-2);font-size:15px;max-width:44ch}
+.tile-meta{margin-top:auto;padding-top:10px;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.focus{display:flex;flex-direction:column;gap:12px;padding-top:6px}
+.focus h2{font-size:19px}
+@media (prefers-reduced-motion:reduce){.tile,.btn{transition:none}.tile:hover{transform:none}.dots i{animation:none;opacity:.6}}
+
+/* onboarding */
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:620px){.opts{grid-template-columns:1fr}}
+.opt{text-align:left;display:flex;flex-direction:column;gap:6px;padding:20px;border-radius:var(--r-lg);border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.opt:hover{border-color:var(--accent)}
+.opt .t{font-family:var(--f-display);font-weight:700;font-size:21px}
+.opt .d{color:var(--ink-2);font-size:15px}
+.levels{display:flex;flex-direction:column;gap:8px}
+.levelbtn{display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:center;text-align:left;padding:12px 16px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink)}
+.levelbtn:hover{border-color:var(--accent)}
+.levelbtn b{font-family:var(--f-mono);font-size:17px;color:var(--accent-ink)}
+.progressbar{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.progressbar i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.q{font-family:var(--f-display);font-size:clamp(22px,3.6vw,28px);font-weight:500;line-height:1.3;letter-spacing:-.01em;max-width:30ch}
+.answers{display:grid;gap:10px;max-width:640px}
+.ans{text-align:left;padding:13px 16px;border-radius:var(--r);border:1px solid var(--line-2);background:var(--surface);font-size:16.5px;color:var(--ink)}
+.ans:hover{border-color:var(--accent)}
+.ans.on{border-color:var(--accent);background:var(--accent-soft)}
+.biglevel{font-family:var(--f-mono);font-size:64px;line-height:1;font-weight:500;color:var(--accent-ink)}
+
+/* speaking setup */
+.scen-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.scen{text-align:left;display:flex;flex-direction:column;gap:4px;padding:14px 16px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.scen:hover{border-color:var(--accent)}
+.scen b{font-size:16px}
+.scen span{font-size:14px;color:var(--ink-2)}
+
+/* chat */
+.chat-top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px}
+.chat-title h1{font-size:clamp(24px,4vw,30px)}
+.chat-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.brief{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 20px;padding:14px 16px;border-radius:var(--r);background:var(--surface-2);font-size:14.5px}
+@media (max-width:620px){.brief{grid-template-columns:1fr}}
+.chat{display:flex;flex-direction:column;gap:10px}
+.msg{position:relative;max-width:min(640px,88%);padding:10px 14px;border-radius:18px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px}
+.msg.partner{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:6px;padding-right:36px}
+.msg.partner .say{position:absolute;right:6px;top:7px}
+.msg.me{align-self:flex-end;background:var(--accent);color:var(--on-accent);border-bottom-right-radius:6px}
+.msg.typing{color:var(--ink-2)}
+.used{margin-top:6px;font-size:12.5px;opacity:.9;display:flex;gap:5px;align-items:center}
+.chat-err{align-self:stretch;display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:10px 14px;border-radius:var(--r);background:var(--err-soft);color:var(--err);font-size:14.5px}
+.pill-note{align-self:center;display:inline-flex;gap:8px;align-items:center;font-size:13.5px;color:var(--ink-2);padding:5px 12px;border-radius:999px;background:var(--surface-2)}
+.composer{position:sticky;bottom:0;z-index:5;padding-block:14px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--paper) 78%,transparent)}
+.composer-in{display:flex;gap:8px;align-items:flex-end;background:var(--surface);border:1px solid var(--line-2);border-radius:16px;padding:6px 6px 6px 14px;box-shadow:var(--shadow)}
+.composer-in:focus-within{border-color:var(--accent)}
+.composer textarea{flex:1;border:0;background:none;resize:none;padding:8px 0;font-size:16px;line-height:1.5;max-height:200px;outline:none}
+.send{width:44px;height:44px;padding:0;border-radius:12px}
+.composer-hint{font-size:12.5px;color:var(--ink-3);padding:6px 4px 0}
+.scen-done{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:12px;border-radius:var(--r);background:var(--hl-soft);font-size:15px}
+
+/* corrections */
+.corrs{align-self:stretch;border:1px solid var(--line);background:var(--surface);border-radius:var(--r-lg);padding:16px 18px;display:flex;flex-direction:column;gap:16px;margin-block:6px}
+.corrs-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.corrs-h .lbl{color:var(--err);font-size:12px}
+.corrs-sub{font-size:13px;color:var(--ink-3);margin-left:10px}
+.praise{display:flex;gap:7px;align-items:flex-start;color:var(--fix);font-size:15px}
+.praise svg{flex:none;margin-top:3px}
+.cgroup{display:flex;flex-direction:column;gap:10px}
+.cgroup h4{font-family:var(--f-body);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+.corr{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px}
+.cgroup h4+.corr{border-top:0;padding-top:0}
+.corr-tags{display:flex;flex-wrap:wrap;gap:6px}
+.cgrid{display:grid;grid-template-columns:118px 1fr;gap:6px 14px;align-items:baseline}
+.cgrid dt{font-family:var(--f-mono);font-size:10.5px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);padding-top:3px}
+.cgrid dd{font-size:15.5px}
+.cgrid dd.said{color:var(--ink-2);text-decoration:underline wavy color-mix(in srgb,var(--err) 60%,transparent);text-underline-offset:4px;text-decoration-thickness:1px}
+.cgrid dd.hook{font-weight:700}
+@media (max-width:560px){.cgrid{grid-template-columns:1fr;gap:1px}.cgrid dd{margin-bottom:6px}}
+del{color:var(--err);background:var(--err-soft);text-decoration:line-through;text-decoration-thickness:1.5px;border-radius:3px;padding:0 2px}
+ins{color:var(--fix);background:var(--fix-soft);text-decoration:none;font-weight:700;border-radius:3px;padding:0 2px}
+.native{background:linear-gradient(transparent 54%,var(--hl-band) 54%);padding:0 1px}
+.pron{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:15px}
+.nat{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-radius:var(--r);background:var(--sunk)}
+.nat-row{display:grid;grid-template-columns:118px 1fr auto;gap:10px;align-items:baseline;font-size:15.5px}
+@media (max-width:560px){.nat-row{grid-template-columns:1fr auto}.nat-row .lbl{grid-column:1/-1}}
+.nat-why{font-size:14.5px;color:var(--ink-2)}
+.nat-row>span,.lrow>span{justify-self:start;max-width:100%}
+.hint-m{display:none}
+@media (max-width:620px){.hint-d{display:none}.hint-m{display:inline}}
+.ladder{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-bottom:4px}
+.rung i{display:block;height:6px;border-radius:3px;background:var(--line)}
+.rung span{display:block;font-family:var(--f-mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rung.you i{background:var(--ink-3)}
+.rung.gap i{background:repeating-linear-gradient(90deg,var(--hl) 0 5px,transparent 5px 9px)}
+.rung.up i{background:var(--hl)}
+.rung.up span,.rung.here span{color:var(--ink);font-weight:500}
+.rchip{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:5px;background:var(--surface);border:1px solid var(--line-2);white-space:nowrap;color:var(--ink-2)}
+.rchip.r3{background:var(--hl-soft);border-color:var(--hl);color:var(--ink)}
+.rchip.rx{background:var(--err-soft);border-color:transparent;color:var(--err)}
+.phrases{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.phrase{padding:12px 14px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;gap:4px}
+.phrase-top{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.phrase-en{font-size:16.5px;margin-right:2px}
+.phrase-pl{color:var(--ink-2);font-size:14.5px}
+.phrase-ex{font-style:italic;font-size:14.5px}
+.phrase-alt{font-size:13.5px;color:var(--ink-3)}
+
+/* feedback */
+.fb{display:flex;flex-direction:column;gap:18px;padding:22px;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);scroll-margin-top:80px}
+.fb-head{font-size:clamp(21px,3.4vw,26px)}
+.meters{display:grid;gap:9px}
+.meter{display:grid;grid-template-columns:110px 1fr 54px;gap:12px;align-items:center;font-size:15px}
+.track{height:10px;border-radius:5px;background:var(--surface-2);overflow:hidden}
+.track i{display:block;height:100%;border-radius:5px;background:var(--accent)}
+.meter b{font-variant-numeric:tabular-nums;text-align:right;font-size:16px}
+.meter b small{color:var(--ink-3);font-weight:400;font-size:12px}
+.fb-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:620px){.fb-cols{grid-template-columns:1fr}}
+.fb ul,.fb ol{display:flex;flex-direction:column;gap:6px;margin-top:6px;font-size:15.5px}
+.remember li::marker{font-family:var(--f-mono);color:var(--accent-ink)}
+
+/* writing */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.tab{border:0;background:none;padding:10px 14px;font-weight:700;font-size:15px;color:var(--ink-2);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tab.on{color:var(--accent-ink);border-bottom-color:var(--accent)}
+.form{display:flex;flex-direction:column;gap:10px}
+.form label.lbl{margin-top:6px}
+.wres{display:flex;flex-direction:column;gap:26px}
+.wsec{display:flex;flex-direction:column;gap:10px}
+.wsec h3{font-size:19px;display:flex;align-items:center;gap:10px}
+.letter{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:7px;background:var(--ink);color:var(--paper);font-family:var(--f-mono);font-size:13px;font-weight:500}
+.textbox{white-space:pre-wrap;overflow-wrap:anywhere;padding:14px 16px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);font-size:16px;line-height:1.7}
+.textbox.natural{background:var(--hl-soft);border-color:transparent}
+mark.m{background:none;color:inherit;text-decoration:underline wavy var(--err);text-underline-offset:4px;text-decoration-thickness:1.2px}
+mark.m sup{font-family:var(--f-mono);font-size:10px;color:var(--err);margin-left:1px}
+.num{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:6px;background:var(--err-soft);color:var(--err);font-family:var(--f-mono);font-size:12px}
+.lvlbox{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+@media (max-width:560px){.lvlbox{grid-template-columns:1fr}}
+.ladder-rows{display:flex;flex-direction:column;gap:8px}
+.lrow{display:grid;grid-template-columns:130px 1fr auto;gap:12px;align-items:baseline;padding:10px 14px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);font-size:16px}
+.lrow.top{background:var(--hl-soft);border-color:var(--hl)}
+@media (max-width:560px){.lrow{grid-template-columns:1fr auto}.lrow .lbl{grid-column:1/-1}}
+
+/* daily */
+.steps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.step{border:0;background:none;padding:0;text-align:left;display:flex;flex-direction:column;gap:6px;color:var(--ink-3)}
+.step i{display:block;height:5px;border-radius:3px;background:var(--line)}
+.step span{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.step.done i{background:var(--fix)}
+.step.cur i{background:var(--accent)}
+.step.cur{color:var(--ink)}
+@media (max-width:620px){.step span{display:none}.step.cur span{display:block;overflow:visible}}
+.warm-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px}
+.timer{font-family:var(--f-mono);font-size:26px;font-variant-numeric:tabular-nums;color:var(--accent-ink)}
+.timer.up{color:var(--fix)}
+.stepnav{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding-top:6px}
+.exs{display:flex;flex-direction:column;gap:12px}
+.ex{padding:14px 16px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.ex.ok{border-color:color-mix(in srgb,var(--fix) 50%,transparent)}
+.ex.no{border-color:color-mix(in srgb,var(--err) 45%,transparent)}
+.ex-h{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ex-target{font-weight:700;font-size:14px;color:var(--accent-ink)}
+.ex-p{font-size:16.5px}
+.ex-r{font-size:14.5px;display:flex;flex-direction:column;gap:4px}
+.okt{color:var(--fix);display:inline-flex;gap:4px;align-items:center}
+.not{color:var(--err)}
+.ex-better{color:var(--ink-2)}
+.score{font-family:var(--f-mono);font-size:14px}
+.rv-h{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border-radius:var(--r);background:var(--surface-2)}
+
+/* progress */
+.ov-sum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:700px){.ov-sum{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ov-item{display:flex;flex-direction:column;gap:2px;padding:14px 16px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
+.ov-item b{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15}
+.ov-item small{font-size:13px;color:var(--ink-2)}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+@media (max-width:860px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:520px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{display:flex;flex-direction:column;gap:3px;padding:12px 14px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
+.stat-l{font-size:14px;color:var(--ink-2)}
+.stat-v{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat-v small{font-size:13px;color:var(--ink-3);font-weight:400}
+.stat-d{font-size:12.5px;font-variant-numeric:tabular-nums}
+.stat-d.up{color:var(--fix)}.stat-d.down{color:var(--err)}.stat-d.flat{color:var(--ink-3)}
+.stat-d span{color:var(--ink-3)}
+.spark{width:100%;height:auto;display:block;margin-top:4px;touch-action:none}
+.spark .grid{stroke:var(--line);stroke-width:1;stroke-dasharray:2 3}
+.spark .area{fill:var(--accent-soft)}
+.spark .line{fill:none;stroke:var(--ink-3);stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+.spark .end{fill:var(--accent);stroke:var(--surface);stroke-width:2}
+.spark .cross{stroke:var(--ink-3);stroke-width:1}
+.spark .hov{fill:var(--surface);stroke:var(--accent);stroke-width:2}
+.stat-tip{font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums;min-height:18px}
+.stat-tip.on{color:var(--ink)}
+.mlist{display:flex;flex-direction:column;gap:10px}
+.mcard{border:1px solid var(--line);background:var(--surface);border-radius:var(--r-lg);overflow:hidden}
+.mcard-h{width:100%;border:0;background:none;display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;text-align:left;padding:14px 16px;color:var(--ink)}
+.mcount{font-family:var(--f-mono);font-size:18px;color:var(--err);font-variant-numeric:tabular-nums}
+.mtitle{font-weight:700;font-size:16.5px}
+.mtitle small{display:block;font-weight:400;font-size:13px;color:var(--ink-3)}
+.status{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.status.recurring{background:var(--err-soft);color:var(--err)}
+.status.new{background:var(--surface-2);color:var(--ink-2)}
+.status.improving{background:var(--warn-soft);color:var(--warn)}
+.status.control{background:var(--fix-soft);color:var(--fix)}
+.mcard-ex{padding:0 16px 14px;display:grid;grid-template-columns:130px 1fr;gap:6px 14px;align-items:baseline;font-size:15.5px}
+.mcard-ex .why{grid-column:1/-1;color:var(--ink-2);font-size:14.5px}
+@media (max-width:560px){.mcard-ex{grid-template-columns:1fr;gap:2px}}
+.mcard-body{padding:14px 16px 16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:12px;background:var(--sunk)}
+.pattern{padding:10px 14px;border-radius:var(--r);background:var(--hl-soft);font-weight:700}
+.vtools{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.vtools .input{max-width:260px}
+.vlist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);overflow:hidden}
+.vrow{display:grid;grid-template-columns:1fr auto;gap:12px;padding:12px 16px;border-top:1px solid var(--line)}
+.vrow:first-child{border-top:0}
+.vmain{display:flex;flex-direction:column;gap:2px;min-width:0}
+.vmain b{font-size:16.5px}
+.vpl{color:var(--ink-2);font-size:14.5px}
+.vex{font-style:italic;font-size:14px}
+.valt{font-size:13px;color:var(--ink-3)}
+.vmeta{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.vmeta select{border:1px solid var(--line-2);background:var(--surface);border-radius:8px;padding:4px 8px;font-size:13.5px}
+.hlist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);overflow:hidden}
+.hrow{display:grid;grid-template-columns:70px 1fr;gap:12px;padding:12px 16px;border-top:1px solid var(--line)}
+.hrow:first-child{border-top:0}
+.hdate{font-family:var(--f-mono);font-size:12.5px;color:var(--ink-3);padding-top:2px}
+.hscores{font-family:var(--f-mono);font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.hrem{font-size:14px;color:var(--ink-2);margin-top:4px}
+.set{display:flex;flex-direction:column;gap:10px;padding:18px 0;border-top:1px solid var(--line)}
+.set:first-of-type{border-top:0;padding-top:4px}
+.set h3{font-size:17px}
+.limits{display:flex;flex-direction:column;gap:8px;font-size:14.5px;color:var(--ink-2)}
+.limits b{color:var(--ink)}
+</style>
+<div id="app"><div class="boot">Loading Say It Naturally…</div></div>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/preact/standalone.umd.js"></script>
+<script>
+(function () {
+'use strict';
+const appEl = document.getElementById('app');
+if (!window.htmPreact) { appEl.innerHTML = '<div class="boot">The app couldn’t load its interface library. Check your connection and reload the page.</div>'; return; }
+const { html, render, useState, useEffect, useRef, useMemo } = window.htmPreact;
+
+/* ---------- utilities ---------- */
+const DAY = 864e5;
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-5);
+const arr = x => Array.isArray(x) ? x : [];
+const str = x => (typeof x === 'string' ? x : (x == null ? '' : String(x))).trim();
+const words = s => (str(s).match(/\S+/g) || []).length;
+const norm = s => str(s).toLowerCase().replace(/[’‘]/g, "'").replace(/[.!?,;:"“”()…]/g, ' ').replace(/\s+/g, ' ').trim();
+const slug = s => str(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+const score10 = x => { const n = Number(x); return Number.isFinite(n) && n > 0 ? Math.max(1, Math.min(10, Math.round(n))) : null; };
+const dayKey = (d = new Date()) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const fmtDay = t => { try { return new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }); } catch (e) { return ''; } };
+const reduceMotion = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
+function lsGet(k) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+
+/* ---------- content ---------- */
+const LEVELS = ['A1', 'A2', 'B1', 'B1+', 'B2', 'B2+', 'C1', 'C2'];
+const lvlRank = l => LEVELS.indexOf(l);
+function levelNorm(s) {
+  const m = str(s).toUpperCase().match(/\b(A1|A2|B1|B2|C1|C2)(\+)?/);
+  if (!m) return null;
+  const l = m[1] + (m[2] && (m[1] === 'B1' || m[1] === 'B2') ? '+' : '');
+  return LEVELS.includes(l) ? l : m[1];
+}
+const LEVEL_INFO = {
+  A1: 'I know basic words and phrases.',
+  A2: 'I can handle simple, everyday situations.',
+  B1: 'I can talk about familiar topics, but I often search for words.',
+  'B1+': 'I can keep a conversation going, with quite a few mistakes.',
+  B2: 'I can talk about most topics. I want to sound more natural.',
+  'B2+': 'I’m comfortable, but I keep making the same mistakes.',
+  C1: 'I’m fluent. I want polish and idiomatic English.',
+  C2: 'Near-native. I want the finest details.'
+};
+const DIMS = ['fluency', 'grammar', 'vocabulary', 'naturalness', 'confidence'];
+const DIM_LABEL = { fluency: 'Fluency', grammar: 'Grammar', vocabulary: 'Vocabulary', naturalness: 'Naturalness', confidence: 'Confidence', clarity: 'Clarity' };
+const RUNGS = ['Correct', 'Natural', 'More natural', 'Native-like'];
+const RUNG_IDX = { correct: 0, natural: 1, more_natural: 2, native: 3 };
+
+const MISTAKE_TYPES = {
+  'present-perfect-vs-past-simple': 'Present Perfect vs Past Simple',
+  'articles': 'Articles: a / an / the',
+  'prepositions': 'Prepositions',
+  'word-order': 'Word order',
+  'false-friends': 'False friends',
+  'polish-calque': 'Word-for-word translation from Polish',
+  'missing-auxiliary': 'Missing auxiliary verbs (do / does / did, be)',
+  'question-formation': 'Forming questions',
+  'verb-tenses': 'Verb tenses',
+  'subject-verb-agreement': 'Subject–verb agreement (he goes)',
+  'countable-uncountable': 'Countable vs uncountable nouns',
+  'gerund-infinitive': 'Gerund vs infinitive (-ing / to)',
+  'conditionals': 'Conditionals',
+  'collocations': 'Collocations (make / do, take / have)',
+  'phrasal-verbs': 'Phrasal verbs',
+  'word-choice': 'Word choice',
+  'too-simple-vocabulary': 'Overly simple vocabulary',
+  'register': 'Tone and formality',
+  'plurals': 'Plural forms',
+  'pronouns': 'Pronouns',
+  'comparatives': 'Comparatives and superlatives',
+  'modal-verbs': 'Modal verbs',
+  'passive-voice': 'Passive voice',
+  'spelling': 'Spelling',
+  'punctuation': 'Punctuation'
+};
+
+const TOPICS = [
+  { id: 'everyday', label: 'Everyday life', seed: 'routines, the week, small plans' },
+  { id: 'work', label: 'Work', seed: 'the learner’s job, colleagues, a typical workday' },
+  { id: 'travel', label: 'Travel', seed: 'trips, places, travel stories and plans' },
+  { id: 'technology', label: 'Technology', seed: 'apps, gadgets, AI, how tech changes daily life' },
+  { id: 'business', label: 'Business', seed: 'companies, ideas, customers, running a business' },
+  { id: 'hobbies', label: 'Hobbies', seed: 'free time, sport, creative things' },
+  { id: 'relationships', label: 'Relationships', seed: 'friends, family, meeting people; keep it light and respectful' },
+  { id: 'food', label: 'Food', seed: 'cooking, restaurants, favourite dishes' },
+  { id: 'news', label: 'Current events', seed: 'what is happening in the world; you cannot know today’s news, so ask what the learner has been following' },
+  { id: 'opinions', label: 'Opinions', seed: 'a light debatable question, e.g. remote work, social media, city vs countryside' },
+  { id: 'hypothetical', label: 'Hypothetical situations', seed: '“what would you do if…” questions' },
+  { id: 'smalltalk', label: 'Small talk', seed: 'weather, the weekend, light everyday chat' }
+];
+
+const SCENARIOS = [
+  { id: 'hotel', title: 'Hotel room problem', situation: 'You’ve just checked into a hotel and there’s a problem with your room.', me: 'the guest', ai: 'the receptionist at a busy city-centre hotel', goal: 'Explain the problem and get it solved.', twist: 'the hotel is almost fully booked tonight' },
+  { id: 'interview', title: 'Job interview', situation: 'You’re in a job interview for a role in your field.', me: 'the candidate', ai: 'a friendly but thorough hiring manager', goal: 'Present your experience and handle follow-up questions.', twist: 'one unexpected question, e.g. about a failure or salary expectations' },
+  { id: 'colleague', title: 'Project update with a colleague', situation: 'A colleague stops by to ask how your project is going.', me: 'the person leading the project', ai: 'a colleague from another team who depends on the project', goal: 'Explain the status and agree on next steps.', twist: 'their deadline has just been moved a week earlier' },
+  { id: 'first-meet', title: 'Meeting someone new', situation: 'You’re meeting someone for the first time at a friend’s barbecue.', me: 'a guest', ai: 'another guest, a friend of the host', goal: 'Introduce yourself and find something in common.', twist: 'it turns out you both know someone unexpected' },
+  { id: 'party', title: 'Small talk at a party', situation: 'You’re at a work party and end up next to someone at the drinks table.', me: 'a guest', ai: 'someone from a different department', goal: 'Keep a light conversation going for a few minutes.', twist: 'they ask your opinion on something slightly awkward, like a new office policy' },
+  { id: 'negotiate', title: 'Negotiating a price', situation: 'You want to buy a used car you saw advertised online.', me: 'the buyer', ai: 'the private seller, friendly but firm on price', goal: 'Get a better price or a better deal.', twist: 'another buyer is supposedly coming to see the car tomorrow' },
+  { id: 'support', title: 'Calling customer support', situation: 'Your internet connection at home keeps dropping, so you call customer support.', me: 'the customer', ai: 'a customer support agent who follows a script', goal: 'Explain the problem clearly and get a solution.', twist: 'the agent first suggests restarting the router, which you already did' },
+  { id: 'meeting', title: 'Your opinion in a meeting', situation: 'In a team meeting, your manager asks what you think about moving all meetings to Friday afternoons.', me: 'a team member', ai: 'the manager running the meeting (you may also voice other colleagues)', goal: 'Give your opinion politely and back it up.', twist: 'a colleague strongly disagrees with you' },
+  { id: 'presentation', title: 'Presentation Q&A', situation: 'You’ve just finished a short presentation about a project and it’s time for questions.', me: 'the presenter', ai: 'someone in the audience asking questions', goal: 'Answer clearly, even the tricky questions.', twist: 'a question you don’t know the answer to' },
+  { id: 'ordering', title: 'Ordering at a restaurant', situation: 'You’re at a restaurant with a friend and ready to order.', me: 'the customer', ai: 'the waiter', goal: 'Order food and drinks, and ask about the menu.', twist: 'the dish you want is sold out' },
+  { id: 'complaint', title: 'Making a complaint', situation: 'The headphones you bought arrived damaged, so you go to the shop’s service desk.', me: 'the customer', ai: 'the service desk employee', goal: 'Get a refund or a replacement.', twist: 'you don’t have the receipt with you' }
+];
+
+const DIAG = [
+  { q: 'I ___ to London three times, but I ___ there last year.', opts: ['have been / didn’t go', 'was / haven’t gone', 'went / haven’t been', 'have gone / didn’t went'], ans: 0, key: 'present-perfect-vs-past-simple', why: 'Doświadczenie bez podanego czasu → Present Perfect (have been). Konkretny czas w przeszłości (last year) → Past Simple (didn’t go).' },
+  { q: 'She’s ___ engineer at ___ company I told you about.', opts: ['an / the', 'a / a', 'the / a', '– / the'], ans: 0, key: 'articles', why: '„An” przed samogłoską w wymowie (an engineer). „The”, bo chodzi o konkretną firmę, o której już była mowa.' },
+  { q: 'Could you give me ___ advice?', opts: ['an', 'some', 'a few', 'many'], ans: 1, key: 'countable-uncountable', why: '„Advice” jest niepoliczalne: nie ma „an advice” ani „advices”. Mówimy „some advice” albo „a piece of advice”.' },
+  { q: 'She’s really good ___ solving problems.', opts: ['in', 'at', 'on', 'for'], ans: 1, key: 'prepositions', why: '„Good at something” to stałe połączenie. „Good in” to kalka z „dobry w”.' },
+  { q: 'Can you ___ me a favour?', opts: ['make', 'do', 'give', 'take'], ans: 1, key: 'collocations', why: 'Po angielsku „do someone a favour”. „Make” i „do” najlepiej zapamiętywać w gotowych połączeniach.' },
+  { q: 'What are you working on ___?', opts: ['actually', 'currently', 'actual', 'eventually'], ans: 1, key: 'false-friends', why: '„Actually” znaczy „właściwie / tak naprawdę”, a nie „aktualnie”. „Aktualnie” to „currently” albo „at the moment”.' },
+  { q: 'If I ___ more time, I’d learn to play the guitar.', opts: ['have', 'had', 'would have', 'will have'], ans: 1, key: 'conditionals', why: 'Drugi tryb warunkowy (sytuacja nierealna teraz): If + Past Simple, a potem would + czasownik.' },
+  { q: 'How long ___ here?', opts: ['do you work', 'are you working', 'have you been working', 'did you work'], ans: 2, key: 'verb-tenses', why: 'Pytając, jak długo coś trwa do teraz, używamy Present Perfect (Continuous). „How long do you work here?” to dosłowne tłumaczenie z polskiego.' },
+  { q: 'I’m looking forward ___ you next week.', opts: ['to see', 'seeing', 'to seeing', 'see'], ans: 2, key: 'gerund-infinitive', why: 'W „look forward to” słowo „to” jest przyimkiem, więc po nim stoi forma -ing: „looking forward to seeing you”.' },
+  { q: 'The meeting was ___ because the manager was ill.', opts: ['put off', 'put out', 'put up', 'put on'], ans: 0, key: 'phrasal-verbs', why: '„Put off” = przełożyć na później. „Put out” = zgasić, „put up” = powiesić albo przenocować, „put on” = założyć.' },
+  { q: 'Which sounds most natural after a long day at work?', opts: ['I am very tired because I worked a lot today.', 'I’m exhausted. I’ve been working all day.', 'I have big tiredness after today.', 'I’m tired from the working today.'], ans: 1, key: 'too-simple-vocabulary', whole: true, why: 'Pierwsza wersja jest poprawna, ale native speaker powie raczej „I’m exhausted” zamiast „very tired” i użyje „I’ve been working all day”.' },
+  { q: 'Hardly ___ the office when it started to rain.', opts: ['I had left', 'had I left', 'I left', 'did I leave'], ans: 1, key: 'word-order', why: 'Po „Hardly”, „No sooner” czy „Never” na początku zdania stosujemy inwersję: „Hardly had I left…”. To poziom C1.' }
+];
+function fillBlank(q, i) {
+  if (q.whole) return q.opts[i];
+  const parts = q.opts[i].split(' / ');
+  let k = 0;
+  return q.q.replace(/___/g, () => { const p = parts[Math.min(k++, parts.length - 1)]; return p === '–' ? '' : p; }).replace(/\s{2,}/g, ' ');
+}
+function mcToLevel(s) { return s <= 4 ? 'A2' : s <= 6 ? 'B1' : s <= 8 ? 'B1+' : s <= 10 ? 'B2' : s === 11 ? 'B2+' : 'C1'; }
+
+const TEXT_TYPES = [['email', 'Email'], ['message', 'Message'], ['linkedin', 'LinkedIn message'], ['work', 'Work communication'], ['story', 'Story'], ['opinion', 'Opinion'], ['diary', 'Diary'], ['social', 'Social media post'], ['business', 'Business communication'], ['other', 'Something else']];
+const typeLabel = t => (TEXT_TYPES.find(x => x[0] === t) || ['', 'Text'])[1];
+const EXAMPLE_TEXT = 'Hi Mark,\n\nThank you for your message. I am interesting in this offer and I would like to know more details. Can we make a meeting next week? I have time on Tuesday or Wednesday after 2 pm.\n\nBest regards,\nKasia';
+
+/* ---------- store & persistence ---------- */
+const LS = 'sayitnat.v1.';
+const DRAFT_SPEAK = LS + 'draft.speaking';
+const DRAFT_DAILY = LS + 'draft.daily';
+const DRAFT_WRITE = LS + 'draft.writing';
+const DOCS = ['profile', 'mistakes', 'vocab'];
+const defaultProfile = () => ({ v: 1, onboarded: false, level: null, levelSource: null, levelHistory: [], explainMode: 'auto', correctionsEvery: 4, voice: 'en-GB', rate: 1, strengths: [], sessions: [], lastTopics: [], updatedAt: 0 });
+function sanitizeDoc(name, d) {
+  if (!d || typeof d !== 'object') return null;
+  if (name === 'profile') {
+    const p = Object.assign(defaultProfile(), d);
+    ['levelHistory', 'strengths', 'sessions', 'lastTopics'].forEach(k => { p[k] = arr(p[k]); });
+    return p;
+  }
+  return { items: arr(d.items), updatedAt: d.updatedAt || 0 };
+}
+const Store = { profile: defaultProfile(), mistakes: { items: [], updatedAt: 0 }, vocab: { items: [], updatedAt: 0 }, subs: new Set() };
+DOCS.forEach(n => { const d = sanitizeDoc(n, lsGet(LS + n)); if (d) Store[n] = d; });
+function emit() { Store.subs.forEach(f => { try { f(); } catch (e) {} }); }
+function commit(n) { Store[n].updatedAt = Date.now(); Persist.save(n); emit(); }
+
+function fitDoc(n) {
+  const size = () => JSON.stringify(Store[n]).length;
+  let guard = 0;
+  while (size() > 230000 && guard++ < 200) {
+    if (n === 'profile' && Store.profile.sessions.length > 10) Store.profile.sessions.shift();
+    else if (n === 'mistakes') { const m = Store.mistakes.items.find(x => x.lesson); if (m) m.lesson = null; else Store.mistakes.items.pop(); }
+    else if (n === 'vocab') Store.vocab.items.pop();
+    else break;
+  }
+}
+
+const Persist = {
+  mode: 'local', settled: false, db: null, path: null, writing: {}, dirty: {}, timers: {}, fails: {},
+  async init() {
+    try {
+      const c = window.claude;
+      if (!c || typeof c.use !== 'function') return;
+      const [db, user] = await Promise.all([c.use('db').catch(() => null), c.use('user').catch(() => null)]);
+      if (!db || !user) return;
+      const id = await user.id();
+      if (!id) return;
+      this.path = n => 'data/users/' + id + '/' + n;
+      for (const n of DOCS) {
+        let snap = null;
+        try { snap = await db.doc(this.path(n)).get(); }
+        catch (e) {
+          if (e && e.code === 'unavailable') { await sleep(700 + Math.random() * 700); snap = await db.doc(this.path(n)).get().catch(() => null); }
+        }
+        if (!snap) return;
+        const remote = snap.exists ? sanitizeDoc(n, JSON.parse(JSON.stringify(snap.data()))) : null;
+        if (remote && (remote.updatedAt || 0) >= (Store[n].updatedAt || 0)) { Store[n] = remote; lsSet(LS + n, remote); }
+      }
+      this.db = db; this.mode = 'cloud';
+      DOCS.forEach(n => { if ((Store[n].updatedAt || 0) > 0) this.write(n); });
+    } catch (e) { /* stays in browser storage */ }
+    finally { this.settled = true; emit(); }
+  },
+  save(n) {
+    fitDoc(n);
+    lsSet(LS + n, Store[n]);
+    if (!this.db) return;
+    clearTimeout(this.timers[n]);
+    this.fails[n] = 0;
+    this.timers[n] = setTimeout(() => this.write(n), 900);
+  },
+  async write(n) {
+    if (!this.db) return;
+    if (this.writing[n]) { this.dirty[n] = true; return; }
+    this.writing[n] = true;
+    try { await this.db.doc(this.path(n)).set(JSON.parse(JSON.stringify(Store[n]))); this.fails[n] = 0; }
+    catch (e) {
+      const c = e && e.code;
+      if (c === 'unavailable' || c === 'resource_exhausted') {
+        this.fails[n] = (this.fails[n] || 0) + 1;
+        if (this.fails[n] < 3) { this.dirty[n] = true; await sleep(1500 + Math.random() * 1500); }
+      } else { this.db = null; this.mode = 'local'; emit(); }
+    } finally {
+      this.writing[n] = false;
+      if (this.dirty[n] && this.db) { this.dirty[n] = false; this.write(n); }
+    }
+  }
+};
+
+/* ---------- learner model ---------- */
+const INTERVALS = [1, 2, 4, 7, 15, 30];
+const Mistakes = {
+  get items() { return Store.mistakes.items; },
+  find(k) { return this.items.find(m => m.key === k); },
+  record(c) {
+    const key = slug(c.mistake_key) || slug(c.mistake_label) || 'other';
+    const now = Date.now();
+    let m = this.find(key);
+    const prev = m ? m.count : 0;
+    if (!m) {
+      m = { key, label: MISTAKE_TYPES[key] || str(c.mistake_label) || cap(key.replace(/-/g, ' ')), count: 0, firstSeen: now, lastSeen: now, box: 0, due: now, calques: 0, examples: [], lesson: null };
+      this.items.push(m);
+    }
+    m.count += 1; m.lastSeen = now; m.box = 0; m.due = now;
+    if (c.polish_calque) m.calques = (m.calques || 0) + 1;
+    const ex = { wrong: str(c.you_said), right: str(c.better), natural: str(c.more_natural), why: str(c.why), at: now };
+    if (ex.wrong && ex.right && !m.examples.some(e => norm(e.wrong) === norm(ex.wrong))) { m.examples.unshift(ex); m.examples = m.examples.slice(0, 4); }
+    if (this.items.length > 60) {
+      Store.mistakes.items = this.items.slice().sort((a, b) => (b.count * 10 + b.lastSeen / DAY) - (a.count * 10 + a.lastSeen / DAY)).slice(0, 60);
+    }
+    return prev + 1;
+  },
+  review(key, ok) {
+    const m = this.find(key);
+    if (!m) return;
+    m.box = ok ? Math.min(5, m.box + 1) : 0;
+    const f = m.count >= 5 ? 0.5 : m.count >= 3 ? 0.75 : 1;
+    m.due = Date.now() + INTERVALS[m.box] * f * DAY;
+    m.reviews = (m.reviews || 0) + 1; m.lastReview = Date.now();
+  },
+  priority(m) {
+    const now = Date.now();
+    const over = Math.max(0, (now - m.due) / DAY);
+    return m.count * 2 + Math.min(over, 10) + (now >= m.due ? 4 : 0) - m.box * 1.5;
+  },
+  top(n) { return this.items.slice().sort((a, b) => this.priority(b) - this.priority(a)).slice(0, n); },
+  status(m) {
+    if (m.box >= 4) return ['control', 'Under control'];
+    if (m.box >= 2) return ['improving', 'Improving'];
+    if (m.count >= 2) return ['recurring', 'Recurring'];
+    return ['new', 'Seen once'];
+  }
+};
+
+const normPhrase = p => {
+  const d = str(p && p.difficulty).toUpperCase();
+  return { en: str(p && p.en), pl: str(p && p.pl), example: str(p && p.example), alternatives: arr(p && p.alternatives).map(str).filter(Boolean).slice(0, 3), difficulty: ['A2', 'B1', 'B2', 'C1', 'C2'].includes(d) ? d : 'B2', kind: str(p && p.kind).toLowerCase().slice(0, 24) };
+};
+const vStatus = sc => sc >= 3 ? 'mastered' : sc >= 1 ? 'learning' : 'new';
+function coreOf(en) {
+  return norm(en.replace(/\(.*?\)/g, ' ').replace(/\+.*$/, ' ').replace(/(\.\.\.|…)/g, ' ').replace(/\b(sb|sth|someone|something|somebody|smb|one's)\b/gi, ' '));
+}
+const Vocab = {
+  get items() { return Store.vocab.items; },
+  add(p, source) {
+    const x = normPhrase(p);
+    if (!x.en) return null;
+    const k = norm(x.en);
+    let v = this.items.find(i => norm(i.en) === k);
+    if (v) return v;
+    v = Object.assign({ id: uid() }, x, { status: 'new', score: 0, used: 0, added: Date.now(), source: source || '' });
+    this.items.unshift(v);
+    if (this.items.length > 400) this.items.length = 400;
+    return v;
+  },
+  bump(id, ok) {
+    const v = this.items.find(i => i.id === id);
+    if (!v) return;
+    v.score = ok ? (v.score || 0) + 1 : Math.max(0, (v.score || 0) - 1);
+    v.status = vStatus(v.score); v.lastReviewed = Date.now();
+  },
+  set(id, status) {
+    const v = this.items.find(i => i.id === id);
+    if (!v) return;
+    v.status = status;
+    v.score = status === 'mastered' ? 3 : status === 'learning' ? Math.min(2, Math.max(1, v.score || 1)) : 0;
+  },
+  remove(id) { Store.vocab.items = this.items.filter(i => i.id !== id); },
+  detectUse(text) {
+    const t = ' ' + norm(text) + ' ';
+    const now = Date.now();
+    const used = [];
+    this.items.forEach(v => {
+      if (v.status === 'mastered') return;
+      const core = coreOf(v.en);
+      if (core.length < 4 || core.indexOf(' ') < 0) return;
+      if (t.includes(' ' + core + ' ') && !(v.lastUsed && now - v.lastUsed < 10 * 60000)) {
+        v.used = (v.used || 0) + 1; v.score = (v.score || 0) + 1; v.status = vStatus(v.score); v.lastUsed = now;
+        used.push(v);
+      }
+    });
+    return used;
+  }
+};
+
+function recentScores() {
+  const ss = Store.profile.sessions.filter(s => s.scores).slice(-5);
+  if (!ss.length) return null;
+  const out = {};
+  DIMS.forEach(d => { const v = ss.map(s => s.scores[d]).filter(x => x != null); out[d] = v.length ? avg(v) : null; });
+  return out;
+}
+function explainMode() {
+  const m = Store.profile.explainMode;
+  if (m === 'pl' || m === 'mix' || m === 'en') return m;
+  const r = lvlRank(Store.profile.level);
+  const rs = recentScores();
+  const vals = rs ? ['grammar', 'vocabulary', 'naturalness'].map(d => rs[d]).filter(x => x != null) : [];
+  const a = vals.length ? avg(vals) : null;
+  if (r >= lvlRank('C1') || (a != null && a >= 8)) return 'en';
+  if (r >= lvlRank('B2') || (a != null && a >= 6.5)) return 'mix';
+  return 'pl';
+}
+const EXPLAIN_LABEL = { pl: 'Polish', mix: 'Polish + English', en: 'English' };
+function streak() {
+  const days = new Set(Store.profile.sessions.map(s => s.day));
+  let n = 0;
+  const d = new Date();
+  if (!days.has(dayKey(d))) d.setDate(d.getDate() - 1);
+  while (days.has(dayKey(d))) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+function recordSession(x) {
+  const p = Store.profile;
+  const now = new Date();
+  p.sessions.push({ id: uid(), date: now.toISOString(), day: dayKey(now), mode: x.mode, title: x.title || '', scores: x.scores || null, remember: arr(x.remember).slice(0, 3), level: x.level || null, calques: x.calques || 0, corrections: x.corrections || 0, minutes: x.minutes || 0, words: x.words || 0 });
+  if (p.sessions.length > 150) p.sessions.splice(0, p.sessions.length - 150);
+  if (x.level && LEVELS.includes(x.level)) {
+    p.levelHistory.push({ date: now.toISOString(), level: x.level, source: x.mode });
+    if (p.levelHistory.length > 30) p.levelHistory.splice(0, p.levelHistory.length - 30);
+    const last = p.levelHistory.slice(-3).map(h => lvlRank(h.level)).filter(r => r >= 0).sort((a, b) => a - b);
+    if (last.length) { p.level = LEVELS[last[Math.floor(last.length / 2)]]; p.levelSource = 'ai'; }
+  }
+  if (arr(x.strengths).length) p.strengths = x.strengths.slice(0, 4);
+  commit('profile');
+}
+function noteTopic(id) {
+  const p = Store.profile;
+  p.lastTopics = [id].concat(arr(p.lastTopics).filter(x => x !== id)).slice(0, 6);
+  commit('profile');
+}
+
+/* ---------- AI (the `sample` capability) ---------- */
+const AI = { fn: null, status: 'loading' };
+AI.ready = (async () => {
+  try {
+    const c = window.claude;
+    const s = c && typeof c.use === 'function' ? await c.use('sample') : null;
+    AI.fn = s || null;
+    AI.status = s ? 'ready' : 'unavailable';
+  } catch (e) { AI.status = 'unavailable'; }
+  emit();
+})();
+function onAIError(e) {
+  const c = e && e.code;
+  if (c === 'not_granted') { AI.status = 'denied'; emit(); }
+  else if (c === 'sampling_disabled' || c === 'not_declared' || c === 'capability_disabled') { AI.status = 'unavailable'; emit(); }
+}
+function aiBlocked() { return { code: AI.status === 'denied' ? 'not_granted' : 'unavailable' }; }
+async function aiText(input, opts) {
+  await AI.ready;
+  if (!AI.fn) throw aiBlocked();
+  try { return await AI.fn(input, opts || {}); }
+  catch (e) { onAIError(e); throw e; }
+}
+function looseJSON(t) {
+  try { return JSON.parse(t); } catch (e) {}
+  const f = t.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (f) { try { return JSON.parse(f[1]); } catch (e) {} }
+  const a = t.search(/[\[{]/), b = Math.max(t.lastIndexOf('}'), t.lastIndexOf(']'));
+  if (a >= 0 && b > a) { try { return JSON.parse(t.slice(a, b + 1)); } catch (e) {} }
+  return null;
+}
+async function aiJSON(input, opts) {
+  await AI.ready;
+  if (!AI.fn) throw aiBlocked();
+  try { return await AI.fn.json(input, opts || {}); }
+  catch (e) {
+    if (e && e.code === 'capability_removed') {
+      const r = await aiText(input, opts);
+      const j = looseJSON(r.text);
+      if (j == null) throw { code: 'invalid_json' };
+      return j;
+    }
+    onAIError(e);
+    throw e;
+  }
+}
+function errText(e) {
+  switch (e && e.code) {
+    case 'unavailable': return 'The AI tutor isn’t available in this view. Open the page on claude.ai while signed in.';
+    case 'not_granted': return 'AI access was declined. Reload the page and choose Allow to use the tutor.';
+    case 'sampling_disabled': case 'not_declared': case 'capability_disabled': return 'Claude isn’t available for this account here.';
+    case 'rate_limited': return 'Too many requests, or your usage limit was reached. Wait a moment and try again.';
+    case 'session_expired': return 'Your Claude session has expired. Sign in again and reload the page.';
+    case 'refused': return 'Claude declined to answer this one. Try rephrasing it.';
+    case 'invalid_json': return 'The answer came back in the wrong format. Try again.';
+    case 'prompt_too_large': return 'That’s too much text at once. Try something shorter.';
+    case 'empty_completion': return 'No answer came back. Try again.';
+    case 'cancelled': return 'Stopped.';
+    default: return 'Connection problem. Try again.';
+  }
+}
+
+/* ---------- prompt building ---------- */
+function explainRule() {
+  const m = explainMode();
+  if (m === 'pl') return 'LANGUAGE OF EXPLANATIONS: write every explanation, tip and piece of feedback in simple, friendly Polish. Keep English examples in English.';
+  if (m === 'mix') return 'LANGUAGE OF EXPLANATIONS: write explanations mainly in Polish, but use simple English for grammar terms and short key phrases, so the learner slowly gets used to explanations in English. Keep examples in English.';
+  return 'LANGUAGE OF EXPLANATIONS: write explanations and feedback in clear, simple English (about B1-B2). Use a few Polish words only to explain a Polish-specific trap.';
+}
+function keysList() {
+  const known = Store.mistakes.items.map(m => m.key);
+  return Array.from(new Set(known.concat(Object.keys(MISTAKE_TYPES)))).join(', ');
+}
+function learnerContext() {
+  const p = Store.profile;
+  const top = Mistakes.top(6).map(m => m.label + ' [' + m.key + '] x' + m.count).join('; ') || 'none recorded yet';
+  const v = Store.vocab.items;
+  const mastered = v.filter(x => x.status === 'mastered').slice(0, 40).map(x => x.en).join('; ') || 'none yet';
+  const learning = v.filter(x => x.status !== 'mastered').slice(0, 25).map(x => x.en).join('; ') || 'none yet';
+  const r = recentScores();
+  const scores = r ? DIMS.filter(d => r[d] != null).map(d => d + ' ' + r[d].toFixed(1)).join(', ') : 'no sessions yet';
+  return `LEARNER PROFILE
+- First language: Polish. Goals: speak fluently, sound natural, write better, learn phrases they will really use, stop repeating the same mistakes. They want to move from "Polish -> translate -> English" to thinking directly in English.
+- Estimated level: ${p.level || 'not known yet (probably B1/B2)'}
+- Recurring mistakes (most important first): ${top}
+- Strong areas: ${p.strengths.join(', ') || 'not known yet'}
+- Phrases already mastered (don't teach these again): ${mastered}
+- Phrases being learned (good to recycle): ${learning}
+- Recent average scores (1-10): ${scores}`;
+}
+function sessionLabel(s) {
+  const sc = s.scenario && SCENARIOS.find(x => x.id === s.scenario);
+  if (sc) return `Role-play: ${sc.situation} The learner is ${sc.me}; the partner is ${sc.ai}.`;
+  const tp = s.topic && TOPICS.find(x => x.id === s.topic);
+  return `Topic: ${tp ? tp.label : 'free conversation'}.`;
+}
+function transcript(msgs, from) {
+  return msgs.map((m, i) => (from > 0 && i === from ? '--- NEW (analyse from here) ---\n' : '') + (m.role === 'me' ? 'L: ' : 'P: ') + m.text.slice(0, 1200)).join('\n');
+}
+
+function partnerRules(s) {
+  const lvl = Store.profile.level || 'B1/B2';
+  const learning = Store.vocab.items.filter(v => v.status !== 'mastered').slice(0, 6).map(v => v.en).join('; ');
+  const sc = s.scenario && SCENARIOS.find(x => x.id === s.scenario);
+  const tp = s.topic && TOPICS.find(x => x.id === s.topic);
+  const setup = sc
+    ? `ROLE-PLAY. Situation: ${sc.situation} You play ${sc.ai}. The learner plays ${sc.me}; their goal: ${sc.goal}
+Stay fully in character the whole time. Make it feel real, and at a natural moment add one small complication the learner has to react to spontaneously (${sc.twist}).${s.warmup ? ' This is a short warm-up of about 3 minutes, so keep the scene simple.' : ' When the situation is naturally resolved (usually after 8-14 exchanges), say a natural closing line and add [END] at the very end of that message.'}`
+    : `CASUAL CONVERSATION. Topic: ${tp ? tp.label + ' (' + tp.seed + ')' : 'anything'}. You are Alex, a friendly, curious native English speaker in your thirties. Share your own small opinions and experiences too, like a real person, so it feels like a two-way chat.${s.warmup ? ' This is a short 3-minute warm-up, so ask easy, open questions.' : ''}`;
+  return `You are having a text conversation with an English learner whose first language is Polish (level ${lvl}). This is real conversation practice, not a lesson.
+
+${setup}
+
+RULES
+- Talk like a real person: short replies (1-3 sentences, at most about 45 words), contractions, everyday phrasal verbs and collocations, pitched slightly above the learner's level.
+- Usually end with a question or a prompt that keeps the learner talking. Vary it: opinions, stories, details, "what would you do if...".
+- Never correct mistakes, never explain grammar and never comment on the learner's English. Corrections are handled separately later.
+- If something is genuinely unclear, ask what they mean, like a real person would. You may naturally reuse the correct form of what they said without pointing it out.
+- If the learner writes in Polish or gets stuck, stay in English: give them a simple way to say it in one short line, then carry on.
+${learning ? '- When it fits naturally, use some of these phrases the learner is learning: ' + learning + '.\n' : ''}- Plain text only: no lists, no markdown, no emoji, no stage directions.`;
+}
+function buildTurns(s) {
+  const rules = partnerRules(s);
+  const msgs = s.messages.slice(-40);
+  if (!msgs.length) return [{ role: 'user', content: rules + '\n\n' + (s.scenario ? 'Start the scene now with your first line, in character (1-2 sentences).' : 'Start the conversation now with a natural, friendly opening line and one question.') }];
+  const turns = [{ role: 'user', content: rules + '\n\n(The conversation follows. Reply only as your character.)' }];
+  msgs.forEach(m => turns.push({ role: m.role === 'me' ? 'user' : 'assistant', content: m.text }));
+  if (turns[turns.length - 1].role !== 'user') turns.push({ role: 'user', content: '(Continue the conversation.)' });
+  return turns;
+}
+
+function analysisPrompt(s, from, to, max, o) {
+  o = o || {};
+  const ctxStart = Math.max(0, from - 6);
+  const msgs = s.messages.slice(ctxStart, to);
+  const rel = from - ctxStart;
+  return `You are an expert English coach for Polish speakers. The learner has been chatting in English (typing or dictating) with a conversation partner. ${sessionLabel(s)}
+Analyse only the learner's lines (L:)${rel > 0 ? ' after the "--- NEW ---" marker; earlier lines are context' : ''}. Partner lines (P:) are context only.
+
+${learnerContext()}
+
+PRIORITIES, in this order: 1) communication (was the meaning clear?), 2) naturalness (would a native speaker really say it like this?), 3) the learner's recurring mistakes, 4) grammar, 5) vocabulary.
+
+RULES
+- Give at most ${max} corrections: only the ones that matter most. Ignore typos, capital letters, missing final punctuation and small slips that don't affect communication, unless they match a recurring mistake. Don't correct things that are already fine. Fewer is better than more.
+- "you_said": the learner's exact words (the shortest part that shows the problem, or the whole sentence if needed).
+- "better": the minimal correct version. "more_natural": what a native speaker would typically say here (it can be the same as "better").
+- "type": "grammar", "vocabulary", "unnatural" (grammatical, but not how natives say it) or "pronunciation".
+- "mistake_key": reuse one of these keys whenever it fits: ${keysList()}. Otherwise invent a short kebab-case key. "mistake_label": a short English name for that type of mistake.
+- "polish_calque": true if the problem comes from translating Polish word for word.
+- If the learner keeps using very basic words (very, good, nice, thing, big, do, get, make), point out one more precise or natural option as a "vocabulary" correction.
+- "why": 1-2 short sentences. "remember": a short memory hook (a rule of thumb, a contrast or a mini pattern).
+- ${explainRule()}
+- "naturalness": up to 3 learner sentences worth rating. Include one that is already good, if there is one. "rating": "correct" (grammatical, but a native wouldn't say it this way), "natural", or "native" (idiomatic, native-like). "upgrade": a more natural or more native-like version, with "upgrade_rating": "more_natural" or "native". For sentences rated "native", use "" for upgrade.
+- "pronunciation": up to 2 words the learner used that Polish speakers often mispronounce, with a simple tip (stressed syllable in CAPITALS, e.g. "comfortable: KUMF-tuh-bul, 3 syllables"). Use [] if nothing is relevant.
+${o.noPhrases ? '- "phrases": return an empty list [].' : '- "phrases": 2-3 useful chunks (collocations, phrasal verbs, sentence patterns) that would have helped the learner say what they meant more naturally. Teach whole constructions like "it depends on...", not single words. Skip phrases they have mastered.'}
+- "praise": one short, specific sentence about something they did well.
+
+CONVERSATION
+${transcript(msgs, rel)}
+
+Reply with only JSON in exactly this shape:
+{"corrections":[{"type":"grammar","you_said":"","better":"","more_natural":"","why":"","remember":"","mistake_key":"","mistake_label":"","polish_calque":false}],"naturalness":[{"sentence":"","rating":"correct","upgrade":"","upgrade_rating":"more_natural","why":""}],"pronunciation":[{"word":"","tip":""}],"phrases":[{"en":"","pl":"","example":"","alternatives":[""],"difficulty":"B2","kind":"collocation"}],"praise":""}`;
+}
+
+function feedbackPrompt(s, extra) {
+  const m = chatMetrics(s);
+  const shown = s.batches.flatMap(b => b.result.corrections.map(c => c.mistake_label || c.type)).slice(0, 12).join('; ') || 'none';
+  return `You are a supportive English coach for a Polish learner. Write the end-of-session summary for this ${s.scenario ? 'role-play' : 'conversation'} practice. ${sessionLabel(s)}
+
+${learnerContext()}
+
+METRICS (text chat): ${m.n} learner messages, ${m.avgWords} words per message on average, longest message ${m.longest} words, average time to reply ${m.avgReply ? m.avgReply + ' s' : 'unknown'}.
+CORRECTIONS ALREADY SHOWN: ${shown}
+${extra || ''}
+SCORING (1-10). The scores help the learner track progress over time; they are not school grades. Calibrate: 5 = a solid B1, 7 = a solid B2, 9 = C1 or above. Be honest and consistent.
+- fluency: how easily and fully they expressed ideas (message length, linking words, reply speed, keeping the conversation going)
+- grammar: accuracy
+- vocabulary: range and precision
+- naturalness: how native-like the phrasing sounds
+- confidence: taking initiative, giving details, asking questions, handling unexpected turns
+
+Also write:
+- "headline": one short, encouraging, specific sentence.
+- "did_well": 2 specific things (quote the learner where useful).
+- "improve": the 2 most important things to work on (communication and naturalness first). No long lists.
+- "remember": exactly 3 short, concrete takeaways, each with an English example.
+- "level": CEFR estimate for this session (A2, B1, B1+, B2, B2+, C1 or C2).
+- "strengths": 1-3 short areas in English (e.g. "past tenses", "small talk", "linking ideas").
+${explainRule()}
+
+TRANSCRIPT
+${transcript(s.messages.slice(-40), 0)}
+
+Reply with only JSON:
+{"headline":"","scores":{"fluency":0,"grammar":0,"vocabulary":0,"naturalness":0,"confidence":0},"did_well":["",""],"improve":["",""],"remember":["","",""],"level":"B1+","strengths":[""]}`;
+}
+
+function writingPrompt(type, ctx, text) {
+  const max = words(text) < 80 ? 5 : 8;
+  const t = typeLabel(type).toLowerCase();
+  return `You are an expert English editor and coach for a Polish learner. Check this ${t} and show concrete corrections.
+
+${learnerContext()}
+
+TEXT TYPE: ${t}
+CONTEXT / READER: ${ctx || 'not given'}
+
+TASKS
+1. "corrected": the full text with only the necessary corrections (grammar, wrong words, punctuation, spelling). Keep everything else exactly as written, including line breaks and the learner's style.
+2. "natural": the full text as a fluent native speaker would write this ${t}: same meaning and personal voice, the right tone and formality, not longer than needed. Keep the line breaks and structure.
+3. "mistakes": the ${max} most important issues at most, most important first (communication and naturalness before small grammar points). "original": an exact substring copied from the ORIGINAL text. "corrected": that part corrected. "natural": a more natural way to say that part (or the same as "corrected"). "why": 1-2 short sentences. "type": "grammar", "vocabulary", "unnatural", "punctuation" or "tone". "mistake_key": reuse one of: ${keysList()} (or a new short kebab-case key). "mistake_label": short English name. "polish_calque": true if it's a word-for-word translation from Polish. Skip trivial issues.
+4. "expressions": 3-5 useful expressions for this type of text that the learner could use next time (chunks, collocations, sentence patterns, not single words), each with a natural Polish meaning and an example.
+5. "level": {"cefr": "B1+", "comment": "one sentence explaining the estimate"}.
+6. "scores": grammar, vocabulary, naturalness, clarity, each 1-10 (for tracking only; 5 = solid B1, 7 = solid B2, 9 = C1+).
+7. "tone": one sentence: does the tone fit this ${t}? What to adjust, if anything?
+8. "did_well": one specific strength.
+${explainRule()}
+
+ORIGINAL TEXT
+"""
+${text}
+"""
+
+Reply with only JSON:
+{"corrected":"","natural":"","mistakes":[{"original":"","corrected":"","natural":"","why":"","type":"grammar","mistake_key":"","mistake_label":"","polish_calque":false}],"expressions":[{"en":"","pl":"","example":"","alternatives":[""],"difficulty":"B2","kind":"expression"}],"level":{"cefr":"B2","comment":""},"scores":{"grammar":0,"vocabulary":0,"naturalness":0,"clarity":0},"tone":"","did_well":""}`;
+}
+
+function sentencePrompt(sentence, ctx) {
+  return `A Polish learner of English asks: "Would a native speaker really say this?"
+
+SENTENCE: "${sentence}"
+SITUATION: ${ctx || 'everyday conversation'}
+Learner level: ${Store.profile.level || 'B1/B2'}
+
+Give four versions on a naturalness ladder (a version may repeat the previous one if it can't be improved):
+- "correct": grammatically correct, as close to the learner's sentence as possible
+- "natural": sounds natural to a native speaker
+- "more_natural": the more typical, everyday way to say it
+- "native": excellent, native-like and idiomatic (a common phrasal verb or idiom is welcome if it fits; never force rare idioms)
+Also:
+- "rating" of the learner's original sentence: "incorrect", "correct", "natural" or "native".
+- "why": 2-3 short sentences on the key differences.
+- "alternatives": 2 other natural ways to say it, labelled by register, e.g. {"text":"","note":"casual"} and {"text":"","note":"formal"}.
+- "key_phrase": the most useful chunk from the native-like version, with a natural Polish meaning and an example.
+${explainRule()}
+
+Reply with only JSON:
+{"rating":"correct","correct":"","natural":"","more_natural":"","native":"","why":"","alternatives":[{"text":"","note":"casual"}],"key_phrase":{"en":"","pl":"","example":""}}`;
+}
+
+function dailyContentPrompt(d) {
+  const mine = d.chat.messages.filter(m => m.role === 'me').map(m => m.text).join('\n').slice(0, 3000);
+  const known = Store.vocab.items.map(v => v.en).slice(0, 120).join('; ') || 'none';
+  return `Create today's 5 phrases for a Polish learner of English, plus one short exercise per phrase.
+
+${learnerContext()}
+
+TODAY'S WARM-UP: ${sessionLabel(d.chat)}
+WHAT THE LEARNER WROTE:
+"""
+${mine || '(nothing yet)'}
+"""
+
+PHRASES
+- Exactly 5 items the learner will really use in normal conversation or at work. Prefer phrasal verbs, collocations, natural expressions and useful sentence patterns. An idiom only if it is genuinely common.
+- Teach whole constructions with their typical structure (e.g. "it depends on + noun/-ing", "I'm not sure whether...", "get used to + -ing"), not single words.
+- At least 2 items should help the learner say what they tried to say in the warm-up more naturally.
+- Slightly above the learner's level. Don't include anything from this list: ${known}.
+- "pl": a natural Polish meaning (not word for word). "example": a natural sentence. "alternatives": 1-2 natural alternatives. "kind": "phrasal verb", "collocation", "expression", "sentence pattern" or "idiom".
+
+EXERCISES: one per phrase ("phrase" = its index 0-4). Use at least 2 different types:
+- "gap": a natural sentence with ___ where the phrase (correctly inflected) goes; "answer" = the missing words.
+- "rewrite": a plain sentence to rewrite using the phrase; "answer" = a model answer.
+- "respond": a short personal question to answer using the phrase; "answer" = a model answer.
+
+Reply with only JSON:
+{"phrases":[{"en":"","pl":"","example":"","alternatives":[""],"difficulty":"B2","kind":"collocation"}],"exercises":[{"phrase":0,"type":"gap","prompt":"","answer":""}]}`;
+}
+
+function reviewPrompt(ms) {
+  return `Create a quick review of a Polish learner's recurring mistakes (level ${Store.profile.level || 'B1/B2'}).
+For each mistake below write a one-line "rule" that is easy to remember, and exactly 2 short exercises in new contexts that target this exact problem:
+- "fix": an English sentence containing the typical error; the learner corrects it. "answer" = the corrected sentence.
+- "translate": a short, natural Polish sentence that tempts the typical Polish-speaker error; the learner translates it into English. "answer" = a natural English translation.
+Don't reuse the learner's original sentences.
+${explainRule()}
+
+MISTAKES
+${ms.map(m => '- key: ' + m.key + ' | ' + m.label + ' | seen ' + m.count + 'x | learner\'s errors: ' + (m.examples.slice(0, 2).map(e => '"' + e.wrong + '" -> "' + e.right + '"').join('; ') || '-')).join('\n')}
+
+Reply with only JSON: {"items":[{"key":"","rule":"","exercises":[{"type":"fix","prompt":"","answer":""},{"type":"translate","prompt":"","answer":""}]}]}`;
+}
+
+function lessonPrompt(m) {
+  const ex = m.examples.slice(0, 3).map(e => '"' + e.wrong + '" -> "' + e.right + '"').join('; ');
+  return `Create a short mini-lesson for a Polish learner of English (level ${Store.profile.level || 'B1/B2'}) about one of their recurring mistakes.
+MISTAKE: ${m.label} [${m.key}], seen ${m.count} times. The learner's own errors: ${ex || 'none recorded'}.
+Include:
+- "explanation": 2-3 short sentences: why this is wrong and how English works here (mention the Polish habit behind it, if relevant).
+- "pattern": a short formula or rule of thumb that is easy to remember.
+- "examples": exactly 2 natural example sentences that use the structure correctly, each with a short note.
+- "exercises": 3 short exercises in new contexts: one "fix" (a sentence with the typical error to correct), one "translate" (a short Polish sentence that tempts this error; answer in English) and one "gap" (a sentence with ___ to fill). Each with "prompt" and "answer".
+${explainRule()}
+Reply with only JSON: {"explanation":"","pattern":"","examples":[{"en":"","note":""},{"en":"","note":""}],"exercises":[{"type":"fix","prompt":"","answer":""},{"type":"translate","prompt":"","answer":""},{"type":"gap","prompt":"","answer":""}]}`;
+}
+
+function checkPrompt(items) {
+  return `Check a Polish learner's answers to short English exercises. Be fair and encouraging: accept any answer that is correct, natural and does what the task asks (other wording, contractions and inflected forms are fine). Mention small typos without failing the answer for them.
+${explainRule()} Keep each feedback to 1-2 short sentences.
+
+ITEMS
+${items.map(x => '#' + x.i + ' | Task type: ' + x.type + ' | Target: ' + (x.target || '-') + ' | Task: ' + x.prompt + ' | Model answer: ' + (x.answer || '-') + ' | Learner\'s answer: "' + x.given + '"').join('\n')}
+
+For each item return {"i": number, "ok": true or false, "feedback": "", "better": "a natural correct answer (improve the learner's answer if it could sound more natural)"}.
+Reply with only JSON: {"results":[{"i":0,"ok":true,"feedback":"","better":""}]}`;
+}
+
+function vocabFillPrompt(text) {
+  return `A Polish learner wants to add this to their English vocabulary list: "${text}".
+If a longer construction is more useful or natural, turn it into that chunk (e.g. "depend" -> "it depends on...", "decision" -> "make a decision"). If the input is Polish, give the natural English equivalent.
+Reply with only JSON: {"en":"","pl":"natural Polish meaning","example":"a natural example sentence","alternatives":["",""],"difficulty":"B1","kind":"collocation"}`;
+}
+
+function diagPrompt(score, missed, a1, a2) {
+  return `You are assessing the English level of a Polish speaker.
+Multiple-choice quiz: ${score}/12 correct (areas missed: ${missed.map(q => q.key).join(', ') || 'none'}).
+Writing task 1, "Describe a typical day at work or school": """${a1.slice(0, 2000)}"""
+Writing task 2, "If you could live in any country for a year, where would you go and why?": """${a2.slice(0, 2000)}"""
+Estimate their CEFR level (A2, B1, B1+, B2, B2+, C1 or C2), weighing the writing more than the quiz. Then list up to 4 "focus" areas: real mistakes from their writing, each with the learner's exact words ("you_said"), a corrected natural version ("better"), a short explanation in Polish ("why") and a mistake key (reuse one of: ${Object.keys(MISTAKE_TYPES).join(', ')}). Also "strengths" (1-3 short phrases in English) and a "summary" in Polish: 2 sentences, encouraging and specific.
+Reply with only JSON: {"level":"B1+","summary":"","strengths":[""],"focus":[{"you_said":"","better":"","why":"","mistake_key":"","mistake_label":""}]}`;
+}
+
+/* ---------- normalisers ---------- */
+function normAnalysis(r) {
+  r = r && typeof r === 'object' ? r : {};
+  const types = ['grammar', 'vocabulary', 'unnatural', 'pronunciation'];
+  return {
+    corrections: arr(r.corrections).map(c => ({ type: types.includes(c && c.type) ? c.type : 'grammar', you_said: str(c && c.you_said), better: str(c && c.better), more_natural: str(c && c.more_natural), why: str(c && c.why), remember: str(c && c.remember), mistake_key: slug(c && c.mistake_key), mistake_label: str(c && c.mistake_label), polish_calque: !!(c && c.polish_calque) })).filter(c => c.you_said && (c.better || c.more_natural)).slice(0, 6),
+    naturalness: arr(r.naturalness).map(n => ({ sentence: str(n && n.sentence), rating: n && n.rating in RUNG_IDX ? n.rating : 'correct', upgrade: str(n && n.upgrade), upgrade_rating: n && (n.upgrade_rating === 'more_natural' || n.upgrade_rating === 'native') ? n.upgrade_rating : 'native', why: str(n && n.why) })).filter(n => n.sentence).slice(0, 4),
+    pronunciation: arr(r.pronunciation).map(p => ({ word: str(p && p.word), tip: str(p && p.tip) })).filter(p => p.word).slice(0, 3),
+    phrases: arr(r.phrases).map(normPhrase).filter(p => p.en).slice(0, 4),
+    praise: str(r.praise)
+  };
+}
+function normFeedback(r) {
+  r = r || {};
+  const sc = r.scores || {};
+  const scores = {};
+  DIMS.forEach(d => { scores[d] = score10(sc[d]); });
+  const list = (x, n) => arr(x).map(str).filter(Boolean).slice(0, n);
+  return { headline: str(r.headline), scores, did_well: list(r.did_well, 3), improve: list(r.improve, 3), remember: list(r.remember, 3), level: levelNorm(r.level), strengths: list(r.strengths, 3) };
+}
+function normWriting(r) {
+  r = r || {};
+  const lv = r.level || {}, sc = r.scores || {};
+  return {
+    corrected: str(r.corrected), natural: str(r.natural),
+    mistakes: arr(r.mistakes).map(m => ({ original: str(m && m.original), corrected: str(m && m.corrected), natural: str(m && m.natural), why: str(m && m.why), type: str(m && m.type) || 'grammar', mistake_key: slug(m && m.mistake_key), mistake_label: str(m && m.mistake_label), polish_calque: !!(m && m.polish_calque) })).filter(m => m.original && m.corrected).slice(0, 10),
+    expressions: arr(r.expressions).map(normPhrase).filter(p => p.en).slice(0, 5),
+    level: { cefr: levelNorm(lv.cefr) || '', comment: str(lv.comment) },
+    scores: { grammar: score10(sc.grammar), vocabulary: score10(sc.vocabulary), naturalness: score10(sc.naturalness), clarity: score10(sc.clarity) },
+    tone: str(r.tone), did_well: str(r.did_well)
+  };
+}
+function normLesson(r) {
+  r = r || {};
+  return {
+    explanation: str(r.explanation), pattern: str(r.pattern),
+    examples: arr(r.examples).map(e => ({ en: str(e && e.en), note: str(e && e.note) })).filter(e => e.en).slice(0, 2),
+    exercises: arr(r.exercises).map(x => ({ type: ['fix', 'translate', 'gap'].includes(x && x.type) ? x.type : 'fix', prompt: str(x && x.prompt), answer: str(x && x.answer) })).filter(x => x.prompt).slice(0, 3)
+  };
+}
+function recordAnalysis(r, source) {
+  r.corrections.forEach(c => { if (c.type !== 'pronunciation') c.repeat = Mistakes.record(c); });
+  if (r.corrections.length) commit('mistakes');
+  if (r.phrases.length) { r.phrases.forEach(p => Vocab.add(p, source)); commit('vocab'); }
+}
+
+/* ---------- chat sessions ---------- */
+function newSession(kind, id, warmup) {
+  return { id: uid(), kind, topic: kind === 'topic' ? id : null, scenario: kind === 'scenario' ? id : null, warmup: !!warmup, messages: [], batches: [], analyzedUpTo: 0, startedAt: Date.now(), ended: false, feedback: null, scenarioDone: false };
+}
+function sessionTitle(s) {
+  const sc = s.scenario && SCENARIOS.find(x => x.id === s.scenario);
+  if (sc) return sc.title;
+  const tp = s.topic && TOPICS.find(x => x.id === s.topic);
+  return tp ? tp.label : 'Conversation';
+}
+function chatMetrics(s) {
+  const ms = s.messages;
+  const mine = ms.filter(m => m.role === 'me');
+  const wc = mine.map(m => words(m.text));
+  const replies = [];
+  ms.forEach((m, i) => {
+    if (m.role === 'me' && i > 0 && ms[i - 1].role === 'partner' && m.t && ms[i - 1].t) {
+      const sec = (m.t - ms[i - 1].t) / 1000;
+      if (sec > 0 && sec < 600) replies.push(sec);
+    }
+  });
+  return { n: mine.length, totalWords: wc.reduce((a, b) => a + b, 0), avgWords: wc.length ? Math.round(avg(wc)) : 0, longest: wc.length ? Math.max.apply(null, wc) : 0, avgReply: replies.length ? Math.round(avg(replies)) : null };
+}
+const countCalques = s => s.batches.reduce((n, b) => n + b.result.corrections.filter(c => c.polish_calque).length, 0);
+const countCorr = s => s.batches.reduce((n, b) => n + b.result.corrections.length, 0);
+const sessionMinutes = s => { const last = s.messages.length ? s.messages[s.messages.length - 1].t : Date.now(); return Math.max(1, Math.min(90, Math.round((last - s.startedAt) / 60000))); };
+
+/* ---------- text to speech ---------- */
+const TTS = {
+  ok: typeof window.speechSynthesis !== 'undefined' && typeof window.SpeechSynthesisUtterance !== 'undefined',
+  voices: [],
+  load() { try { this.voices = speechSynthesis.getVoices().filter(v => /^en[-_]/i.test(v.lang)); } catch (e) {} },
+  pick() {
+    const want = (Store.profile.voice || 'en-GB').toLowerCase();
+    const score = v => (v.lang.replace('_', '-').toLowerCase().indexOf(want) === 0 ? 10 : 0) + (/natural|neural|google|premium|enhanced|siri/i.test(v.name) ? 3 : 0);
+    return this.voices.slice().sort((a, b) => score(b) - score(a))[0] || null;
+  },
+  speak(text) {
+    if (!this.ok) return;
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(String(text).replace(/…|\.\.\./g, ', '));
+      const v = this.pick();
+      if (v) { u.voice = v; u.lang = v.lang; } else u.lang = Store.profile.voice || 'en-GB';
+      u.rate = Store.profile.rate || 1;
+      speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+};
+if (TTS.ok) { TTS.load(); try { speechSynthesis.addEventListener('voiceschanged', () => TTS.load()); } catch (e) {} }
+
+/* ---------- word diff ---------- */
+function diffWords(a, b) {
+  const A = str(a).match(/\S+\s*/g) || [], B = str(b).match(/\S+\s*/g) || [];
+  const n = A.length, m = B.length;
+  if (n * m > 1500000) return null;
+  const eq = (x, y) => x.trim() === y.trim();
+  const dp = [];
+  for (let i = 0; i <= n; i++) dp.push(new Uint16Array(m + 1));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) dp[i][j] = eq(A[i], B[j]) ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+  const out = [];
+  const push = (t, s) => { const l = out[out.length - 1]; if (l && l.t === t) l.s += s; else out.push({ t, s }); };
+  let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (eq(A[i], B[j])) { push('eq', B[j]); i++; j++; }
+    else if (dp[i + 1][j] >= dp[i][j + 1]) { push('del', A[i]); i++; }
+    else { push('ins', B[j]); j++; }
+  }
+  while (i < n) push('del', A[i++]);
+  while (j < m) push('ins', B[j++]);
+  return out;
+}
+function diffText(a, b) {
+  const pa = str(a).split('\n'), pb = str(b).split('\n');
+  if (pa.length === pb.length) {
+    const out = [];
+    for (let k = 0; k < pa.length; k++) {
+      const d = diffWords(pa[k], pb[k]);
+      if (!d) return null;
+      if (k) out.push({ t: 'eq', s: '\n' });
+      out.push.apply(out, d);
+    }
+    return out;
+  }
+  return diffWords(a, b);
+}
+
+/* ---------- small UI pieces ---------- */
+const ICONS = {
+  chat: () => html`<path d="M4 5.5h16v10.5H10l-6 4.5z"/><path d="M8 9.5h8M8 12.5h5"/>`,
+  pen: () => html`<path d="M4 20l4.2-1L19 8.2 15.8 5 5 15.8z"/><path d="M13.8 7l3.2 3.2"/>`,
+  daily: () => html`<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/><path d="M9 15l2 2 4-4"/>`,
+  chart: () => html`<path d="M4 4v16h16"/><path d="M7.5 15l4-4.5 3 3L20 7"/>`,
+  sun: () => html`<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>`,
+  moon: () => html`<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>`,
+  speaker: () => html`<path d="M4 9.5v5h4l5 4v-13l-5 4z"/><path d="M16.5 9a4 4 0 0 1 0 6"/>`,
+  back: () => html`<path d="M15 5l-7 7 7 7"/>`,
+  send: () => html`<path d="M5 12h13M13 6l6 6-6 6"/>`,
+  check: () => html`<path d="M5 12.5l4.5 4.5L19 7.5"/>`,
+  copy: () => html`<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/>`,
+  trash: () => html`<path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/>`,
+  plus: () => html`<path d="M12 5v14M5 12h14"/>`,
+  stop: () => html`<rect x="6.5" y="6.5" width="11" height="11" rx="2"/>`
+};
+function Icon({ n, s }) {
+  const size = s || 18;
+  return html`<svg width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONS[n] ? ICONS[n]() : null}</svg>`;
+}
+function Say({ text, label }) {
+  if (!TTS.ok || !text) return null;
+  return html`<button class="say" onClick=${() => TTS.speak(text)} aria-label=${label || 'Listen'} title="Listen"><${Icon} n="speaker" s=${15} /></button>`;
+}
+
+let toastFn = null;
+function toast(msg) { if (toastFn) toastFn(msg); }
+function Toaster() {
+  const [m, setM] = useState(null);
+  useEffect(() => {
+    let t;
+    toastFn = x => { setM(x); clearTimeout(t); t = setTimeout(() => setM(null), 2800); };
+    return () => { toastFn = null; clearTimeout(t); };
+  }, []);
+  return m ? html`<div class="toast" role="status">${m}</div>` : null;
+}
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); toast('Copied'); }
+  catch (e) { toast('Copy didn’t work here. Select the text and copy it manually.'); }
+}
+function useElapsed(active) {
+  const [t, setT] = useState(0);
+  useEffect(() => {
+    if (!active) { setT(0); return; }
+    const s = Date.now();
+    const id = setInterval(() => setT(Math.floor((Date.now() - s) / 1000)), 1000);
+    return () => clearInterval(id);
+  }, [active]);
+  return t;
+}
+function Thinking({ label }) {
+  const t = useElapsed(true);
+  return html`<div class="thinking" role="status"><span class="dots"><i></i><i></i><i></i></span>${label || 'Thinking'}…${t >= 4 ? html` <span class="small" style="color:var(--ink-3)">${t}s</span>` : null}</div>`;
+}
+function DiffView({ ops, fallback }) {
+  if (!ops) return html`<span>${fallback}</span>`;
+  return html`<span>${ops.map(o => {
+    if (o.t === 'eq') return o.s;
+    const tail = (o.s.match(/\s*$/) || [''])[0] || ' ';
+    return o.t === 'del' ? html`<del>${o.s.trimEnd()}</del>${' '}` : html`<ins>${o.s.trimEnd()}</ins>${tail}`;
+  })}</span>`;
+}
+function Ladder({ you, up }) {
+  return html`<div class="ladder" aria-hidden="true">${RUNGS.map((r, i) => html`<div class=${'rung' + (i <= you ? ' you' : '') + (i === you ? ' here' : '') + (i === up ? ' up' : '') + (up > i && i > you ? ' gap' : '')}><i></i><span>${r}</span></div>`)}</div>`;
+}
+function RatingChip({ i }) {
+  if (i < 0) return html`<span class="rchip rx">Not correct yet</span>`;
+  return html`<span class=${'rchip r' + i}>${RUNGS[i]}</span>`;
+}
+
+/* ---------- corrections ---------- */
+function CorrectionCard({ c }) {
+  const better = c.better || c.more_natural;
+  const ops = diffWords(c.you_said, better);
+  const same = !c.more_natural || norm(c.more_natural) === norm(better);
+  return html`<article class="corr">
+    <div class="corr-tags">
+      ${c.repeat >= 2 ? html`<span class="tag err">Repeated ×${c.repeat}</span>` : null}
+      ${c.polish_calque ? html`<span class="tag warn">Translated from Polish</span>` : null}
+      ${c.mistake_label && !(c.polish_calque && c.mistake_key === 'polish-calque') ? html`<span class="tag">${MISTAKE_TYPES[c.mistake_key] || c.mistake_label}</span>` : null}
+    </div>
+    <dl class="cgrid">
+      <dt>You said</dt><dd class="said">“${c.you_said}”</dd>
+      <dt>Better</dt><dd><${DiffView} ops=${ops} fallback=${better} /></dd>
+      <dt>More natural</dt><dd>${same ? html`<span>${better}</span> <span class="small" style="color:var(--ink-3)">· this is how natives say it</span>` : html`<span class="native">${c.more_natural}</span>`} <${Say} text=${same ? better : c.more_natural} /></dd>
+      ${c.why ? html`<dt>Why</dt><dd>${c.why}</dd>` : null}
+      ${c.remember ? html`<dt>Remember</dt><dd class="hook">${c.remember}</dd>` : null}
+    </dl>
+  </article>`;
+}
+function NaturalRow({ n }) {
+  const ri = n.rating in RUNG_IDX ? RUNG_IDX[n.rating] : 0;
+  const ui = n.upgrade ? (RUNG_IDX[n.upgrade_rating] || 3) : -1;
+  return html`<div class="nat">
+    <${Ladder} you=${ri} up=${ui} />
+    <div class="nat-row"><span class="lbl">You</span><span>${n.sentence}</span><${RatingChip} i=${ri} /></div>
+    ${n.upgrade ? html`<div class="nat-row"><span class="lbl">${RUNGS[ui]}</span><span class=${ui === 3 ? 'native' : ''}>${n.upgrade}</span><${Say} text=${n.upgrade} /></div>` : null}
+    ${n.why ? html`<p class="nat-why">${n.why}</p>` : null}
+  </div>`;
+}
+function PhraseList({ list }) {
+  return html`<div class="phrases">${list.map(p => html`<div class="phrase">
+    <div class="phrase-top"><b class="phrase-en">${p.en}</b>${p.kind ? html`<span class="tag">${p.kind}</span>` : null}${p.difficulty ? html`<span class="tag acc">${p.difficulty}</span>` : null}<${Say} text=${p.en} /></div>
+    ${p.pl ? html`<div class="phrase-pl">${p.pl}</div>` : null}
+    ${p.example ? html`<div class="phrase-ex">“${p.example}”</div>` : null}
+    ${p.alternatives && p.alternatives.length ? html`<div class="phrase-alt">Also: ${p.alternatives.join(' · ')}</div>` : null}
+  </div>`)}</div>`;
+}
+function Corrections({ batch, title, hidePhrases }) {
+  const r = batch.result;
+  const cs = r.corrections;
+  const [open, setOpen] = useState(true);
+  const groups = [
+    ['Mistakes you keep making', c => c.repeat >= 2],
+    ['Grammar', c => c.type === 'grammar'],
+    ['Vocabulary', c => c.type === 'vocabulary'],
+    ['Unnatural expressions', c => c.type === 'unnatural']
+  ];
+  const taken = new Set();
+  const grouped = groups.map(([t, f]) => {
+    const list = cs.filter(c => c.type !== 'pronunciation' && !taken.has(c) && f(c));
+    list.forEach(c => taken.add(c));
+    return [t, list];
+  }).filter(g => g[1].length);
+  const pron = r.pronunciation.concat(cs.filter(c => c.type === 'pronunciation').map(c => ({ word: c.you_said, tip: c.why })));
+  return html`<section class="corrs" aria-label="Your corrections">
+    <header class="corrs-h"><div><span class="lbl">${title || 'Your corrections'}</span>${batch.count ? html`<span class="corrs-sub">${batch.count} message${batch.count === 1 ? '' : 's'} checked</span>` : null}</div>
+      <button class="linkbtn" onClick=${() => setOpen(!open)} aria-expanded=${open}>${open ? 'Hide' : 'Show'}</button></header>
+    ${open ? html`
+      ${r.praise ? html`<p class="praise"><${Icon} n="check" s=${16} /><span>${r.praise}</span></p>` : null}
+      ${!cs.length ? html`<p class="muted">No important mistakes here. Keep going!</p>` : null}
+      ${grouped.map(([t, list]) => html`<div class="cgroup"><h4>${t}</h4>${list.map(c => html`<${CorrectionCard} c=${c} />`)}</div>`)}
+      ${pron.length ? html`<div class="cgroup"><h4>Pronunciation <span class="small" style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink-3)">· based on the words you used, not your voice</span></h4>${pron.map(p => html`<div class="pron"><b>${p.word}</b><span class="muted">${p.tip}</span><${Say} text=${p.word} /></div>`)}</div>` : null}
+      ${r.naturalness.length ? html`<div class="cgroup"><h4>Would a native say it?</h4>${r.naturalness.map(n => html`<${NaturalRow} n=${n} />`)}</div>` : null}
+      ${!hidePhrases && r.phrases.length ? html`<div class="cgroup"><h4>Useful phrases <span class="small" style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink-3)">· saved to My vocabulary</span></h4><${PhraseList} list=${r.phrases} /></div>` : null}
+    ` : null}
+  </section>`;
+}
+
+/* ---------- feedback ---------- */
+function FeedbackPanel({ fb, dims, title }) {
+  const ref = useRef(null);
+  useEffect(() => { if (ref.current) ref.current.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'start' }); }, []);
+  const ds = (dims || DIMS).filter(d => fb.scores && fb.scores[d] != null);
+  return html`<section class="fb" ref=${ref}>
+    <div class="lbl">${title || 'Today’s performance'}</div>
+    ${fb.headline ? html`<h2 class="fb-head">${fb.headline}</h2>` : null}
+    ${ds.length ? html`<div class="meters">${ds.map(d => html`<div class="meter"><span>${DIM_LABEL[d]}</span><div class="track"><i style=${'width:' + fb.scores[d] * 10 + '%'}></i></div><b>${fb.scores[d]}<small>/10</small></b></div>`)}</div>
+    <p class="small muted">These numbers show your trend over time. They’re not school grades.</p>` : null}
+    <div class="fb-cols">
+      ${fb.did_well && fb.did_well.length ? html`<div><div class="lbl">What you did well</div><ul>${fb.did_well.map(x => html`<li>${x}</li>`)}</ul></div>` : null}
+      ${fb.improve && fb.improve.length ? html`<div><div class="lbl">What to improve</div><ul>${fb.improve.map(x => html`<li>${x}</li>`)}</ul></div>` : null}
+    </div>
+    ${fb.remember && fb.remember.length ? html`<div><div class="lbl">${fb.remember.length} things to remember</div><ol class="remember">${fb.remember.map(x => html`<li>${x}</li>`)}</ol></div>` : null}
+  </section>`;
+}
+
+/* ---------- exercises ---------- */
+const EX_LABEL = { gap: 'Fill the gap', rewrite: 'Rewrite using the phrase', respond: 'Answer using the phrase', fix: 'Correct the mistake', translate: 'Say it in English' };
+function Exercises({ items, initial, onChecked, idPrefix }) {
+  const [ans, setAns] = useState(() => (initial && initial.answers) || items.map(() => ''));
+  const [res, setRes] = useState(() => (initial && initial.results) || null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const setA = (i, v) => { const n = ans.slice(); n[i] = v; setAns(n); };
+  async function check() {
+    const todo = items.map((x, i) => Object.assign({}, x, { i, given: str(ans[i]) })).filter(x => x.given);
+    if (!todo.length) { setErr('Type at least one answer first.'); return; }
+    setBusy(true); setErr('');
+    try {
+      const r = await aiJSON(checkPrompt(todo), { modelTier: 'quick', cache: false });
+      const list = arr(r && r.results);
+      const out = items.map((x, i) => {
+        if (!str(ans[i])) return { ok: false, skipped: true, feedback: '', better: x.answer };
+        const y = list.find(z => z && Number(z.i) === i) || {};
+        return { ok: !!y.ok, feedback: str(y.feedback), better: str(y.better) || x.answer };
+      });
+      const first = !res;
+      setRes(out);
+      if (onChecked) onChecked(out, ans, first);
+    } catch (e) { setErr(errText(e)); }
+    finally { setBusy(false); }
+  }
+  const score = res ? res.filter(x => x.ok).length : 0;
+  return html`<div class="exs">
+    ${items.map((x, i) => html`<div class=${'ex' + (res ? (res[i].ok ? ' ok' : ' no') : '')}>
+      <div class="ex-h"><span class="lbl">${i + 1}. ${x.group ? x.group + ' · ' : ''}${EX_LABEL[x.type] || 'Exercise'}</span>${x.target ? html`<span class="ex-target">${x.target}</span>` : null}</div>
+      <p class="ex-p">${x.prompt}</p>
+      <textarea id=${idPrefix + '-' + i} class="input" rows="2" value=${ans[i] || ''} onInput=${e => setA(i, e.target.value)} disabled=${busy} placeholder="Your answer…" aria-label=${'Answer ' + (i + 1)}></textarea>
+      ${res ? html`<div class="ex-r">
+        <div>${res[i].ok ? html`<b class="okt"><${Icon} n="check" s=${15} /> Correct</b>` : html`<b class="not">${res[i].skipped ? 'Skipped' : 'Not quite'}</b>`}${res[i].feedback ? ' · ' + res[i].feedback : ''}</div>
+        ${res[i].better ? html`<div class="ex-better"><span class="lbl">Natural answer</span> ${res[i].better}</div>` : null}
+      </div>` : null}
+    </div>`)}
+    ${err ? html`<p class="err" role="alert">${err}</p>` : null}
+    <div class="row">${res ? html`<span class="score">${score} / ${items.length} correct</span>` : null}<div class="grow"></div>
+      ${busy ? html`<${Thinking} label="Checking" />` : html`<button class="btn primary" onClick=${check}>${res ? 'Check again' : 'Check answers'}</button>`}</div>
+  </div>`;
+}
+
+/* ---------- theme ---------- */
+function currentTheme() {
+  const a = document.documentElement.getAttribute('data-theme');
+  if (a === 'dark' || a === 'light') return a;
+  try { return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; } catch (e) { return 'light'; }
+}
+function toggleTheme() {
+  const next = currentTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  lsSet(LS + 'theme', next);
+  emit();
+}
+(function () { const t = lsGet(LS + 'theme'); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); })();
+
+function TopBar({ route, go }) {
+  const p = Store.profile;
+  const dark = currentTheme() === 'dark';
+  const nav = [['speaking', 'Speaking'], ['writing', 'Writing'], ['daily', 'Daily practice'], ['progress', 'My progress']];
+  return html`<header class="top"><div class="top-in">
+    <button class="brand" onClick=${() => go('home')} aria-label="Say It Naturally, home">Say it <span class="hlw">naturally</span></button>
+    ${p.onboarded ? html`<nav class="topnav" aria-label="Modes">${nav.map(([k, l]) => html`<button class=${'navlink' + (route.name === k ? ' on' : '')} onClick=${() => go(k)}>${l}</button>`)}</nav>` : null}
+    <div class="top-r">
+      ${p.level ? html`<button class="lvl" onClick=${() => go('progress')} title="Your estimated level">${p.level}</button>` : null}
+      <button class="iconbtn" onClick=${toggleTheme} aria-label=${dark ? 'Switch to light theme' : 'Switch to dark theme'}><${Icon} n=${dark ? 'sun' : 'moon'} /></button>
+    </div>
+  </div></header>`;
+}
+function AIBanner() {
+  if (AI.status === 'unavailable') return html`<div class="banner" role="status"><b>The AI tutor isn’t available in this view.</b> Open this page on claude.ai while signed in to chat, get corrections and feedback. Your saved mistakes and vocabulary still work here.</div>`;
+  if (AI.status === 'denied') return html`<div class="banner" role="status"><b>AI access was declined for this page,</b> so the tutor can’t reply. Reload the page and choose Allow when asked. Each AI answer uses your own Claude usage.</div>`;
+  return null;
+}
+
+/* ---------- home ---------- */
+function Tile({ icon, title, desc, meta, onClick, accent }) {
+  return html`<button class=${'tile' + (accent ? ' accent' : '')} onClick=${onClick}>
+    <span class="tile-ic"><${Icon} n=${icon} s=${26} /></span>
+    <span class="tile-t">${title}</span>
+    <span class="tile-d">${desc}</span>
+    <span class="tile-meta">${meta}</span>
+  </button>`;
+}
+function Home({ go }) {
+  const p = Store.profile;
+  const today = dayKey();
+  const dailyDone = p.sessions.some(s => s.mode === 'daily' && s.day === today);
+  const dd = lsGet(DRAFT_DAILY);
+  const dailyOn = dd && dd.day === today && !dd.done && (dd.step > 1 || (dd.chat && dd.chat.messages.some(m => m.role === 'me')));
+  const sd = lsGet(DRAFT_SPEAK);
+  const speakOn = sd && !sd.ended && arr(sd.messages).some(m => m.role === 'me');
+  const top = Mistakes.top(3);
+  const st = streak();
+  let dateLabel = '';
+  try { dateLabel = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }); } catch (e) {}
+  return html`<div class="page">
+    <section class="hero">
+      <p class="lbl">${dateLabel}${p.level ? ' · Level ' + p.level : ''}${st ? ' · ' + st + '-day streak' : ''}</p>
+      <h1>What do you want to practice?</h1>
+    </section>
+    <div class="tiles">
+      <${Tile} icon="chat" title="Speaking" desc="Chat about everyday topics or role-play real situations. You keep talking; corrections come in batches." meta=${speakOn ? 'Conversation in progress · resume' : TOPICS.length + ' topics · ' + SCENARIOS.length + ' real-life situations'} onClick=${() => go('speaking')} />
+      <${Tile} icon="pen" title="Writing" desc="Paste an email, a message or a post. See the exact fixes, a more natural version and why." meta="Text check · Would a native say this?" onClick=${() => go('writing')} />
+      <${Tile} icon="daily" title="Daily practice" desc="10–15 minutes: a short conversation, your top corrections, 5 phrases, an exercise and a review of old mistakes." meta=${dailyDone ? 'Done today ✓' : dailyOn ? 'In progress · step ' + dd.step + ' of 6' : 'Not done yet today'} accent=${!dailyDone} onClick=${() => go('daily')} />
+      <${Tile} icon="chart" title="My progress" desc="Your recurring mistakes, your vocabulary list and how your English is changing." meta=${Mistakes.items.length + ' mistakes tracked · ' + Store.vocab.items.length + ' phrases'} onClick=${() => go('progress')} />
+    </div>
+    <section class="focus">
+      <div class="block-h"><h2>Your focus right now</h2>${top.length ? html`<button class="linkbtn" onClick=${() => go('progress', { tab: 'mistakes' })}>All mistakes →</button>` : null}</div>
+      ${top.length
+        ? html`<div class="chips">${top.map(m => html`<button class="chip mist" onClick=${() => go('progress', { tab: 'mistakes' })}><span>${m.label}</span><b>×${m.count}</b></button>`)}</div>`
+        : html`<p class="muted">Your recurring mistakes will show up here after your first conversation or writing check.</p>`}
+    </section>
+  </div>`;
+}
+
+/* ---------- onboarding ---------- */
+function Onboarding({ go, retake }) {
+  const [mode, setMode] = useState(retake ? 'test' : 'choose');
+  function setLevel(l) {
+    const p = Store.profile;
+    p.level = l; p.levelSource = 'self'; p.onboarded = true;
+    p.levelHistory.push({ date: new Date().toISOString(), level: l, source: 'self' });
+    commit('profile');
+    toast('Level set to ' + l + '. It will adjust as you practise.');
+    go('home');
+  }
+  if (mode === 'test') return html`<${Diagnostic} go=${go} onCancel=${() => retake ? go('progress', { tab: 'settings' }) : setMode('choose')} />`;
+  if (mode === 'pick') return html`<div class="page">
+    <header class="page-h"><button class="linkbtn" onClick=${() => setMode('choose')}><${Icon} n="back" s=${16} /> Back</button><h1>Which sounds most like you?</h1><p class="lead">Pick the closest one. The app keeps checking and adjusts your level as you practise.</p></header>
+    <div class="levels">${['A2', 'B1', 'B1+', 'B2', 'B2+', 'C1'].map(l => html`<button class="levelbtn" onClick=${() => setLevel(l)}><b>${l}</b><span>${LEVEL_INFO[l]}</span></button>`)}</div>
+  </div>`;
+  return html`<div class="page">
+    <header class="page-h">
+      <p class="lbl">Welcome</p>
+      <h1>Let’s find your level first.</h1>
+      <p class="lead">Everything adapts to your level: how your conversation partner talks, which phrases you learn, and whether explanations come in Polish or English.</p>
+      <p class="small muted">Aplikacja mówi do Ciebie po angielsku. Wyjaśnienia błędów są na początku po polsku, a z czasem coraz częściej po angielsku.</p>
+    </header>
+    <div class="opts">
+      <button class="opt" onClick=${() => setMode('test')}><span class="lbl">Recommended · about 5 minutes</span><span class="t">Take the level check</span><span class="d">12 quick questions and two short writing tasks. The AI reads your writing and finds your first focus areas.</span></button>
+      <button class="opt" onClick=${() => setMode('pick')}><span class="lbl">30 seconds</span><span class="t">I know my level</span><span class="d">Choose from A2 to C1. You can retake the check later in Settings.</span></button>
+    </div>
+  </div>`;
+}
+
+function Diagnostic({ go, onCancel }) {
+  const [i, setI] = useState(0);
+  const [picks, setPicks] = useState([]);
+  const [phase, setPhase] = useState('mc');
+  const [a1, setA1] = useState('');
+  const [a2, setA2] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState('');
+  const [result, setResult] = useState(null);
+  const q = DIAG[i];
+  function choose(k) {
+    const np = picks.slice(); np[i] = k; setPicks(np);
+    setTimeout(() => { if (i < DIAG.length - 1) setI(i + 1); else setPhase('open'); }, 160);
+  }
+  async function evaluate(skip) {
+    const score = DIAG.reduce((n, d, j) => n + (picks[j] === d.ans ? 1 : 0), 0);
+    const missed = DIAG.map((d, j) => Object.assign({}, d, { picked: picks[j] })).filter(d => d.picked !== d.ans);
+    const res = { level: mcToLevel(score), score, missed, summary: '', strengths: [], focus: [], source: 'quiz' };
+    if (!skip && words(a1) + words(a2) >= 10) {
+      setBusy(true); setNote('');
+      try {
+        const r = await aiJSON(diagPrompt(score, missed, a1, a2), { modelTier: 'default' });
+        const L = levelNorm(r && r.level);
+        if (L) { res.level = L; res.source = 'ai'; }
+        res.summary = str(r && r.summary);
+        res.strengths = arr(r && r.strengths).map(str).filter(Boolean).slice(0, 3);
+        res.focus = arr(r && r.focus).map(f => ({ you_said: str(f && f.you_said), better: str(f && f.better), more_natural: str(f && f.better), why: str(f && f.why), mistake_key: slug(f && f.mistake_key), mistake_label: str(f && f.mistake_label) })).filter(f => f.you_said && f.better).slice(0, 4);
+      } catch (e) { setNote(errText(e) + ' Your level is based on the quiz for now.'); }
+      setBusy(false);
+    }
+    setResult(res); setPhase('result');
+  }
+  function start() {
+    const p = Store.profile, r = result;
+    p.level = r.level; p.levelSource = r.source === 'ai' ? 'test' : 'quiz'; p.onboarded = true;
+    p.levelHistory.push({ date: new Date().toISOString(), level: r.level, source: 'check' });
+    if (r.strengths.length) p.strengths = r.strengths;
+    r.missed.forEach(d => Mistakes.record({ mistake_key: d.key, you_said: d.picked >= 0 ? fillBlank(d, d.picked) : '', better: fillBlank(d, d.ans), more_natural: fillBlank(d, d.ans), why: d.why }));
+    r.focus.forEach(f => Mistakes.record(f));
+    commit('mistakes'); commit('profile');
+    go('home');
+  }
+  if (phase === 'mc') return html`<div class="page">
+    <header class="page-h"><div class="row"><span class="lbl">Level check · question ${i + 1} of ${DIAG.length}</span><div class="grow"></div><button class="linkbtn" onClick=${onCancel}>Cancel</button></div>
+      <div class="progressbar"><i style=${'width:' + (i / DIAG.length * 100) + '%'}></i></div></header>
+    <p class="q">${q.q}</p>
+    <div class="answers">${q.opts.map((o, k) => html`<button class=${'ans' + (picks[i] === k ? ' on' : '')} onClick=${() => choose(k)}>${o}</button>`)}</div>
+    <div class="row">${i > 0 ? html`<button class="linkbtn" onClick=${() => setI(i - 1)}><${Icon} n="back" s=${16} /> Previous</button>` : null}<div class="grow"></div><button class="linkbtn" onClick=${() => choose(-1)}>I don’t know</button></div>
+  </div>`;
+  if (phase === 'open') return html`<div class="page">
+    <header class="page-h"><span class="lbl">Level check · writing</span><h1>Two short answers</h1><p class="lead">Write 3–5 sentences for each. Don’t look anything up; mistakes are useful here. The AI uses them to find your first focus areas.</p></header>
+    <div class="form">
+      <label class="lbl" for="diag-a1">1. Describe a typical day at work or school. What do you actually do?</label>
+      <textarea id="diag-a1" class="input" rows="5" value=${a1} onInput=${e => setA1(e.target.value)}></textarea>
+      <label class="lbl" for="diag-a2">2. If you could live in any country for a year, where would you go and why?</label>
+      <textarea id="diag-a2" class="input" rows="5" value=${a2} onInput=${e => setA2(e.target.value)}></textarea>
+    </div>
+    <div class="row">${busy ? html`<${Thinking} label="Reading your answers" />` : html`
+      <button class="btn primary" onClick=${() => evaluate(false)} disabled=${words(a1) + words(a2) < 10}>See my level</button>
+      <button class="linkbtn" onClick=${() => evaluate(true)}>Skip, use the quiz only</button>`}</div>
+  </div>`;
+  const r = result;
+  return html`<div class="page">
+    <header class="page-h"><span class="lbl">Your starting level</span>
+      <div class="lvlbox"><div class="biglevel">${r.level}</div><div><p class="lead">${LEVEL_INFO[r.level] || ''}</p><p class="small muted">Quiz: ${r.score} / ${DIAG.length}${r.source === 'ai' ? ' · level estimated from your writing and the quiz' : ' · level estimated from the quiz'}</p></div></div>
+    </header>
+    ${note ? html`<p class="err">${note}</p>` : null}
+    ${r.summary ? html`<p class="lead" style="color:var(--ink)">${r.summary}</p>` : null}
+    ${r.strengths.length ? html`<div class="block"><h2 style="font-size:19px">Strengths</h2><div class="chips">${r.strengths.map(s => html`<span class="chip">${s}</span>`)}</div></div>` : null}
+    ${r.focus.length || r.missed.length ? html`<div class="block"><h2 style="font-size:19px">Your first focus areas</h2>
+      ${r.focus.map(f => html`<div class="corrs" style="margin:0"><dl class="cgrid"><dt>You wrote</dt><dd class="said">“${f.you_said}”</dd><dt>Better</dt><dd><${DiffView} ops=${diffWords(f.you_said, f.better)} fallback=${f.better} /></dd>${f.why ? html`<dt>Why</dt><dd>${f.why}</dd>` : null}</dl></div>`)}
+      ${r.missed.length ? html`<p class="muted">From the quiz: ${r.missed.map(d => MISTAKE_TYPES[d.key]).join(' · ')}</p>` : null}
+    </div>` : null}
+    <div class="row"><button class="btn primary" onClick=${start}>Start practising</button></div>
+  </div>`;
+}
+
+/* ---------- chat engine ---------- */
+function useChat(init, opts) {
+  opts = opts || {};
+  const ref = useRef(init);
+  const ctl = useRef(null);
+  const aRef = useRef(false);
+  const alive = useRef(true);
+  const [, tick] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const [stream, setStream] = useState('');
+  const [err, setErr] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const save = () => { if (opts.onSave) opts.onSave(ref.current); if (alive.current) tick(n => n + 1); };
+  const pending = () => { const s = ref.current; return s.messages.slice(s.analyzedUpTo).filter(m => m.role === 'me').length; };
+
+  async function reply() {
+    const s = ref.current;
+    setErr(null); setBusy(true); setStream('');
+    const c = new AbortController();
+    ctl.current = c;
+    try {
+      const r = await aiText(buildTurns(s), { cache: false, modelTier: 'quick', signal: c.signal, onText: u => { if (alive.current) setStream(u.text.replace(/\[END\]/gi, '').trim()); } });
+      let t = str(r.text);
+      const ended = /\[END\]/i.test(t);
+      t = t.replace(/\[END\]/gi, '').trim();
+      if (t) s.messages.push({ id: uid(), role: 'partner', text: t, t: Date.now() });
+      if (ended && s.scenario && !s.warmup) s.scenarioDone = true;
+      save();
+      if (t && alive.current && lsGet(LS + 'autoread')) TTS.speak(t);
+    } catch (e) {
+      if (!(e && e.code === 'cancelled') && alive.current) setErr({ text: 'No reply. ' + errText(e), kind: 'reply' });
+    } finally {
+      if (alive.current) { setBusy(false); setStream(''); }
+    }
+  }
+
+  async function analyze(max, rethrow, aopts) {
+    const s = ref.current;
+    if (aRef.current) return null;
+    const from = s.analyzedUpTo, to = s.messages.length;
+    const count = s.messages.slice(from, to).filter(m => m.role === 'me').length;
+    if (!count) return null;
+    aRef.current = true; setAnalyzing(true);
+    if (err && err.kind === 'analysis') setErr(null);
+    s.analyzedUpTo = to; save();
+    try {
+      const raw = await aiJSON(analysisPrompt(s, from, to, max || 5, aopts), { modelTier: 'default' });
+      const result = normAnalysis(raw);
+      recordAnalysis(result, s.warmup ? 'daily' : 'speaking');
+      const b = { id: uid(), at: s.messages.length, count, result };
+      s.batches.push(b);
+      save();
+      return b;
+    } catch (e) {
+      s.analyzedUpTo = from; save();
+      if (rethrow) throw e;
+      if (alive.current) setErr({ text: 'Couldn’t check your messages. ' + errText(e), kind: 'analysis' });
+      return null;
+    } finally {
+      aRef.current = false;
+      if (alive.current) setAnalyzing(false);
+    }
+  }
+
+  function send(text) {
+    const s = ref.current;
+    const t = str(text);
+    if (!t) return;
+    const used = Vocab.detectUse(t);
+    s.messages.push({ id: uid(), role: 'me', text: t, t: Date.now(), used: used.map(v => v.en) });
+    if (used.length) commit('vocab');
+    save();
+    reply();
+    if (opts.autoCorrect && pending() >= (Store.profile.correctionsEvery || 4)) analyze(5);
+  }
+
+  useEffect(() => {
+    alive.current = true;
+    const s = ref.current;
+    const last = s.messages[s.messages.length - 1];
+    if (!s.ended && (!last || last.role === 'me')) reply();
+    return () => { alive.current = false; if (ctl.current) ctl.current.abort(); };
+  }, []);
+
+  return { s: ref.current, busy, stream, err, analyzing, send, analyze, reply, save, pending, retry: () => (err && err.kind === 'analysis' ? analyze(5) : reply()) };
+}
+
+function Bubble({ m }) {
+  if (m.role === 'me') return html`<div class="msg me">${m.text}${m.used && m.used.length ? html`<div class="used"><${Icon} n="check" s=${13} /> You used: ${m.used.join(', ')}</div>` : null}</div>`;
+  return html`<div class="msg partner">${m.text}<${Say} text=${m.text} /></div>`;
+}
+
+function Composer({ chat, placeholder }) {
+  const [t, setT] = useState('');
+  const ta = useRef(null);
+  const coarse = useRef(false);
+  useEffect(() => { try { coarse.current = matchMedia('(pointer: coarse)').matches; } catch (e) {} }, []);
+  const off = AI.status === 'unavailable' || AI.status === 'denied';
+  function submit() {
+    const v = t.trim();
+    if (!v || chat.busy || off) return;
+    chat.send(v);
+    setT('');
+    if (ta.current) ta.current.style.height = '';
+  }
+  function onKey(e) { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && !coarse.current) { e.preventDefault(); submit(); } }
+  function onInput(e) { setT(e.target.value); const el = e.target; el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 200) + 'px'; }
+  return html`<div class="composer">
+    <div class="composer-in">
+      <textarea id="chat-input" ref=${ta} rows="1" value=${t} onInput=${onInput} onKeyDown=${onKey} placeholder=${placeholder || 'Reply in English…'} aria-label="Your message"></textarea>
+      <button class="btn primary send" onClick=${submit} disabled=${!t.trim() || chat.busy || off} aria-label="Send"><${Icon} n="send" s=${20} /></button>
+    </div>
+    <div class="composer-hint"><span class="hint-d">Enter sends · Shift+Enter adds a line · To speak instead of typing, use dictation: <span class="kbd">Win</span>+<span class="kbd">H</span> on Windows or <span class="kbd">Fn</span> twice on Mac</span><span class="hint-m">Tip: tap the mic on your keyboard to speak instead of typing.</span></div>
+  </div>`;
+}
+
+function ChatView({ chat, composer, placeholder }) {
+  const s = chat.s;
+  const endRef = useRef(null);
+  useEffect(() => {
+    const el = endRef.current;
+    if (!el) return;
+    const near = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 320;
+    if (near) el.scrollIntoView({ block: 'end' });
+  }, [s.messages.length, chat.stream, s.batches.length, chat.busy]);
+  const items = [];
+  s.messages.forEach((m, i) => {
+    s.batches.filter(b => b.at === i).forEach(b => items.push(html`<${Corrections} key=${b.id} batch=${b} />`));
+    items.push(html`<${Bubble} key=${m.id} m=${m} />`);
+  });
+  s.batches.filter(b => b.at >= s.messages.length).forEach(b => items.push(html`<${Corrections} key=${b.id} batch=${b} />`));
+  return html`<div class="chat" aria-live="polite">
+      ${items}
+      ${chat.busy ? html`<div class="msg partner typing">${chat.stream || html`<span class="dots"><i></i><i></i><i></i></span>`}</div>` : null}
+      ${chat.err ? html`<div class="chat-err" role="alert"><span>${chat.err.text}</span><button class="btn sm" onClick=${chat.retry}>Try again</button></div>` : null}
+      ${chat.analyzing ? html`<div class="pill-note"><span class="dots"><i></i><i></i><i></i></span> Checking your last messages. Keep talking.</div>` : null}
+      <div ref=${endRef}></div>
+    </div>
+    ${composer ? html`<${Composer} chat=${chat} placeholder=${placeholder} />` : null}`;
+}
+
+function ScenarioBrief({ sc }) {
+  return html`<div class="brief">
+    <div><span class="lbl">Situation</span><p>${sc.situation}</p></div>
+    <div><span class="lbl">You are</span><p>${cap(sc.me)}</p></div>
+    <div><span class="lbl">Your goal</span><p>${sc.goal}</p></div>
+  </div>`;
+}
+
+/* ---------- speaking ---------- */
+function Speaking({ go }) {
+  const [sess, setSess] = useState(() => { const d = lsGet(DRAFT_SPEAK); return d && !d.ended && d.messages ? d : null; });
+  function start(kind, id) {
+    const s = newSession(kind, id, false);
+    noteTopic(id);
+    lsSet(DRAFT_SPEAK, s);
+    setSess(s);
+    window.scrollTo(0, 0);
+  }
+  if (!sess) return html`<${SpeakSetup} start=${start} />`;
+  return html`<${ChatSession} key=${sess.id} init=${sess} go=${go} onNew=${() => { lsDel(DRAFT_SPEAK); setSess(null); window.scrollTo(0, 0); }} />`;
+}
+function SpeakSetup({ start }) {
+  const every = Store.profile.correctionsEvery || 4;
+  const fresh = TOPICS.filter(t => !arr(Store.profile.lastTopics).includes(t.id));
+  return html`<div class="page">
+    <header class="page-h"><h1>Speaking</h1><p class="lead">Talk with Alex like you would with a friend or a colleague. Nobody interrupts you: corrections appear after every ${every} messages, and you get feedback at the end.</p></header>
+    <section class="block">
+      <div class="block-h"><h2>Talk about…</h2><button class="btn sm" onClick=${() => start('topic', pick(fresh.length ? fresh : TOPICS).id)}>Surprise me</button></div>
+      <div class="chips">${TOPICS.map(t => html`<button class="chip big" onClick=${() => start('topic', t.id)}>${t.label}</button>`)}</div>
+    </section>
+    <section class="block">
+      <div class="block-h"><h2>Role-play a real situation</h2></div>
+      <p class="muted">Alex plays the other person. React spontaneously, like in real life. When the scene ends you get a full analysis of your English.</p>
+      <div class="scen-grid">${SCENARIOS.map(sc => html`<button class="scen" onClick=${() => start('scenario', sc.id)}><b>${sc.title}</b><span>${sc.situation}</span></button>`)}</div>
+    </section>
+    <aside class="note"><b>Want to speak out loud?</b> Claude artifacts can’t use your microphone, so there’s no record button. Use your device’s dictation and your speech is typed into the box: <span class="kbd">Win</span>+<span class="kbd">H</span> on Windows, <span class="kbd">Fn</span> twice (or the Globe key) on Mac, or the mic key on your phone’s keyboard. Alex’s replies can be read aloud with the speaker button.</aside>
+  </div>`;
+}
+function ChatSession({ init, go, onNew }) {
+  const chat = useChat(init, { autoCorrect: true, onSave: s => (s.ended ? lsDel(DRAFT_SPEAK) : lsSet(DRAFT_SPEAK, s)) });
+  const s = chat.s;
+  const [fb, setFb] = useState({ busy: false, err: '' });
+  const [auto, setAuto] = useState(() => !!lsGet(LS + 'autoread'));
+  const sc = s.scenario ? SCENARIOS.find(x => x.id === s.scenario) : null;
+  const title = sessionTitle(s);
+  const mineN = s.messages.filter(m => m.role === 'me').length;
+  const every = Store.profile.correctionsEvery || 4;
+  const pend = chat.pending();
+  const left = Math.max(1, every - pend);
+  function toggleAuto() { const v = !auto; setAuto(v); if (v) lsSet(LS + 'autoread', true); else lsDel(LS + 'autoread'); }
+  async function finish() {
+    if (mineN < 2) { toast('Write at least 2 messages first.'); return; }
+    setFb({ busy: true, err: '' });
+    const pa = pend ? chat.analyze(4) : Promise.resolve(null);
+    try {
+      const r = await aiJSON(feedbackPrompt(s), { modelTier: 'default' });
+      await pa;
+      const f = normFeedback(r);
+      const m = chatMetrics(s);
+      s.feedback = f; s.ended = true;
+      chat.save();
+      recordSession({ mode: sc ? 'scenario' : 'speaking', title, scores: f.scores, remember: f.remember, level: m.n >= 4 && m.totalWords >= 40 ? f.level : null, strengths: f.strengths, calques: countCalques(s), corrections: countCorr(s), minutes: sessionMinutes(s), words: m.totalWords });
+      setFb({ busy: false, err: '' });
+    } catch (e) { setFb({ busy: false, err: errText(e) }); }
+  }
+  return html`<div class="page">
+    <div class="chat-top">
+      <div class="chat-title"><button class="linkbtn" onClick=${onNew}><${Icon} n="back" s=${16} /> ${s.ended ? 'New conversation' : 'Change topic'}</button><h1>${title}</h1></div>
+      ${!s.ended ? html`<div class="chat-actions">
+        <span class="small muted">${pend ? 'Corrections in ' + left + ' message' + (left === 1 ? '' : 's') : 'Corrections every ' + every + ' messages'}</span>
+        <button class="btn sm" disabled=${!pend || chat.analyzing} onClick=${() => chat.analyze(5)}>Check now</button>
+        ${TTS.ok ? html`<button class=${'btn sm' + (auto ? ' on' : '')} onClick=${toggleAuto} aria-pressed=${auto}><${Icon} n="speaker" s=${15} /> Read aloud</button>` : null}
+        <button class="btn sm primary" disabled=${fb.busy} onClick=${finish}>End & get feedback</button>
+      </div>` : null}
+    </div>
+    ${sc ? html`<${ScenarioBrief} sc=${sc} />` : null}
+    <${ChatView} chat=${chat} composer=${!s.ended && !fb.busy} placeholder=${sc ? 'Say what you would say…' : 'Reply in English…'} />
+    ${s.scenarioDone && !s.ended && !fb.busy ? html`<div class="scen-done">The scene has come to an end. <button class="btn primary sm" onClick=${finish}>See my analysis</button></div>` : null}
+    ${fb.busy ? html`<${Thinking} label="Preparing your feedback" />` : null}
+    ${fb.err ? html`<div class="chat-err" role="alert"><span>${fb.err}</span><button class="btn sm" onClick=${finish}>Try again</button></div>` : null}
+    ${s.feedback ? html`<${FeedbackPanel} fb=${s.feedback} />
+      <div class="row"><button class="btn primary" onClick=${onNew}>New conversation</button><button class="btn" onClick=${() => go('progress')}>See my progress</button></div>` : null}
+  </div>`;
+}
+
+/* ---------- writing ---------- */
+function Writing() {
+  const [tab, setTab] = useState('text');
+  return html`<div class="page">
+    <header class="page-h"><h1>Writing</h1><p class="lead">Check a whole text, or test one sentence against the question every learner asks: would a native speaker really say this?</p></header>
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected=${tab === 'text'} class=${'tab' + (tab === 'text' ? ' on' : '')} onClick=${() => setTab('text')}>Check a text</button>
+      <button role="tab" aria-selected=${tab === 'sentence'} class=${'tab' + (tab === 'sentence' ? ' on' : '')} onClick=${() => setTab('sentence')}>Would a native say this?</button>
+    </div>
+    ${tab === 'text' ? html`<${TextCheck} />` : html`<${SentenceCheck} />`}
+  </div>`;
+}
+
+function markOriginal(text, mistakes) {
+  const ranges = [];
+  mistakes.forEach((m, idx) => {
+    const s = m.original;
+    if (!s) return;
+    let pos = text.indexOf(s);
+    if (pos < 0) pos = text.toLowerCase().indexOf(s.toLowerCase());
+    if (pos < 0) return;
+    if (ranges.some(r => pos < r.end && pos + s.length > r.start)) return;
+    ranges.push({ start: pos, end: pos + s.length, idx });
+  });
+  ranges.sort((a, b) => a.start - b.start);
+  const out = [];
+  let cur = 0;
+  ranges.forEach(r => {
+    if (r.start > cur) out.push(text.slice(cur, r.start));
+    out.push(html`<mark class="m" title=${mistakes[r.idx].corrected}>${text.slice(r.start, r.end)}<sup>${r.idx + 1}</sup></mark>`);
+    cur = r.end;
+  });
+  out.push(text.slice(cur));
+  return out;
+}
+
+function WMistake({ m, i }) {
+  const same = !m.natural || norm(m.natural) === norm(m.corrected);
+  return html`<article class="corr">
+    <div class="corr-tags"><span class="num">${i + 1}</span><span class="tag">${m.type}</span>
+      ${m.repeat >= 2 ? html`<span class="tag err">Repeated ×${m.repeat}</span>` : null}
+      ${m.polish_calque ? html`<span class="tag warn">Translated from Polish</span>` : null}
+      ${m.mistake_label && !(m.polish_calque && m.mistake_key === 'polish-calque') ? html`<span class="tag">${MISTAKE_TYPES[m.mistake_key] || m.mistake_label}</span>` : null}</div>
+    <dl class="cgrid">
+      <dt>Original</dt><dd class="said">“${m.original}”</dd>
+      <dt>Corrected</dt><dd><${DiffView} ops=${diffWords(m.original, m.corrected)} fallback=${m.corrected} /></dd>
+      ${m.why ? html`<dt>Why</dt><dd>${m.why}</dd>` : null}
+      <dt>Natural</dt><dd>${same ? html`<span>${m.corrected}</span>` : html`<span class="native">${m.natural}</span>`}</dd>
+    </dl>
+  </article>`;
+}
+
+function WritingResult({ res, orig }) {
+  const ops = useMemo(() => diffText(orig, res.corrected), [orig, res.corrected]);
+  const sc = res.scores;
+  const fb = { scores: { grammar: sc.grammar, vocabulary: sc.vocabulary, naturalness: sc.naturalness, clarity: sc.clarity } };
+  const ds = ['grammar', 'vocabulary', 'naturalness', 'clarity'].filter(d => fb.scores[d] != null);
+  return html`<div class="wres">
+    <section class="wsec"><h3><span class="letter">A</span>Original</h3>
+      <div class="textbox">${markOriginal(orig, res.mistakes)}</div>
+      <p class="small muted">Underlined parts are explained in D. Key mistakes.</p></section>
+    <section class="wsec"><h3><span class="letter">B</span>Corrected version</h3>
+      <p class="small muted">Only the necessary changes: <del>removed</del> <ins>added</ins></p>
+      <div class="textbox"><${DiffView} ops=${ops} fallback=${res.corrected} /></div></section>
+    <section class="wsec"><h3><span class="letter">C</span>More natural version</h3>
+      <div class="textbox natural">${res.natural || res.corrected}</div>
+      <div class="row"><button class="btn sm" onClick=${() => copyText(res.natural || res.corrected)}><${Icon} n="copy" s=${15} /> Copy</button>${res.tone ? html`<span class="small muted">${res.tone}</span>` : null}</div></section>
+    <section class="wsec"><h3><span class="letter">D</span>Key mistakes</h3>
+      ${res.mistakes.length ? res.mistakes.map((m, i) => html`<${WMistake} m=${m} i=${i} />`) : html`<p class="muted">No important mistakes. Nice work.</p>`}</section>
+    <section class="wsec"><h3><span class="letter">E</span>Useful expressions</h3>
+      ${res.expressions.length ? html`<${PhraseList} list=${res.expressions} /><p class="small muted">Saved to My vocabulary.</p>` : html`<p class="muted">No suggestions this time.</p>`}</section>
+    <section class="wsec"><h3><span class="letter">F</span>Level estimate</h3>
+      <div class="lvlbox"><div class="biglevel">${res.level.cefr || '–'}</div><div class="block" style="gap:6px">${res.level.comment ? html`<p>${res.level.comment}</p>` : null}${res.did_well ? html`<p class="praise"><${Icon} n="check" s=${16} /><span>${res.did_well}</span></p>` : null}</div></div>
+      ${ds.length ? html`<div class="meters">${ds.map(d => html`<div class="meter"><span>${DIM_LABEL[d]}</span><div class="track"><i style=${'width:' + fb.scores[d] * 10 + '%'}></i></div><b>${fb.scores[d]}<small>/10</small></b></div>`)}</div><p class="small muted">A trend line for you, not a grade.</p>` : null}
+    </section>
+  </div>`;
+}
+
+function TextCheck() {
+  const init = useRef(lsGet(DRAFT_WRITE) || {}).current;
+  const [type, setType] = useState(init.type || 'email');
+  const [ctx, setCtx] = useState(init.ctx || '');
+  const [text, setText] = useState(init.text || '');
+  const [res, setRes] = useState(init.res || null);
+  const [orig, setOrig] = useState(init.orig || '');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const ctl = useRef(null);
+  const resRef = useRef(null);
+  useEffect(() => { const t = setTimeout(() => lsSet(DRAFT_WRITE, { type, ctx, text, res, orig }), 400); return () => clearTimeout(t); }, [type, ctx, text, res, orig]);
+  async function check() {
+    const t = text.trim();
+    if (words(t) < 3) { setErr('Write at least a sentence or two first.'); return; }
+    if (t.length > 6000) { setErr('That’s a long text. Check up to about 900 words at a time.'); return; }
+    setBusy(true); setErr('');
+    const c = new AbortController(); ctl.current = c;
+    try {
+      const r = normWriting(await aiJSON(writingPrompt(type, ctx, t), { modelTier: 'default', signal: c.signal }));
+      if (!r.corrected) r.corrected = t;
+      r.mistakes.forEach(m => { m.repeat = Mistakes.record({ mistake_key: m.mistake_key, mistake_label: m.mistake_label, you_said: m.original, better: m.corrected, more_natural: m.natural, why: m.why, polish_calque: m.polish_calque }); });
+      if (r.mistakes.length) commit('mistakes');
+      r.expressions.forEach(p => Vocab.add(p, 'writing'));
+      Vocab.detectUse(t);
+      commit('vocab');
+      const wc = words(t);
+      recordSession({ mode: 'writing', title: typeLabel(type), scores: { fluency: null, grammar: r.scores.grammar, vocabulary: r.scores.vocabulary, naturalness: r.scores.naturalness, confidence: null }, level: wc >= 60 ? r.level.cefr : null, calques: r.mistakes.filter(m => m.polish_calque).length, corrections: r.mistakes.length, minutes: Math.max(2, Math.round(wc / 12)), words: wc });
+      setRes(r); setOrig(t);
+      setTimeout(() => { if (resRef.current) resRef.current.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'start' }); }, 60);
+    } catch (e) { if (!(e && e.code === 'cancelled')) setErr(errText(e)); }
+    finally { setBusy(false); }
+  }
+  return html`<div class="block" style="gap:28px">
+    <div class="form">
+      <span class="lbl">What are you writing?</span>
+      <div class="chips">${TEXT_TYPES.map(([k, l]) => html`<button class=${'chip' + (type === k ? ' on' : '')} onClick=${() => setType(k)} aria-pressed=${type === k}>${l}</button>`)}</div>
+      <label class="lbl" for="w-ctx">Who is it for? (optional)</label>
+      <input id="w-ctx" class="input" value=${ctx} onInput=${e => setCtx(e.target.value)} placeholder="e.g. a recruiter I haven’t met, my manager, friends on Instagram" />
+      <label class="lbl" for="w-text">Your text</label>
+      <textarea id="w-text" class="input area" rows="9" value=${text} onInput=${e => setText(e.target.value)} placeholder=${'Write or paste your text here, for example:\n\n' + EXAMPLE_TEXT}></textarea>
+      ${err ? html`<p class="err" role="alert">${err}</p>` : null}
+      <div class="row">
+        <span class="small muted">${words(text)} words</span>
+        ${!text.trim() ? html`<button class="linkbtn" onClick=${() => setText(EXAMPLE_TEXT)}>Load the example</button>` : null}
+        <div class="grow"></div>
+        ${busy ? html`<${Thinking} label="Checking your text" /><button class="btn sm" onClick=${() => ctl.current && ctl.current.abort()}><${Icon} n="stop" s=${14} /> Stop</button>` : html`<button class="btn primary" onClick=${check}>Check my text</button>`}
+      </div>
+    </div>
+    ${res ? html`<div ref=${resRef} style="scroll-margin-top:80px"><${WritingResult} res=${res} orig=${orig} /></div>` : null}
+  </div>`;
+}
+
+function SentenceCheck() {
+  const [s, setS] = useState('');
+  const [ctx, setCtx] = useState('');
+  const [res, setRes] = useState(null);
+  const [asked, setAsked] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const [saved, setSaved] = useState(false);
+  async function check() {
+    const t = s.trim();
+    if (words(t) < 2) { setErr('Type a sentence first.'); return; }
+    setBusy(true); setErr(''); setSaved(false);
+    try {
+      const r = await aiJSON(sentencePrompt(t, ctx.trim()), { modelTier: 'default' });
+      const kp = r && r.key_phrase ? normPhrase(r.key_phrase) : null;
+      setRes({ rating: str(r && r.rating), correct: str(r && r.correct), natural: str(r && r.natural), more_natural: str(r && r.more_natural), native: str(r && r.native), why: str(r && r.why), alternatives: arr(r && r.alternatives).map(a => ({ text: str(a && a.text), note: str(a && a.note) })).filter(a => a.text).slice(0, 3), key: kp && kp.en ? kp : null });
+      setAsked(t);
+    } catch (e) { setErr(errText(e)); }
+    finally { setBusy(false); }
+  }
+  const ri = res ? (res.rating in RUNG_IDX ? RUNG_IDX[res.rating] : -1) : -1;
+  const rows = res ? [['correct', 0], ['natural', 1], ['more_natural', 2], ['native', 3]].map(([k, i]) => ({ i, text: res[k] })) : [];
+  return html`<div class="block" style="gap:24px">
+    <div class="form">
+      <label class="lbl" for="s-text">Your sentence</label>
+      <input id="s-text" class="input" value=${s} onInput=${e => setS(e.target.value)} onKeyDown=${e => { if (e.key === 'Enter') check(); }} placeholder="e.g. I am very tired because I worked a lot today." />
+      <label class="lbl" for="s-ctx">Situation (optional)</label>
+      <input id="s-ctx" class="input" value=${ctx} onInput=${e => setCtx(e.target.value)} placeholder="e.g. talking to a friend after work, an email to a client" />
+      ${err ? html`<p class="err" role="alert">${err}</p>` : null}
+      <div class="row">${!s.trim() ? html`<button class="linkbtn" onClick=${() => setS('I am very tired because I worked a lot today.')}>Try an example</button>` : null}<div class="grow"></div>
+        ${busy ? html`<${Thinking} label="Asking a native ear" />` : html`<button class="btn primary" onClick=${check}>Check it</button>`}</div>
+    </div>
+    ${res ? html`<div class="block">
+      <div class="nat"><${Ladder} you=${ri} up=${3} /><div class="nat-row"><span class="lbl">You wrote</span><span>${asked}</span><${RatingChip} i=${ri} /></div></div>
+      <div class="ladder-rows">${rows.map((r, k) => html`<div class=${'lrow' + (r.i === 3 ? ' top' : '')}>
+        <span class="lbl">${RUNGS[r.i]}</span>
+        <span>${k > 0 && norm(r.text) === norm(rows[k - 1].text) ? html`<span class="muted">Same as above</span>` : html`<span class=${r.i === 3 ? 'native' : ''}>${r.text}</span>`}</span>
+        <${Say} text=${r.text} /></div>`)}</div>
+      ${res.why ? html`<p>${res.why}</p>` : null}
+      ${res.alternatives.length ? html`<div><span class="lbl">Other ways to say it</span><ul style="margin-top:6px">${res.alternatives.map(a => html`<li>${a.text} ${a.note ? html`<span class="tag">${a.note}</span>` : null}</li>`)}</ul></div>` : null}
+      ${res.key ? html`<div class="row"><span class="small muted">Key phrase: <b style="color:var(--ink)">${res.key.en}</b>${res.key.pl ? ' · ' + res.key.pl : ''}</span>
+        <button class="btn sm" disabled=${saved} onClick=${() => { Vocab.add(res.key, 'sentence'); commit('vocab'); setSaved(true); toast('Saved to My vocabulary'); }}>${saved ? 'Saved' : html`<${Icon} n="plus" s=${15} /> Save phrase`}</button></div>` : null}
+    </div>` : html`<p class="muted">You’ll get four versions on a ladder, <b>Correct → Natural → More natural → Native-like</b>, with a short explanation of the difference.</p>`}
+  </div>`;
+}
+
+/* ---------- daily practice ---------- */
+const STEPS = ['Warm-up', 'Corrections', '5 phrases', 'Use them', 'Review', 'Summary'];
+function pickDaily() {
+  const recent = arr(Store.profile.lastTopics);
+  const dayNum = Math.floor(Date.now() / DAY);
+  if (dayNum % 2 === 0) {
+    const pool = TOPICS.filter(t => !recent.includes(t.id));
+    return { kind: 'topic', id: pick(pool.length ? pool : TOPICS).id };
+  }
+  const pool = SCENARIOS.filter(s => !recent.includes(s.id));
+  return { kind: 'scenario', id: pick(pool.length ? pool : SCENARIOS).id };
+}
+function newDaily() {
+  const p = pickDaily();
+  return { id: uid(), day: dayKey(), step: 1, maxStep: 1, chat: newSession(p.kind, p.id, true), reviewKeys: null, analysis: null, content: null, ex: null, review: null, rev: null, feedback: null, done: false, recorded: false };
+}
+function DailyHost({ go }) {
+  const [round, setRound] = useState(0);
+  return html`<${Daily} key=${round} go=${go} again=${() => { lsDel(DRAFT_DAILY); setRound(round + 1); window.scrollTo(0, 0); }} />`;
+}
+function WarmTimer({ start }) {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => { const id = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(id); }, []);
+  const left = Math.max(0, 180 - Math.floor((now - start) / 1000));
+  return html`<div class=${'timer' + (left ? '' : ' up')} aria-label="Time left">${left ? Math.floor(left / 60) + ':' + String(left % 60).padStart(2, '0') : 'Time’s up'}</div>`;
+}
+
+function Daily({ go, again }) {
+  const dref = useRef(null);
+  if (!dref.current) {
+    const x = lsGet(DRAFT_DAILY);
+    dref.current = x && x.day === dayKey() && x.chat && x.chat.messages ? x : newDaily();
+  }
+  const d = dref.current;
+  const [, tick] = useState(0);
+  const save = () => { lsSet(DRAFT_DAILY, dref.current); tick(n => n + 1); };
+  const chat = useChat(d.chat, { onSave: () => lsSet(DRAFT_DAILY, dref.current) });
+  const flight = useRef({});
+  const [busy, setBusy] = useState({});
+  const [errs, setErrs] = useState({});
+  const setB = (k, v) => { flight.current[k] = v; setBusy(b => Object.assign({}, b, { [k]: v })); };
+  const setE = (k, v) => setErrs(b => Object.assign({}, b, { [k]: v }));
+
+  async function runAnalysis() {
+    if (d.analysis || flight.current.analysis) return;
+    setB('analysis', true); setE('analysis', '');
+    try {
+      const b = await chat.analyze(3, true, { noPhrases: true });
+      const last = d.chat.batches[d.chat.batches.length - 1];
+      d.analysis = b ? b.result : (last ? last.result : { corrections: [], naturalness: [], pronunciation: [], phrases: [], praise: '' });
+      save();
+      if (!d.reviewKeys || !d.reviewKeys.length) runReview();
+    } catch (e) { setE('analysis', errText(e)); }
+    finally { setB('analysis', false); }
+  }
+  async function runContent() {
+    if (d.content || flight.current.content) return;
+    setB('content', true); setE('content', '');
+    try {
+      const r = await aiJSON(dailyContentPrompt(d), { modelTier: 'default' });
+      const phrases = arr(r && r.phrases).map(normPhrase).filter(p => p.en).slice(0, 5);
+      if (!phrases.length) throw { code: 'invalid_json' };
+      phrases.forEach(p => { const v = Vocab.add(p, 'daily'); if (v) p.vid = v.id; });
+      commit('vocab');
+      const exercises = arr(r.exercises).map(x => ({ phrase: Math.max(0, Math.min(phrases.length - 1, Number(x && x.phrase) || 0)), type: ['gap', 'rewrite', 'respond'].includes(x && x.type) ? x.type : 'respond', prompt: str(x && x.prompt), answer: str(x && x.answer) })).filter(x => x.prompt).slice(0, 5);
+      d.content = { phrases, exercises };
+      save();
+    } catch (e) { setE('content', errText(e)); }
+    finally { setB('content', false); }
+  }
+  async function runReview() {
+    if (d.review || flight.current.review) return;
+    const keys = d.reviewKeys && d.reviewKeys.length ? d.reviewKeys : Mistakes.top(3).map(m => m.key);
+    const ms = keys.map(k => Mistakes.find(k)).filter(Boolean).slice(0, 3);
+    if (!ms.length) { if (d.analysis) { d.review = { items: [] }; save(); } return; }
+    setB('review', true); setE('review', '');
+    try {
+      const r = await aiJSON(reviewPrompt(ms), { modelTier: 'default' });
+      const items = arr(r && r.items).map((it, i) => {
+        let key = slug(it && it.key);
+        if (!Mistakes.find(key)) key = ms[i] ? ms[i].key : key;
+        return { key, rule: str(it && it.rule), exercises: arr(it && it.exercises).map(x => ({ type: x && x.type === 'translate' ? 'translate' : 'fix', prompt: str(x && x.prompt), answer: str(x && x.answer) })).filter(x => x.prompt).slice(0, 2) };
+      }).filter(it => it.exercises.length);
+      d.review = { items };
+      save();
+    } catch (e) { setE('review', errText(e)); }
+    finally { setB('review', false); }
+  }
+  async function runFeedback() {
+    if (d.feedback || flight.current.feedback) return;
+    setB('feedback', true); setE('feedback', '');
+    try {
+      const exs = d.ex ? 'EXERCISES WITH TODAY\'S PHRASES: ' + d.ex.results.filter(r => r.ok).length + '/' + d.ex.results.length + ' correct.' : '';
+      const r = await aiJSON(feedbackPrompt(d.chat, 'This was a daily practice session: a 3-minute warm-up conversation, then corrections, 5 new phrases, an exercise and a review of old mistakes. ' + exs), { modelTier: 'default' });
+      d.feedback = normFeedback(r);
+      save();
+    } catch (e) { setE('feedback', errText(e)); }
+    finally { setB('feedback', false); }
+  }
+  function finishDaily() {
+    if (d.recorded) return;
+    const m = chatMetrics(d.chat);
+    const f = d.feedback;
+    recordSession({ mode: 'daily', title: sessionTitle(d.chat), scores: f ? f.scores : null, remember: f ? f.remember : [], strengths: f ? f.strengths : [], calques: countCalques(d.chat), corrections: d.analysis ? d.analysis.corrections.length : 0, minutes: Math.max(1, Math.min(60, Math.round((Date.now() - d.chat.startedAt) / 60000))), words: m.totalWords });
+    d.recorded = true; d.done = true;
+    save();
+  }
+  function toStep(n) {
+    d.step = n; d.maxStep = Math.max(d.maxStep || 1, n);
+    if (n >= 2 && !d.reviewKeys) d.reviewKeys = Mistakes.top(3).map(m => m.key);
+    save();
+    window.scrollTo(0, 0);
+    if (n >= 2) { runAnalysis(); runContent(); if (d.reviewKeys.length) runReview(); }
+    if (n >= 5) runFeedback();
+  }
+  useEffect(() => {
+    if (!d.noted) { noteTopic(d.chat.topic || d.chat.scenario); d.noted = true; save(); }
+    if (d.step >= 2) { runAnalysis(); runContent(); if (d.reviewKeys && d.reviewKeys.length) runReview(); }
+    if (d.step >= 5) runFeedback();
+  }, []);
+  useEffect(() => { if (d.step === 6 && d.feedback && !d.recorded) finishDaily(); });
+
+  const mine = d.chat.messages.filter(m => m.role === 'me').length;
+  const sc = d.chat.scenario && SCENARIOS.find(x => x.id === d.chat.scenario);
+  const Retry = ({ k, fn }) => errs[k] ? html`<div class="chat-err" role="alert"><span>${errs[k]}</span><button class="btn sm" onClick=${fn}>Try again</button></div>` : null;
+  const Next = ({ to, label, disabled }) => html`<div class="stepnav"><button class="linkbtn" onClick=${() => toStep(d.step - 1)}><${Icon} n="back" s=${16} /> Back</button><button class="btn primary" disabled=${disabled} onClick=${() => toStep(to)}>${label}</button></div>`;
+
+  let body;
+  if (d.step === 1) {
+    body = html`<div class="block">
+      <div class="warm-h"><div><span class="lbl">Step 1 · Warm-up, about 3 minutes</span><h2 style="font-size:24px">${sessionTitle(d.chat)}</h2></div>
+        <div class="row"><${WarmTimer} start=${d.chat.startedAt} /><button class="btn primary" disabled=${mine < 3} onClick=${() => toStep(2)}>Next: corrections</button></div></div>
+      <p class="muted">Reply quickly and keep going. Don’t translate in your head: if you don’t know a word, describe it. ${mine < 3 ? 'Write at least ' + (3 - mine) + ' more message' + (3 - mine === 1 ? '' : 's') + ' to continue.' : ''}</p>
+      ${sc ? html`<${ScenarioBrief} sc=${sc} />` : null}
+      <${ChatView} chat=${chat} composer=${true} />
+    </div>`;
+  } else if (d.step === 2) {
+    body = html`<div class="block">
+      <span class="lbl">Step 2 · Your most important corrections</span>
+      ${d.analysis ? html`<${Corrections} batch=${{ result: d.analysis, count: mine }} title="Top corrections from the warm-up" hidePhrases=${true} />` : busy.analysis ? html`<${Thinking} label="Reading your messages" />` : null}
+      <${Retry} k="analysis" fn=${runAnalysis} />
+      <${Next} to=${3} label="Next: 5 phrases" disabled=${!d.analysis} />
+    </div>`;
+  } else if (d.step === 3) {
+    body = html`<div class="block">
+      <span class="lbl">Step 3 · 5 phrases for real conversations</span>
+      ${d.content ? html`<${PhraseList} list=${d.content.phrases} /><p class="small muted">Saved to My vocabulary. Try to use one of them in your next conversation.</p>` : busy.content ? html`<${Thinking} label="Choosing phrases for you" />` : null}
+      <${Retry} k="content" fn=${runContent} />
+      <${Next} to=${4} label="Next: use them" disabled=${!d.content} />
+    </div>`;
+  } else if (d.step === 4) {
+    const items = d.content ? d.content.exercises.map(x => ({ type: x.type, prompt: x.prompt, answer: x.answer, target: (d.content.phrases[x.phrase] || {}).en })) : [];
+    body = html`<div class="block">
+      <span class="lbl">Step 4 · Use today’s phrases</span>
+      ${d.content ? html`<${Exercises} items=${items} idPrefix="dx" initial=${d.ex} onChecked=${(res, ans, first) => {
+        if (first) { d.content.exercises.forEach((x, i) => { const p = d.content.phrases[x.phrase]; if (p && p.vid && !res[i].skipped) Vocab.bump(p.vid, res[i].ok); }); commit('vocab'); }
+        d.ex = { answers: ans, results: res }; save();
+      }} />` : busy.content ? html`<${Thinking} label="Preparing the exercise" />` : null}
+      <${Retry} k="content" fn=${runContent} />
+      <${Next} to=${5} label="Next: review old mistakes" disabled=${!d.content} />
+    </div>`;
+  } else if (d.step === 5) {
+    const its = d.review ? d.review.items : [];
+    const flat = [];
+    its.forEach(it => { const m = Mistakes.find(it.key); it.exercises.forEach(x => flat.push({ type: x.type, prompt: x.prompt, answer: x.answer, key: it.key, group: m ? m.label : '' })); });
+    body = html`<div class="block">
+      <span class="lbl">Step 5 · Review your recurring mistakes</span>
+      ${d.review ? (its.length ? html`
+        ${its.map(it => { const m = Mistakes.find(it.key); const e = m && m.examples[0]; return html`<div class="rv-h"><b>${m ? m.label : it.key}${m ? html` <span class="tag err">×${m.count}</span>` : null}</b>${e ? html`<div class="small"><del>${e.wrong}</del> → <ins>${e.right}</ins></div>` : null}${it.rule ? html`<div class="small">${it.rule}</div>` : null}</div>`; })}
+        <${Exercises} items=${flat} idPrefix="rv" initial=${d.rev} onChecked=${(res, ans, first) => {
+          if (first) { its.forEach(it => { const idx = flat.map((x, i) => x.key === it.key ? i : -1).filter(i => i >= 0 && !res[i].skipped); if (idx.length) Mistakes.review(it.key, idx.every(i => res[i].ok)); }); commit('mistakes'); }
+          d.rev = { answers: ans, results: res }; save();
+        }} />` : html`<p class="empty">Nothing to review yet. From tomorrow, this step brings back the mistakes you make most often.</p>`)
+      : busy.review || busy.analysis ? html`<${Thinking} label="Preparing your review" />` : null}
+      <${Retry} k="review" fn=${runReview} />
+      <${Next} to=${6} label="Finish: see my summary" disabled=${false} />
+    </div>`;
+  } else {
+    const exOk = d.ex ? d.ex.results.filter(r => r.ok).length + ' / ' + d.ex.results.length : '–';
+    const rvOk = d.rev ? d.rev.results.filter(r => r.ok).length + ' / ' + d.rev.results.length : '–';
+    body = html`<div class="block">
+      <span class="lbl">Summary</span>
+      <div class="ov-sum">
+        <div class="ov-item"><span class="lbl">Corrections</span><b>${d.analysis ? d.analysis.corrections.length : 0}</b><small>from the warm-up</small></div>
+        <div class="ov-item"><span class="lbl">New phrases</span><b>${d.content ? d.content.phrases.length : 0}</b><small>saved to your list</small></div>
+        <div class="ov-item"><span class="lbl">Exercise</span><b>${exOk}</b><small>correct</small></div>
+        <div class="ov-item"><span class="lbl">Review</span><b>${rvOk}</b><small>correct</small></div>
+      </div>
+      ${d.feedback ? html`<${FeedbackPanel} fb=${d.feedback} />` : busy.feedback ? html`<${Thinking} label="Writing your summary" />` : null}
+      <${Retry} k="feedback" fn=${runFeedback} />
+      <div class="row"><button class="btn primary" onClick=${() => go('home')}>Done for today</button><button class="btn" onClick=${again}>Do another round</button><button class="btn" onClick=${() => go('progress')}>See my progress</button></div>
+    </div>`;
+  }
+  return html`<div class="page">
+    <header class="page-h"><h1>Daily practice</h1>
+      <div class="steps" aria-label="Steps">${STEPS.map((l, i) => { const n = i + 1; const cls = n === d.step ? ' cur' : n < d.step || n <= (d.maxStep || 1) ? ' done' : ''; return html`<button class=${'step' + cls} disabled=${n > (d.maxStep || 1)} onClick=${() => toStep(n)} aria-current=${n === d.step ? 'step' : null}><i></i><span>${n}. ${l}</span></button>`; })}</div>
+    </header>
+    ${body}
+  </div>`;
+}
+
+/* ---------- my progress ---------- */
+function Progress({ go, tab }) {
+  const [t, setT] = useState(tab || 'overview');
+  const tabs = [['overview', 'Overview'], ['mistakes', 'My common mistakes'], ['vocab', 'My vocabulary'], ['history', 'History'], ['settings', 'Settings']];
+  return html`<div class="page">
+    <header class="page-h"><h1>My progress</h1></header>
+    <div class="tabs" role="tablist">${tabs.map(([k, l]) => html`<button role="tab" aria-selected=${t === k} class=${'tab' + (t === k ? ' on' : '')} onClick=${() => setT(k)}>${l}</button>`)}</div>
+    ${t === 'overview' ? html`<${Overview} setT=${setT} />` : t === 'mistakes' ? html`<${MistakesTab} />` : t === 'vocab' ? html`<${VocabTab} />` : t === 'history' ? html`<${HistoryTab} />` : html`<${SettingsTab} go=${go} />`}
+  </div>`;
+}
+
+function StatTile({ dim }) {
+  const pts = Store.profile.sessions.filter(s => s.scores && s.scores[dim] != null).slice(-12).map(s => ({ v: s.scores[dim], d: s.date }));
+  const [hi, setHi] = useState(-1);
+  if (!pts.length) return html`<div class="stat"><span class="stat-l">${DIM_LABEL[dim]}</span><span class="stat-v">–</span><span class="stat-tip">No data yet</span></div>`;
+  const last3 = avg(pts.slice(-3).map(p => p.v));
+  const prev3 = pts.length > 3 ? avg(pts.slice(-6, -3).map(p => p.v)) : null;
+  const delta = prev3 == null ? null : last3 - prev3;
+  const W = 160, H = 44, P = 5;
+  const x = i => pts.length === 1 ? W / 2 : P + i * (W - 2 * P) / (pts.length - 1);
+  const y = v => H - P - (v - 1) / 9 * (H - 2 * P);
+  const line = pts.map((p, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ',' + y(p.v).toFixed(1)).join(' ');
+  const area = line + ' L' + x(pts.length - 1).toFixed(1) + ',' + (H - P) + ' L' + x(0).toFixed(1) + ',' + (H - P) + ' Z';
+  const li = pts.length - 1;
+  function move(e) {
+    const r = e.currentTarget.getBoundingClientRect();
+    const rx = (e.clientX - r.left) / r.width * W;
+    let best = 0;
+    pts.forEach((p, i) => { if (Math.abs(x(i) - rx) < Math.abs(x(best) - rx)) best = i; });
+    setHi(best);
+  }
+  const dcls = delta == null ? '' : delta > 0.05 ? 'up' : delta < -0.05 ? 'down' : 'flat';
+  return html`<div class="stat">
+    <span class="stat-l">${DIM_LABEL[dim]}</span>
+    <span class="stat-v">${last3.toFixed(1)}<small> /10</small></span>
+    ${delta != null ? html`<span class=${'stat-d ' + dcls}>${delta > 0.05 ? '▲ +' : delta < -0.05 ? '▼ ' : '■ '}${delta.toFixed(1)} <span>vs previous 3</span></span>` : html`<span class="stat-d flat"><span>average of last ${Math.min(3, pts.length)}</span></span>`}
+    <svg class="spark" viewBox=${'0 0 ' + W + ' ' + H} role="img" aria-label=${DIM_LABEL[dim] + ' over the last ' + pts.length + ' sessions, latest ' + pts[li].v} onPointerMove=${move} onPointerLeave=${() => setHi(-1)}>
+      <line class="grid" x1="0" x2=${W} y1=${y(5.5)} y2=${y(5.5)} />
+      <path class="area" d=${area} />
+      <path class="line" d=${line} />
+      ${hi >= 0 ? html`<line class="cross" x1=${x(hi)} x2=${x(hi)} y1="0" y2=${H} />` : null}
+      <circle class="end" cx=${x(li)} cy=${y(pts[li].v)} r="4" />
+      ${hi >= 0 && hi !== li ? html`<circle class="hov" cx=${x(hi)} cy=${y(pts[hi].v)} r="3.5" />` : null}
+    </svg>
+    <span class=${'stat-tip' + (hi >= 0 ? ' on' : '')}>${hi >= 0 ? fmtDay(pts[hi].d) + ' · ' + pts[hi].v + '/10' : 'Last ' + pts.length + ' session' + (pts.length === 1 ? '' : 's')}</span>
+  </div>`;
+}
+
+function Overview({ setT }) {
+  const p = Store.profile, ss = p.sessions, v = Store.vocab.items;
+  const mastered = v.filter(x => x.status === 'mastered').length;
+  const learning = v.filter(x => x.status === 'learning').length;
+  const minutes = ss.reduce((n, s) => n + (s.minutes || 0), 0);
+  const calq = ss.slice(-5).reduce((n, s) => n + (s.calques || 0), 0);
+  const top = Mistakes.top(3);
+  const src = { self: 'you chose it', quiz: 'from the level check', test: 'from the level check', ai: 'updated from your recent sessions' }[p.levelSource] || '';
+  return html`<div class="block" style="gap:28px">
+    <div class="ov-sum">
+      <div class="ov-item"><span class="lbl">Level</span><b>${p.level || '–'}</b><small>${src}</small></div>
+      <div class="ov-item"><span class="lbl">Streak</span><b>${streak()}</b><small>days in a row</small></div>
+      <div class="ov-item"><span class="lbl">Sessions</span><b>${ss.length}</b><small>about ${minutes} min of practice</small></div>
+      <div class="ov-item"><span class="lbl">Phrases</span><b>${mastered}</b><small>mastered · ${learning} learning</small></div>
+    </div>
+    <section class="block">
+      <div class="block-h"><h2>Your trend</h2><span class="small muted">Average of your last 3 sessions, on a 1–10 scale. A trend line, not a grade.</span></div>
+      ${ss.some(s => s.scores) ? html`<div class="kpis">${DIMS.map(d => html`<${StatTile} dim=${d} />`)}</div><p class="small muted">Fluency and confidence come from conversations only; writing checks add grammar, vocabulary and naturalness.</p>` : html`<p class="empty">Your trends appear after your first session with feedback.</p>`}
+    </section>
+    <section class="block">
+      <div class="block-h"><h2>Focus now</h2>${Mistakes.items.length ? html`<button class="linkbtn" onClick=${() => setT('mistakes')}>All mistakes →</button>` : null}</div>
+      ${top.length ? html`<div class="chips">${top.map(m => html`<button class="chip mist" onClick=${() => setT('mistakes')}><span>${m.label}</span><b>×${m.count}</b></button>`)}</div>` : html`<p class="muted">Nothing yet. Have a conversation or check a text.</p>`}
+      ${calq ? html`<p class="muted">Word-for-word translations from Polish in your last 5 sessions: <b style="color:var(--ink)">${calq}</b>. Try to start the sentence from what you <i>can</i> say in English instead of translating.</p>` : null}
+      <p class="small muted">Explanations are currently in <b>${EXPLAIN_LABEL[explainMode()]}</b>${p.explainMode === 'auto' ? ' (set automatically; more English as your scores go up)' : ''}.</p>
+    </section>
+  </div>`;
+}
+
+function Lesson({ m }) {
+  const L = m.lesson;
+  const items = L.exercises.map(x => ({ type: x.type, prompt: x.prompt, answer: x.answer }));
+  return html`<div class="block" style="gap:12px">
+    ${L.explanation ? html`<p>${L.explanation}</p>` : null}
+    ${L.pattern ? html`<div class="pattern">${L.pattern}</div>` : null}
+    ${L.examples.length ? html`<div><span class="lbl">Examples</span><ul style="margin-top:6px">${L.examples.map(e => html`<li><span class="native">${e.en}</span> <${Say} text=${e.en} />${e.note ? html`<div class="small muted">${e.note}</div>` : null}</li>`)}</ul></div>` : null}
+    ${items.length ? html`<div><span class="lbl">Practice</span><div style="margin-top:8px"><${Exercises} key=${L.id || m.key} items=${items} idPrefix=${'ls-' + m.key} onChecked=${(res, ans, first) => {
+      if (!first) return;
+      const tried = res.filter(r => !r.skipped);
+      if (tried.length) { Mistakes.review(m.key, tried.every(r => r.ok)); commit('mistakes'); toast(tried.every(r => r.ok) ? 'Nice. This mistake will come back less often.' : 'This one will come back again soon.'); }
+    }} /></div></div>` : null}
+  </div>`;
+}
+function MistakeCard({ m }) {
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const [st, stLabel] = Mistakes.status(m);
+  const ex = m.examples[0];
+  async function lesson(refresh) {
+    setBusy(true); setErr('');
+    try {
+      const r = await aiJSON(lessonPrompt(m), refresh ? { modelTier: 'default', cache: false } : { modelTier: 'default' });
+      const L = normLesson(r);
+      L.id = uid();
+      m.lesson = L;
+      commit('mistakes');
+    } catch (e) { setErr(errText(e)); }
+    finally { setBusy(false); }
+  }
+  return html`<article class="mcard">
+    <button class="mcard-h" onClick=${() => setOpen(!open)} aria-expanded=${open}>
+      <span class="mcount">×${m.count}</span>
+      <span class="mtitle">${m.label}<small>Last seen ${fmtDay(m.lastSeen)}${m.calques ? ' · ' + m.calques + '× translated from Polish' : ''}</small></span>
+      <span class=${'status ' + st}>${stLabel}</span>
+    </button>
+    ${ex ? html`<div class="mcard-ex">
+      <span class="lbl">Your typical mistake</span><span><del>${ex.wrong}</del></span>
+      <span class="lbl">Correct</span><span><ins>${ex.right}</ins>${ex.natural && norm(ex.natural) !== norm(ex.right) ? html`<div class="small">More natural: <span class="native">${ex.natural}</span></div>` : null}</span>
+      ${ex.why ? html`<p class="why">${ex.why}</p>` : null}
+    </div>` : null}
+    ${open ? html`<div class="mcard-body">
+      ${m.examples.length > 1 ? html`<div><span class="lbl">Other times you made it</span><ul style="margin-top:6px">${m.examples.slice(1).map(e => html`<li class="small"><del>${e.wrong}</del> → <ins>${e.right}</ins></li>`)}</ul></div>` : null}
+      ${m.lesson ? html`<${Lesson} m=${m} /><div class="row"><button class="btn sm" disabled=${busy} onClick=${() => lesson(true)}>New exercises</button></div>` : !busy ? html`<div class="row"><button class="btn primary" onClick=${() => lesson(false)}>Explain it and give me an exercise</button><span class="small muted">2 examples, a rule of thumb and 3 short exercises</span></div>` : null}
+      ${busy ? html`<${Thinking} label="Preparing a mini-lesson" />` : null}
+      ${err ? html`<p class="err" role="alert">${err}</p>` : null}
+    </div>` : html`<div style="padding:0 16px 14px"><button class="linkbtn" onClick=${() => setOpen(true)}>Explanation, examples and exercise →</button></div>`}
+  </article>`;
+}
+function MistakesTab() {
+  const items = Mistakes.top(999);
+  if (!items.length) return html`<p class="empty">No mistakes recorded yet. They appear here after your conversations and writing checks, sorted by how often you make them.</p>`;
+  return html`<div class="block">
+    <p class="muted">Sorted by priority: how often you make the mistake and whether it’s due for review. The more often a mistake appears, the more often it comes back in Daily practice. Get it right in reviews and it moves to <b>Improving</b>, then <b>Under control</b>.</p>
+    <div class="mlist">${items.map(m => html`<${MistakeCard} key=${m.key} m=${m} />`)}</div>
+  </div>`;
+}
+
+function VocabTab() {
+  const [f, setF] = useState('all');
+  const [q, setQ] = useState('');
+  const [add, setAdd] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const all = Store.vocab.items;
+  const count = s => all.filter(v => v.status === s).length;
+  const items = all.filter(v => (f === 'all' || v.status === f) && (!q || norm(v.en + ' ' + v.pl).includes(norm(q))));
+  async function addPhrase() {
+    const t = add.trim();
+    if (!t) return;
+    setBusy(true); setErr('');
+    let v = null;
+    try {
+      const r = await aiJSON(vocabFillPrompt(t), { modelTier: 'quick' });
+      v = Vocab.add(normPhrase(r).en ? r : { en: t }, 'manual');
+    } catch (e) {
+      if (e && (e.code === 'unavailable' || e.code === 'not_granted')) v = Vocab.add({ en: t }, 'manual');
+      else setErr(errText(e));
+    }
+    if (v) { commit('vocab'); setAdd(''); toast('Added “' + v.en + '”'); }
+    setBusy(false);
+  }
+  return html`<div class="block">
+    <p class="muted">Whole constructions, not single words. Phrases from your sessions land here automatically. Use one in a conversation and it moves towards <b>mastered</b>; mastered phrases are no longer taught again.</p>
+    <div class="vtools">
+      <div class="chips">${[['all', 'All', all.length], ['new', 'New', count('new')], ['learning', 'Learning', count('learning')], ['mastered', 'Mastered', count('mastered')]].map(([k, l, n]) => html`<button class=${'chip' + (f === k ? ' on' : '')} onClick=${() => setF(k)} aria-pressed=${f === k}>${l} · ${n}</button>`)}</div>
+      <div class="grow"></div>
+      <input id="v-search" class="input" value=${q} onInput=${e => setQ(e.target.value)} placeholder="Search" aria-label="Search your vocabulary" />
+    </div>
+    <div class="row">
+      <input id="v-add" class="input" style="flex:1;min-width:200px" value=${add} onInput=${e => setAdd(e.target.value)} onKeyDown=${e => { if (e.key === 'Enter') addPhrase(); }} placeholder="Add a word or phrase, e.g. “depend” or “zależy od”" aria-label="Add a phrase" />
+      ${busy ? html`<${Thinking} label="Adding" />` : html`<button class="btn" onClick=${addPhrase} disabled=${!add.trim()}><${Icon} n="plus" s=${16} /> Add</button>`}
+    </div>
+    ${err ? html`<p class="err" role="alert">${err}</p>` : null}
+    ${items.length ? html`<div class="vlist">${items.map(v => html`<div class="vrow" key=${v.id}>
+      <div class="vmain"><div><b>${v.en}</b> <${Say} text=${v.en} /></div>
+        ${v.pl ? html`<div class="vpl">${v.pl}</div>` : null}
+        ${v.example ? html`<div class="vex">“${v.example}”</div>` : null}
+        ${v.alternatives && v.alternatives.length ? html`<div class="valt">Also: ${v.alternatives.join(' · ')}</div>` : null}</div>
+      <div class="vmeta">
+        <span class="tag acc">${v.difficulty || 'B2'}</span>
+        <select id=${'st-' + v.id} value=${v.status} onChange=${e => { Vocab.set(v.id, e.target.value); commit('vocab'); }} aria-label=${'Status of ' + v.en}>
+          <option value="new">New</option><option value="learning">Learning</option><option value="mastered">Mastered</option>
+        </select>
+        <button class="iconbtn" onClick=${() => { Vocab.remove(v.id); commit('vocab'); toast('Removed'); }} aria-label=${'Delete ' + v.en}><${Icon} n="trash" s=${16} /></button>
+      </div>
+    </div>`)}</div>` : html`<p class="empty">${all.length ? 'Nothing matches this filter.' : 'Your vocabulary list is empty. Phrases from conversations, writing checks and daily practice will appear here.'}</p>`}
+  </div>`;
+}
+
+const MODE_LABEL = { speaking: 'Conversation', scenario: 'Role-play', writing: 'Writing', daily: 'Daily practice' };
+function HistoryTab() {
+  const ss = Store.profile.sessions.slice().reverse();
+  if (!ss.length) return html`<p class="empty">No sessions yet.</p>`;
+  const short = { fluency: 'F', grammar: 'G', vocabulary: 'V', naturalness: 'N', confidence: 'C' };
+  return html`<div class="block">
+    <p class="small muted">F fluency · G grammar · V vocabulary · N naturalness · C confidence</p>
+    <div class="hlist">${ss.map(s => html`<div class="hrow">
+      <span class="hdate">${fmtDay(s.date)}</span>
+      <div><div class="row" style="gap:8px"><b>${s.title || MODE_LABEL[s.mode]}</b><span class="tag">${MODE_LABEL[s.mode] || s.mode}</span>${s.level ? html`<span class="tag acc">${s.level}</span>` : null}</div>
+        ${s.scores ? html`<div class="hscores">${DIMS.filter(d => s.scores[d] != null).map(d => short[d] + ' ' + s.scores[d]).join(' · ')}</div>` : null}
+        ${s.remember && s.remember.length ? html`<div class="hrem">${s.remember.join(' · ')}</div>` : null}</div>
+    </div>`)}</div>
+  </div>`;
+}
+
+function SettingsTab({ go }) {
+  const p = Store.profile;
+  const [backup, setBackup] = useState('');
+  const [msg, setMsg] = useState('');
+  const [confirmReset, setConfirmReset] = useState(false);
+  const set = (k, v) => { p[k] = v; commit('profile'); };
+  const dump = () => JSON.stringify({ app: 'say-it-naturally', v: 1, profile: Store.profile, mistakes: Store.mistakes, vocab: Store.vocab });
+  function restore() {
+    try {
+      const j = JSON.parse(backup);
+      if (!j || !j.profile) throw new Error('bad');
+      Store.profile = sanitizeDoc('profile', j.profile);
+      Store.mistakes = sanitizeDoc('mistakes', j.mistakes) || { items: [], updatedAt: 0 };
+      Store.vocab = sanitizeDoc('vocab', j.vocab) || { items: [], updatedAt: 0 };
+      DOCS.forEach(commit);
+      setBackup(''); setMsg('Backup restored.');
+    } catch (e) { setMsg('That doesn’t look like a backup from this app. Paste the whole text you copied.'); }
+  }
+  function reset() {
+    Store.profile = defaultProfile();
+    Store.mistakes = { items: [], updatedAt: 0 };
+    Store.vocab = { items: [], updatedAt: 0 };
+    [DRAFT_SPEAK, DRAFT_DAILY, DRAFT_WRITE].forEach(lsDel);
+    DOCS.forEach(commit);
+    go('home');
+  }
+  const em = explainMode();
+  return html`<div class="block" style="gap:0">
+    <section class="set"><h3>Explanations of your mistakes</h3>
+      <div class="chips">${[['auto', 'Auto (now: ' + EXPLAIN_LABEL[em] + ')'], ['pl', 'Polish'], ['mix', 'Polish + English'], ['en', 'English']].map(([k, l]) => html`<button class=${'chip' + (p.explainMode === k ? ' on' : '')} onClick=${() => set('explainMode', k)} aria-pressed=${p.explainMode === k}>${l}</button>`)}</div>
+      <p class="small muted">Auto starts in Polish and switches to more English as your level and scores go up.</p></section>
+    <section class="set"><h3>Corrections during conversations</h3>
+      <div class="chips">${[3, 4, 5, 6].map(n => html`<button class=${'chip' + (p.correctionsEvery === n ? ' on' : '')} onClick=${() => set('correctionsEvery', n)} aria-pressed=${p.correctionsEvery === n}>Every ${n} messages</button>`)}</div></section>
+    <section class="set"><h3>Level</h3>
+      <div class="row"><select id="set-level" class="input" style="width:auto" value=${p.level || 'B1'} onChange=${e => { p.level = e.target.value; p.levelSource = 'self'; p.levelHistory.push({ date: new Date().toISOString(), level: e.target.value, source: 'self' }); commit('profile'); }} aria-label="Your level">${LEVELS.map(l => html`<option value=${l}>${l}</option>`)}</select>
+        <button class="btn" onClick=${() => go('onboard')}>Retake the level check</button></div>
+      <p class="small muted">Your level also updates automatically from session feedback (the middle of your last 3 estimates).</p></section>
+    ${TTS.ok ? html`<section class="set"><h3>Voice for reading aloud</h3>
+      <div class="row"><div class="chips">${[['en-GB', 'British'], ['en-US', 'American']].map(([k, l]) => html`<button class=${'chip' + (p.voice === k ? ' on' : '')} onClick=${() => set('voice', k)} aria-pressed=${p.voice === k}>${l}</button>`)}</div>
+        <label class="small muted" for="set-rate">Speed</label><input id="set-rate" type="range" min="0.7" max="1.2" step="0.05" value=${p.rate || 1} onChange=${e => set('rate', Number(e.target.value))} />
+        <button class="btn sm" onClick=${() => TTS.speak('I’m exhausted. I’ve been working all day.')}><${Icon} n="speaker" s=${15} /> Test</button></div>
+      <p class="small muted">Uses the voices installed on your device, so quality depends on your system.</p></section>` : null}
+    <section class="set"><h3>Your data</h3>
+      <p class="small muted">${Persist.mode === 'cloud' ? 'Saved privately to your Claude account, so it follows you across devices. Only you can see it.' : 'Saved in this browser only. Copy a backup now and then.'}</p>
+      <div class="row"><button class="btn sm" onClick=${() => copyText(dump())}><${Icon} n="copy" s=${15} /> Copy backup</button></div>
+      <label class="lbl" for="set-backup">Restore from a backup</label>
+      <textarea id="set-backup" class="input" rows="3" value=${backup} onInput=${e => setBackup(e.target.value)} placeholder="Paste a backup here"></textarea>
+      <div class="row"><button class="btn sm" disabled=${!backup.trim()} onClick=${restore}>Restore</button>${msg ? html`<span class="small muted">${msg}</span>` : null}</div>
+      <div class="row" style="margin-top:8px">${confirmReset ? html`<span class="err">Delete all progress, mistakes and vocabulary?</span><button class="btn sm" style="border-color:var(--err);color:var(--err)" onClick=${reset}>Yes, delete everything</button><button class="btn sm" onClick=${() => setConfirmReset(false)}>Cancel</button>` : html`<button class="linkbtn" style="color:var(--err)" onClick=${() => setConfirmReset(true)}>Reset all progress…</button>`}</div></section>
+    <section class="set"><h3>What this prototype can’t do (yet)</h3>
+      <div class="limits">
+        <p><b>No microphone.</b> Claude artifacts can’t record audio. Speak with your device’s dictation (Win+H, Fn Fn on Mac, the phone keyboard mic) and the text goes into the chat.</p>
+        <p><b>Pronunciation is estimated from words, not your voice.</b> The app flags words Polish speakers often mispronounce and can read any phrase aloud.</p>
+        <p><b>Fluency is measured in text:</b> message length, linking, reply speed and how you keep the conversation going.</p>
+        <p><b>AI answers use your own Claude usage.</b> Each reply, check and summary is one request. The first request asks for your permission.</p>
+      </div></section>
+  </div>`;
+}
+
+/* ---------- app ---------- */
+function App() {
+  const [, setTick] = useState(0);
+  useEffect(() => { const f = () => setTick(t => t + 1); Store.subs.add(f); return () => { Store.subs.delete(f); }; }, []);
+  const [route, setRoute] = useState(() => {
+    let h = '';
+    try { h = (location.hash || '').slice(1); } catch (e) {}
+    return ['speaking', 'writing', 'daily', 'progress'].includes(h) ? { name: h } : { name: 'home' };
+  });
+  const go = (name, extra) => { if (TTS.ok) { try { speechSynthesis.cancel(); } catch (e) {} } setRoute(Object.assign({ name }, extra || {})); window.scrollTo(0, 0); };
+  const p = Store.profile;
+  let view;
+  if (!p.onboarded && !Persist.settled) view = html`<div class="boot"><${Thinking} label="Loading your progress" /></div>`;
+  else if (!p.onboarded || route.name === 'onboard') view = html`<${Onboarding} go=${go} retake=${p.onboarded && route.name === 'onboard'} />`;
+  else if (route.name === 'speaking') view = html`<${Speaking} go=${go} />`;
+  else if (route.name === 'writing') view = html`<${Writing} />`;
+  else if (route.name === 'daily') view = html`<${DailyHost} go=${go} />`;
+  else if (route.name === 'progress') view = html`<${Progress} key=${route.tab || 'p'} go=${go} tab=${route.tab} />`;
+  else view = html`<${Home} go=${go} />`;
+  return html`<${TopBar} route=${route} go=${go} /><main class="wrap"><${AIBanner} />${view}</main><${Toaster} />`;
+}
+
+appEl.textContent = '';
+render(html`<${App} />`, appEl);
+Persist.init();
+})();
+</script>
