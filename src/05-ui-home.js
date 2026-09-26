@@ -7,6 +7,9 @@ function Tile({ icon, title, desc, meta, onClick, accent }) {
     <span class="tile-meta">${meta}</span>
   </button>`;
 }
+function Extra({ icon, title, desc, onClick }) {
+  return html`<button class="xcard" onClick=${onClick}><span class="tile-ic"><${Icon} n=${icon} s=${20} /></span><span><b>${title}</b><span class="xd">${desc}</span></span></button>`;
+}
 function Home({ go }) {
   const p = Store.profile;
   const today = dayKey();
@@ -17,6 +20,9 @@ function Home({ go }) {
   const speakOn = sd && !sd.ended && arr(sd.messages).some(m => m.role === 'me');
   const top = Mistakes.top(3);
   const st = streak();
+  const due = Vocab.due().length;
+  const ab = p.about || {};
+  const aboutSet = !!(ab.role || ab.goals || arr(ab.uses).length);
   let dateLabel = '';
   try { dateLabel = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }); } catch (e) {}
   return html`<div class="page">
@@ -25,11 +31,21 @@ function Home({ go }) {
       <h1>What do you want to practice?</h1>
     </section>
     <div class="tiles">
-      <${Tile} icon="chat" title="Speaking" desc="Chat about everyday topics or role-play real situations. You keep talking; corrections come in batches." meta=${speakOn ? 'Conversation in progress · resume' : TOPICS.length + ' topics · ' + SCENARIOS.length + ' real-life situations'} onClick=${() => go('speaking')} />
+      <${Tile} icon="chat" title="Speaking" desc="Chat about everyday topics or role-play real situations. You keep talking; corrections come in batches." meta=${speakOn ? 'Conversation in progress · resume' : TOPICS.length + ' topics · ' + (SCENARIOS.length + arr(p.customScenarios).length) + ' real-life situations'} onClick=${() => go('speaking')} />
       <${Tile} icon="pen" title="Writing" desc="Paste an email, a message or a post. See the exact fixes, a more natural version and why." meta="Text check · Would a native say this?" onClick=${() => go('writing')} />
       <${Tile} icon="daily" title="Daily practice" desc="10–15 minutes: a short conversation, your top corrections, 5 phrases, an exercise and a review of old mistakes." meta=${dailyDone ? 'Done today ✓' : dailyOn ? 'In progress · step ' + dd.step + ' of 6' : 'Not done yet today'} accent=${!dailyDone} onClick=${() => go('daily')} />
       <${Tile} icon="chart" title="My progress" desc="Your recurring mistakes, your vocabulary list and how your English is changing." meta=${Mistakes.items.length + ' mistakes tracked · ' + Store.vocab.items.length + ' phrases'} onClick=${() => go('progress')} />
     </div>
+    <section class="focus">
+      <div class="block-h"><h2>More ways to practise</h2></div>
+      <div class="extras">
+        <${Extra} icon="cards" title="Phrase review" desc=${due ? due + ' phrase' + (due === 1 ? '' : 's') + ' to review · 3–5 min' : 'Nothing due · review anyway'} onClick=${() => go('review')} />
+        <${Extra} icon="bolt" title="Think in English" desc="30-second answers and a Polish → English sprint" onClick=${() => go('sprint')} />
+        <${Extra} icon="wave" title="Shadowing" desc="Listen, repeat with dictation, compare" onClick=${() => go('shadow')} />
+        <${Extra} icon="report" title="Weekly report" desc="Your week, your coach’s plan for the next one" onClick=${() => go('progress', { tab: 'report' })} />
+      </div>
+      ${!aboutSet ? html`<button class="nudge" onClick=${() => go('progress', { tab: 'about' })}><${Icon} n="user" s=${20} /><span><b>Tell your coach about yourself.</b> Your job, where you use English and your goals. Conversations, situations and phrases will match your real life.</span></button>` : null}
+    </section>
     <section class="focus">
       <div class="block-h"><h2>Your focus right now</h2>${top.length ? html`<button class="linkbtn" onClick=${() => go('progress', { tab: 'mistakes' })}>All mistakes →</button>` : null}</div>
       ${top.length

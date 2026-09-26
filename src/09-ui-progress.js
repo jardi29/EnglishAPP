@@ -1,11 +1,11 @@
 /* ---------- my progress ---------- */
 function Progress({ go, tab }) {
   const [t, setT] = useState(tab || 'overview');
-  const tabs = [['overview', 'Overview'], ['mistakes', 'My common mistakes'], ['vocab', 'My vocabulary'], ['history', 'History'], ['settings', 'Settings']];
+  const tabs = [['overview', 'Overview'], ['report', 'Weekly report'], ['mistakes', 'My common mistakes'], ['vocab', 'My vocabulary'], ['about', 'About me'], ['history', 'History'], ['settings', 'Settings']];
   return html`<div class="page">
     <header class="page-h"><h1>My progress</h1></header>
     <div class="tabs" role="tablist">${tabs.map(([k, l]) => html`<button role="tab" aria-selected=${t === k} class=${'tab' + (t === k ? ' on' : '')} onClick=${() => setT(k)}>${l}</button>`)}</div>
-    ${t === 'overview' ? html`<${Overview} setT=${setT} />` : t === 'mistakes' ? html`<${MistakesTab} />` : t === 'vocab' ? html`<${VocabTab} />` : t === 'history' ? html`<${HistoryTab} />` : html`<${SettingsTab} go=${go} />`}
+    ${t === 'overview' ? html`<${Overview} setT=${setT} />` : t === 'report' ? html`<${WeeklyReport} go=${go} />` : t === 'about' ? html`<${AboutMe} go=${go} />` : t === 'mistakes' ? html`<${MistakesTab} />` : t === 'vocab' ? html`<${VocabTab} go=${go} />` : t === 'history' ? html`<${HistoryTab} />` : html`<${SettingsTab} go=${go} />`}
   </div>`;
 }
 
@@ -133,7 +133,7 @@ function MistakesTab() {
   </div>`;
 }
 
-function VocabTab() {
+function VocabTab({ go }) {
   const [f, setF] = useState('all');
   const [q, setQ] = useState('');
   const [add, setAdd] = useState('');
@@ -159,6 +159,7 @@ function VocabTab() {
   }
   return html`<div class="block">
     <p class="muted">Whole constructions, not single words. Phrases from your sessions land here automatically. Use one in a conversation and it moves towards <b>mastered</b>; mastered phrases are no longer taught again.</p>
+    <div class="row"><button class="btn primary" onClick=${() => go('review')}><${Icon} n="cards" s=${16} /> Review phrases${Vocab.due().length ? ' (' + Vocab.due().length + ' due)' : ''}</button></div>
     <div class="vtools">
       <div class="chips">${[['all', 'All', all.length], ['new', 'New', count('new')], ['learning', 'Learning', count('learning')], ['mastered', 'Mastered', count('mastered')]].map(([k, l, n]) => html`<button class=${'chip' + (f === k ? ' on' : '')} onClick=${() => setF(k)} aria-pressed=${f === k}>${l} · ${n}</button>`)}</div>
       <div class="grow"></div>
@@ -185,7 +186,7 @@ function VocabTab() {
   </div>`;
 }
 
-const MODE_LABEL = { speaking: 'Conversation', scenario: 'Role-play', writing: 'Writing', daily: 'Daily practice' };
+const MODE_LABEL = { speaking: 'Conversation', scenario: 'Role-play', writing: 'Writing', daily: 'Daily practice', review: 'Phrase review', sprint: 'Think in English', shadowing: 'Shadowing' };
 function HistoryTab() {
   const ss = Store.profile.sessions.slice().reverse();
   if (!ss.length) return html`<p class="empty">No sessions yet.</p>`;
@@ -260,28 +261,3 @@ function SettingsTab({ go }) {
   </div>`;
 }
 
-/* ---------- app ---------- */
-function App() {
-  const [, setTick] = useState(0);
-  useEffect(() => { const f = () => setTick(t => t + 1); Store.subs.add(f); return () => { Store.subs.delete(f); }; }, []);
-  const [route, setRoute] = useState(() => {
-    let h = '';
-    try { h = (location.hash || '').slice(1); } catch (e) {}
-    return ['speaking', 'writing', 'daily', 'progress'].includes(h) ? { name: h } : { name: 'home' };
-  });
-  const go = (name, extra) => { if (TTS.ok) { try { speechSynthesis.cancel(); } catch (e) {} } setRoute(Object.assign({ name }, extra || {})); window.scrollTo(0, 0); };
-  const p = Store.profile;
-  let view;
-  if (!p.onboarded && !Persist.settled) view = html`<div class="boot"><${Thinking} label="Loading your progress" /></div>`;
-  else if (!p.onboarded || route.name === 'onboard') view = html`<${Onboarding} go=${go} retake=${p.onboarded && route.name === 'onboard'} />`;
-  else if (route.name === 'speaking') view = html`<${Speaking} go=${go} />`;
-  else if (route.name === 'writing') view = html`<${Writing} />`;
-  else if (route.name === 'daily') view = html`<${DailyHost} go=${go} />`;
-  else if (route.name === 'progress') view = html`<${Progress} key=${route.tab || 'p'} go=${go} tab=${route.tab} />`;
-  else view = html`<${Home} go=${go} />`;
-  return html`<${TopBar} route=${route} go=${go} /><main class="wrap"><${AIBanner} />${view}</main><${Toaster} />`;
-}
-
-appEl.textContent = '';
-render(html`<${App} />`, appEl);
-Persist.init();

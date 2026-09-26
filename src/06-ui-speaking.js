@@ -169,6 +169,7 @@ function SpeakSetup({ start }) {
       <div class="block-h"><h2>Talk about…</h2><button class="btn sm" onClick=${() => start('topic', pick(fresh.length ? fresh : TOPICS).id)}>Surprise me</button></div>
       <div class="chips">${TOPICS.map(t => html`<button class="chip big" onClick=${() => start('topic', t.id)}>${t.label}</button>`)}</div>
     </section>
+    <${MySituations} start=${start} />
     <section class="block">
       <div class="block-h"><h2>Role-play a real situation</h2></div>
       <p class="muted">Alex plays the other person. React spontaneously, like in real life. When the scene ends you get a full analysis of your English.</p>
@@ -177,12 +178,56 @@ function SpeakSetup({ start }) {
     <aside class="note"><b>Want to speak out loud?</b> Claude artifacts can’t use your microphone, so there’s no record button. Use your device’s dictation and your speech is typed into the box: <span class="kbd">Win</span>+<span class="kbd">H</span> on Windows, <span class="kbd">Fn</span> twice (or the Globe key) on Mac, or the mic key on your phone’s keyboard. Alex’s replies can be read aloud with the speaker button.</aside>
   </div>`;
 }
+function MySituations({ start }) {
+  const p = Store.profile;
+  const list = arr(p.customScenarios);
+  const [desc, setDesc] = useState('');
+  const [busy, setBusy] = useState('');
+  const [err, setErr] = useState('');
+  async function generate() {
+    setBusy('gen'); setErr('');
+    try {
+      const r = await aiJSON(scenariosPrompt(4), { modelTier: 'default', cache: false });
+      const add = arr(r && r.scenarios).map(normScenario).filter(Boolean).slice(0, 4);
+      if (!add.length) throw { code: 'invalid_json' };
+      p.customScenarios = add.concat(list).slice(0, 16);
+      commit('profile');
+    } catch (e) { setErr(errText(e)); }
+    finally { setBusy(''); }
+  }
+  async function describe() {
+    const t = desc.trim();
+    if (words(t) < 3) { setErr('Describe the situation in a few words first.'); return; }
+    setBusy('desc'); setErr('');
+    try {
+      const sc = normScenario(await aiJSON(customScenarioPrompt(t), { modelTier: 'quick', cache: false }));
+      if (!sc) throw { code: 'invalid_json' };
+      p.customScenarios = [sc].concat(list).slice(0, 16);
+      commit('profile');
+      setDesc('');
+    } catch (e) { setErr(errText(e)); }
+    finally { setBusy(''); }
+  }
+  function remove(id) { p.customScenarios = list.filter(x => x.id !== id); commit('profile'); }
+  const ab = p.about || {};
+  const hasAbout = !!(ab.role || ab.goals || arr(ab.uses).length);
+  return html`<section class="block">
+    <div class="block-h"><h2>Your situations</h2>${busy === 'gen' ? html`<${Thinking} label="Creating situations" />` : html`<button class="btn sm" onClick=${generate}>${list.length ? 'Create 4 more' : 'Create 4 from my profile'}</button>`}</div>
+    <p class="muted">${hasAbout ? 'Role-plays built around your job, goals and interests.' : 'Role-plays built around your real life. Fill in About me in My progress so they fit you better.'}</p>
+    ${list.length ? html`<div class="scen-grid">${list.map(sc => html`<div class="scen mine"><button class="scen-go" onClick=${() => start('scenario', sc.id)}><b>${sc.title}</b><span>${sc.situation}</span></button><button class="iconbtn scen-x" onClick=${() => remove(sc.id)} aria-label=${'Delete ' + sc.title}><${Icon} n="trash" s=${15} /></button></div>`)}</div>` : null}
+    <div class="row">
+      <input id="sc-desc" class="input" style="flex:1;min-width:220px" value=${desc} onInput=${e => setDesc(e.target.value)} onKeyDown=${e => { if (e.key === 'Enter') describe(); }} placeholder="Or describe one, e.g. “a call with a client who is angry about a delay”" aria-label="Describe your own situation" />
+      ${busy === 'desc' ? html`<${Thinking} label="Setting it up" />` : html`<button class="btn" onClick=${describe} disabled=${!desc.trim()}><${Icon} n="plus" s=${16} /> Add</button>`}
+    </div>
+    ${err ? html`<p class="err" role="alert">${err}</p>` : null}
+  </section>`;
+}
 function ChatSession({ init, go, onNew }) {
   const chat = useChat(init, { autoCorrect: true, onSave: s => (s.ended ? lsDel(DRAFT_SPEAK) : lsSet(DRAFT_SPEAK, s)) });
   const s = chat.s;
   const [fb, setFb] = useState({ busy: false, err: '' });
   const [auto, setAuto] = useState(() => !!lsGet(LS + 'autoread'));
-  const sc = s.scenario ? SCENARIOS.find(x => x.id === s.scenario) : null;
+  const sc = findScenario(s.scenario);
   const title = sessionTitle(s);
   const mineN = s.messages.filter(m => m.role === 'me').length;
   const every = Store.profile.correctionsEvery || 4;

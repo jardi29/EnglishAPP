@@ -13,7 +13,13 @@ const ICONS = {
   copy: () => html`<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/>`,
   trash: () => html`<path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/>`,
   plus: () => html`<path d="M12 5v14M5 12h14"/>`,
-  stop: () => html`<rect x="6.5" y="6.5" width="11" height="11" rx="2"/>`
+  stop: () => html`<rect x="6.5" y="6.5" width="11" height="11" rx="2"/>`,
+  cards: () => html`<rect x="3.5" y="7" width="12" height="13" rx="2"/><path d="M8 4h10.5a2 2 0 0 1 2 2v11"/>`,
+  bolt: () => html`<path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/>`,
+  wave: () => html`<path d="M3 12h2M7 8v8M11 5v14M15 9v6M19 7v10M21 12h0"/>`,
+  report: () => html`<path d="M6 3.5h9l3.5 3.5v13.5H6z"/><path d="M9 12h6M9 15.5h6M9 8.5h3"/>`,
+  user: () => html`<circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/>`,
+  play: () => html`<path d="M8 5.5v13l10.5-6.5z"/>`
 };
 function Icon({ n, s }) {
   const size = s || 18;

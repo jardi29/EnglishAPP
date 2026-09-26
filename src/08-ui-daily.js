@@ -7,8 +7,9 @@ function pickDaily() {
     const pool = TOPICS.filter(t => !recent.includes(t.id));
     return { kind: 'topic', id: pick(pool.length ? pool : TOPICS).id };
   }
-  const pool = SCENARIOS.filter(s => !recent.includes(s.id));
-  return { kind: 'scenario', id: pick(pool.length ? pool : SCENARIOS).id };
+  const all = SCENARIOS.concat(arr(Store.profile.customScenarios));
+  const pool = all.filter(s => !recent.includes(s.id));
+  return { kind: 'scenario', id: pick(pool.length ? pool : all).id };
 }
 function newDaily() {
   const p = pickDaily();
@@ -121,7 +122,7 @@ function Daily({ go, again }) {
   useEffect(() => { if (d.step === 6 && d.feedback && !d.recorded) finishDaily(); });
 
   const mine = d.chat.messages.filter(m => m.role === 'me').length;
-  const sc = d.chat.scenario && SCENARIOS.find(x => x.id === d.chat.scenario);
+  const sc = findScenario(d.chat.scenario);
   const Retry = ({ k, fn }) => errs[k] ? html`<div class="chat-err" role="alert"><span>${errs[k]}</span><button class="btn sm" onClick=${fn}>Try again</button></div>` : null;
   const Next = ({ to, label, disabled }) => html`<div class="stepnav"><button class="linkbtn" onClick=${() => toStep(d.step - 1)}><${Icon} n="back" s=${16} /> Back</button><button class="btn primary" disabled=${disabled} onClick=${() => toStep(to)}>${label}</button></div>`;
 

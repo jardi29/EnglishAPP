@@ -81,6 +81,7 @@ function learnerContext() {
   const scores = r ? DIMS.filter(d => r[d] != null).map(d => d + ' ' + r[d].toFixed(1)).join(', ') : 'no sessions yet';
   return `LEARNER PROFILE
 - First language: Polish. Goals: speak fluently, sound natural, write better, learn phrases they will really use, stop repeating the same mistakes. They want to move from "Polish -> translate -> English" to thinking directly in English.
+- About the learner: ${aboutText() || 'not provided yet'}
 - Estimated level: ${p.level || 'not known yet (probably B1/B2)'}
 - Recurring mistakes (most important first): ${top}
 - Strong areas: ${p.strengths.join(', ') || 'not known yet'}
@@ -89,7 +90,7 @@ function learnerContext() {
 - Recent average scores (1-10): ${scores}`;
 }
 function sessionLabel(s) {
-  const sc = s.scenario && SCENARIOS.find(x => x.id === s.scenario);
+  const sc = findScenario(s.scenario);
   if (sc) return `Role-play: ${sc.situation} The learner is ${sc.me}; the partner is ${sc.ai}.`;
   const tp = s.topic && TOPICS.find(x => x.id === s.topic);
   return `Topic: ${tp ? tp.label : 'free conversation'}.`;
@@ -101,14 +102,15 @@ function transcript(msgs, from) {
 function partnerRules(s) {
   const lvl = Store.profile.level || 'B1/B2';
   const learning = Store.vocab.items.filter(v => v.status !== 'mastered').slice(0, 6).map(v => v.en).join('; ');
-  const sc = s.scenario && SCENARIOS.find(x => x.id === s.scenario);
+  const sc = findScenario(s.scenario);
   const tp = s.topic && TOPICS.find(x => x.id === s.topic);
   const setup = sc
     ? `ROLE-PLAY. Situation: ${sc.situation} You play ${sc.ai}. The learner plays ${sc.me}; their goal: ${sc.goal}
 Stay fully in character the whole time. Make it feel real, and at a natural moment add one small complication the learner has to react to spontaneously (${sc.twist}).${s.warmup ? ' This is a short warm-up of about 3 minutes, so keep the scene simple.' : ' When the situation is naturally resolved (usually after 8-14 exchanges), say a natural closing line and add [END] at the very end of that message.'}`
     : `CASUAL CONVERSATION. Topic: ${tp ? tp.label + ' (' + tp.seed + ')' : 'anything'}. You are Alex, a friendly, curious native English speaker in your thirties. Share your own small opinions and experiences too, like a real person, so it feels like a two-way chat.${s.warmup ? ' This is a short 3-minute warm-up, so ask easy, open questions.' : ''}`;
+  const about = aboutText();
   return `You are having a text conversation with an English learner whose first language is Polish (level ${lvl}). This is real conversation practice, not a lesson.
-
+${about ? 'What you know about the learner (use it naturally when relevant, never list it): ' + about + '\n' : ''}
 ${setup}
 
 RULES
@@ -331,6 +333,73 @@ Estimate their CEFR level (A2, B1, B1+, B2, B2+, C1 or C2), weighing the writing
 Reply with only JSON: {"level":"B1+","summary":"","strengths":[""],"focus":[{"you_said":"","better":"","why":"","mistake_key":"","mistake_label":""}]}`;
 }
 
+function scenariosPrompt(n) {
+  const existing = SCENARIOS.concat(arr(Store.profile.customScenarios)).map(x => x.title).join('; ');
+  return `Create ${n} realistic role-play situations in which this learner can practise speaking English, based on their real life and goals.
+
+${learnerContext()}
+
+Each situation: "title" (2-5 words), "situation" (one sentence starting with "You're" or "You've"), "me" (who the learner is, e.g. "the project manager"), "ai" (who the conversation partner plays), "goal" (one short sentence), "twist" (a small complication the learner must react to spontaneously). Make them varied (a meeting, a call, small talk, a problem to solve, a negotiation...) and pitched at level ${Store.profile.level || 'B1/B2'}. Don't repeat these: ${existing}.
+Reply with only JSON: {"scenarios":[{"title":"","situation":"","me":"","ai":"","goal":"","twist":""}]}`;
+}
+function customScenarioPrompt(desc) {
+  return `A Polish learner of English wants to practise this situation in a role-play: "${desc.slice(0, 600)}".
+Turn it into a role-play setup. "title" (2-5 words), "situation" (one sentence starting with "You're" or "You've"), "me" (who the learner is), "ai" (who the conversation partner plays), "goal" (one short sentence), "twist" (a small realistic complication). Write everything in English.
+Reply with only JSON: {"title":"","situation":"","me":"","ai":"","goal":"","twist":""}`;
+}
+function normScenario(x) {
+  const o = { id: 'c-' + uid(), custom: true, title: str(x && x.title).slice(0, 60), situation: str(x && x.situation).slice(0, 300), me: str(x && x.me).slice(0, 80) || 'yourself', ai: str(x && x.ai).slice(0, 120), goal: str(x && x.goal).slice(0, 160), twist: str(x && x.twist).slice(0, 160) || 'a small unexpected problem' };
+  return o.title && o.situation && o.ai ? o : null;
+}
+
+function sprintGenPrompt() {
+  return `Create a "Think in English" speed drill for this learner.
+
+${learnerContext()}
+
+1. "quick": 5 short, open, personal questions they can answer in 1-2 sentences within 30 seconds (everyday life, work, opinions, "what would you do if..."). Connect them to the learner's life and interests when known. Simple wording.
+2. "translate": 6 short, natural Polish sentences (5-12 words) that tempt typical Polish-speaker errors, especially this learner's recurring mistakes and word-for-word translations (tenses with "od" / "jak długo", articles, make/do, false friends like "aktualnie", prepositions, "mieć" constructions...). For each: "en" = a natural English version, "trap" = what Polish speakers typically get wrong, "mistake_key" = one of: ${keysList()}.
+${explainRule()}
+Reply with only JSON: {"quick":[{"q":""}],"translate":[{"pl":"","en":"","trap":"","mistake_key":""}]}`;
+}
+function sprintCheckPrompt(items) {
+  return `Check a Polish learner's answers from a timed "Think in English" drill (30 seconds per question, 20 seconds per translation). Speed matters more than perfection: accept anything understandable and natural. Mark ok=false only for real errors or clearly unnatural translations. An empty answer means "not answered in time".
+${explainRule()} Keep feedback to one short sentence.
+
+ITEMS
+${items.map(x => '#' + x.i + ' | ' + (x.kind === 'quick' ? 'Question: ' + x.prompt : 'Translate from Polish: ' + x.prompt + ' | Model: ' + x.expected + ' | Trap: ' + x.trap) + ' | Seconds used: ' + x.secs + ' | Answer: "' + x.given + '"').join('\n')}
+
+For each item: {"i": number, "ok": true or false, "feedback": "", "natural": "a natural version of what they meant (or the model translation)", "mistake_key": "a key from this list if there is a real error, else empty: ${keysList()}", "mistake_label": "", "polish_calque": false}.
+Also "summary" (2 short sentences) and "scores": fluency (speed and fullness), grammar, naturalness, each 1-10 (5 = solid B1, 7 = solid B2, 9 = C1+).
+Reply with only JSON: {"items":[{"i":0,"ok":true,"feedback":"","natural":"","mistake_key":"","mistake_label":"","polish_calque":false}],"summary":"","scores":{"fluency":0,"grammar":0,"naturalness":0}}`;
+}
+
+function shadowGenPrompt(theme) {
+  const about = aboutText();
+  return `Create 6 natural spoken English sentences for a shadowing exercise (listen, then repeat aloud) for a Polish learner at level ${Store.profile.level || 'B1/B2'}. Theme: ${theme}.
+${about ? 'About the learner: ' + about : ''}
+Mix lengths (6-16 words). Use contractions, common phrasal verbs and natural rhythm, like real speech. For each sentence add a short pronunciation tip for Polish speakers: word stress (stressed syllable in CAPITALS), linking ("want to" sounds like "wanna" in fast speech), weak forms, "th", w/v, final -ed.
+${explainRule()}
+Reply with only JSON: {"items":[{"text":"","tip":""}]}`;
+}
+
+function reportPrompt(w) {
+  return `Write a short weekly progress report for a Polish learner of English, as their personal coach.
+
+${learnerContext()}
+
+THIS WEEK (last 7 days) compared with the week before:
+${w.text}
+
+Write:
+- "summary": 2-3 sentences, honest and encouraging, specific to the numbers above.
+- "wins": 2-3 specific wins.
+- "focus": exactly 3 priorities for next week, most important first, each {"title": "", "why": "", "how": "a concrete action in the app or in real life"}.
+- "plan": 7 short daily sessions (10-15 minutes), each {"day": "Mon", "task": "", "mode": one of "speaking", "writing", "daily", "review", "sprint", "shadow"}. Vary the modes and serve the focus.
+${explainRule()}
+Reply with only JSON: {"summary":"","wins":[""],"focus":[{"title":"","why":"","how":""}],"plan":[{"day":"Mon","task":"","mode":"daily"}]}`;
+}
+
 /* ---------- normalisers ---------- */
 function normAnalysis(r) {
   r = r && typeof r === 'object' ? r : {};
@@ -382,7 +451,7 @@ function newSession(kind, id, warmup) {
   return { id: uid(), kind, topic: kind === 'topic' ? id : null, scenario: kind === 'scenario' ? id : null, warmup: !!warmup, messages: [], batches: [], analyzedUpTo: 0, startedAt: Date.now(), ended: false, feedback: null, scenarioDone: false };
 }
 function sessionTitle(s) {
-  const sc = s.scenario && SCENARIOS.find(x => x.id === s.scenario);
+  const sc = findScenario(s.scenario);
   if (sc) return sc.title;
   const tp = s.topic && TOPICS.find(x => x.id === s.topic);
   return tp ? tp.label : 'Conversation';
@@ -414,14 +483,14 @@ const TTS = {
     const score = v => (v.lang.replace('_', '-').toLowerCase().indexOf(want) === 0 ? 10 : 0) + (/natural|neural|google|premium|enhanced|siri/i.test(v.name) ? 3 : 0);
     return this.voices.slice().sort((a, b) => score(b) - score(a))[0] || null;
   },
-  speak(text) {
+  speak(text, rate) {
     if (!this.ok) return;
     try {
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(String(text).replace(/…|\.\.\./g, ', '));
       const v = this.pick();
       if (v) { u.voice = v; u.lang = v.lang; } else u.lang = Store.profile.voice || 'en-GB';
-      u.rate = Store.profile.rate || 1;
+      u.rate = rate || Store.profile.rate || 1;
       speechSynthesis.speak(u);
     } catch (e) {}
   }

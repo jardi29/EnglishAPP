@@ -99,6 +99,9 @@ const SCENARIOS = [
   { id: 'complaint', title: 'Making a complaint', situation: 'The headphones you bought arrived damaged, so you go to the shop’s service desk.', me: 'the customer', ai: 'the service desk employee', goal: 'Get a refund or a replacement.', twist: 'you don’t have the receipt with you' }
 ];
 
+const findScenario = id => id ? (SCENARIOS.find(x => x.id === id) || arr(Store.profile.customScenarios).find(x => x.id === id) || null) : null;
+const USES = ['Meetings', 'Emails and chat', 'Calls with clients', 'Presentations', 'Job interviews', 'Travel', 'Friends and social life', 'Films and series', 'Exams', 'Moving abroad'];
+
 const DIAG = [
   { q: 'I ___ to London three times, but I ___ there last year.', opts: ['have been / didn’t go', 'was / haven’t gone', 'went / haven’t been', 'have gone / didn’t went'], ans: 0, key: 'present-perfect-vs-past-simple', why: 'Doświadczenie bez podanego czasu → Present Perfect (have been). Konkretny czas w przeszłości (last year) → Past Simple (didn’t go).' },
   { q: 'She’s ___ engineer at ___ company I told you about.', opts: ['an / the', 'a / a', 'the / a', '– / the'], ans: 0, key: 'articles', why: '„An” przed samogłoską w wymowie (an engineer). „The”, bo chodzi o konkretną firmę, o której już była mowa.' },
@@ -131,12 +134,15 @@ const DRAFT_SPEAK = LS + 'draft.speaking';
 const DRAFT_DAILY = LS + 'draft.daily';
 const DRAFT_WRITE = LS + 'draft.writing';
 const DOCS = ['profile', 'mistakes', 'vocab'];
-const defaultProfile = () => ({ v: 1, onboarded: false, level: null, levelSource: null, levelHistory: [], explainMode: 'auto', correctionsEvery: 4, voice: 'en-GB', rate: 1, strengths: [], sessions: [], lastTopics: [], updatedAt: 0 });
+const defaultProfile = () => ({ v: 1, onboarded: false, level: null, levelSource: null, levelHistory: [], explainMode: 'auto', correctionsEvery: 4, voice: 'en-GB', rate: 1, strengths: [], sessions: [], lastTopics: [], about: defaultAbout(), customScenarios: [], reports: [], updatedAt: 0 });
+const defaultAbout = () => ({ role: '', uses: [], goals: '', interests: '', notes: '' });
 function sanitizeDoc(name, d) {
   if (!d || typeof d !== 'object') return null;
   if (name === 'profile') {
     const p = Object.assign(defaultProfile(), d);
-    ['levelHistory', 'strengths', 'sessions', 'lastTopics'].forEach(k => { p[k] = arr(p[k]); });
+    ['levelHistory', 'strengths', 'sessions', 'lastTopics', 'customScenarios', 'reports'].forEach(k => { p[k] = arr(p[k]); });
+    p.about = Object.assign(defaultAbout(), p.about && typeof p.about === 'object' ? p.about : {});
+    p.about.uses = arr(p.about.uses);
     return p;
   }
   return { items: arr(d.items), updatedAt: d.updatedAt || 0 };
@@ -224,6 +230,7 @@ const Mistakes = {
       this.items.push(m);
     }
     m.count += 1; m.lastSeen = now; m.box = 0; m.due = now;
+    m.hist = [now].concat(arr(m.hist)).slice(0, 30);
     if (c.polish_calque) m.calques = (m.calques || 0) + 1;
     const ex = { wrong: str(c.you_said), right: str(c.better), natural: str(c.more_natural), why: str(c.why), at: now };
     if (ex.wrong && ex.right && !m.examples.some(e => norm(e.wrong) === norm(ex.wrong))) { m.examples.unshift(ex); m.examples = m.examples.slice(0, 4); }
@@ -258,6 +265,7 @@ const normPhrase = p => {
   const d = str(p && p.difficulty).toUpperCase();
   return { en: str(p && p.en), pl: str(p && p.pl), example: str(p && p.example), alternatives: arr(p && p.alternatives).map(str).filter(Boolean).slice(0, 3), difficulty: ['A2', 'B1', 'B2', 'C1', 'C2'].includes(d) ? d : 'B2', kind: str(p && p.kind).toLowerCase().slice(0, 24) };
 };
+const V_INT = [0, 1, 3, 7, 14, 30];
 const vStatus = sc => sc >= 3 ? 'mastered' : sc >= 1 ? 'learning' : 'new';
 function coreOf(en) {
   return norm(en.replace(/\(.*?\)/g, ' ').replace(/\+.*$/, ' ').replace(/(\.\.\.|…)/g, ' ').replace(/\b(sb|sth|someone|something|somebody|smb|one's)\b/gi, ' '));
@@ -288,6 +296,23 @@ const Vocab = {
     v.score = status === 'mastered' ? 3 : status === 'learning' ? Math.min(2, Math.max(1, v.score || 1)) : 0;
   },
   remove(id) { Store.vocab.items = this.items.filter(i => i.id !== id); },
+  review(id, g) {
+    const v = this.items.find(i => i.id === id);
+    if (!v) return;
+    const now = Date.now();
+    v.reviews = (v.reviews || 0) + 1; v.lastReviewed = now;
+    if (g === 2) { v.box = Math.min(5, (v.box || 0) + 1); v.score = (v.score || 0) + 1; v.due = now + V_INT[v.box] * DAY; }
+    else if (g === 1) { v.box = Math.max(1, v.box || 0); v.due = now + DAY; }
+    else { v.box = 0; v.score = Math.max(0, (v.score || 0) - 1); v.due = now; }
+    v.status = vStatus(v.score);
+  },
+  isDue(v, now) { return v.due == null ? v.status !== 'mastered' : v.due <= now; },
+  due(n) {
+    const now = Date.now();
+    const rank = { learning: 0, new: 1, mastered: 2 };
+    return this.items.filter(v => this.isDue(v, now)).sort((a, b) => (rank[a.status] - rank[b.status]) || ((a.due || a.added || 0) - (b.due || b.added || 0))).slice(0, n || 999);
+  },
+  nextDue() { const t = this.items.filter(v => v.due != null && v.due > Date.now()).map(v => v.due); return t.length ? Math.min.apply(null, t) : null; },
   detectUse(text) {
     const t = ' ' + norm(text) + ' ';
     const now = Date.now();
@@ -345,6 +370,16 @@ function recordSession(x) {
   }
   if (arr(x.strengths).length) p.strengths = x.strengths.slice(0, 4);
   commit('profile');
+}
+function aboutText() {
+  const a = Store.profile.about || {};
+  const parts = [];
+  if (a.role) parts.push('Work / role: ' + a.role);
+  if (arr(a.uses).length) parts.push('Uses English for: ' + a.uses.join(', '));
+  if (a.goals) parts.push('Goals: ' + a.goals);
+  if (a.interests) parts.push('Interests: ' + a.interests);
+  if (a.notes) parts.push('Other: ' + a.notes);
+  return parts.join('; ').slice(0, 900);
 }
 function noteTopic(id) {
   const p = Store.profile;

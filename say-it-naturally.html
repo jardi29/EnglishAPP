@@ -359,6 +359,45 @@ mark.m sup{font-family:var(--f-mono);font-size:10px;color:var(--err);margin-left
 .set h3{font-size:17px}
 .limits{display:flex;flex-direction:column;gap:8px;font-size:14.5px;color:var(--ink-2)}
 .limits b{color:var(--ink)}
+/* extras */
+.extras{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:860px){.extras{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.extras{grid-template-columns:1fr}}
+.xcard{display:flex;gap:12px;align-items:flex-start;text-align:left;padding:14px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.xcard:hover{border-color:var(--accent)}
+.xcard .tile-ic{margin:2px 0 0}
+.xcard b{display:block;font-size:15.5px}
+.xd{display:block;font-size:13.5px;color:var(--ink-2)}
+.nudge{display:flex;gap:12px;align-items:flex-start;text-align:left;padding:14px 16px;border-radius:var(--r);border:1px dashed color-mix(in srgb,var(--accent) 45%,transparent);background:var(--accent-soft);color:var(--ink);font-size:15px}
+.nudge svg{flex:none;color:var(--accent-ink);margin-top:1px}
+.scen.mine{flex-direction:row;padding:0;align-items:stretch;gap:0}
+.scen-go{flex:1;border:0;background:none;text-align:left;display:flex;flex-direction:column;gap:4px;padding:14px 4px 14px 16px;color:var(--ink)}
+.scen-go b{font-size:16px}
+.scen-go span{font-size:14px;color:var(--ink-2)}
+.scen-x{align-self:flex-start;margin:6px;flex:none}
+.fcard{display:flex;flex-direction:column;gap:14px;padding:22px;border-radius:var(--r-lg);border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);max-width:680px}
+.fc-front{font-family:var(--f-display);font-size:clamp(23px,4vw,31px);font-weight:500;line-height:1.25;letter-spacing:-.01em;overflow-wrap:anywhere}
+.fc-en{font-size:22px;font-weight:700}
+.fc-back{display:flex;flex-direction:column;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+.grades{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.grades .btn{flex-direction:column;gap:2px;padding:10px 6px}
+.grades kbd{font-family:var(--f-mono);font-size:10.5px;opacity:.7}
+@media (pointer:coarse){.grades kbd{display:none}}
+.cd{display:flex;align-items:center;gap:12px}
+.cd-bar{flex:1;height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.cd-bar i{display:block;height:100%;background:var(--accent);transition:width .2s linear}
+.sh-text{font-family:var(--f-display);font-size:clamp(20px,3.4vw,26px);font-weight:500;line-height:1.35;padding:14px 16px;border-radius:var(--r);background:var(--sunk);transition:filter .2s}
+.sh-text.blur{filter:blur(7px);-webkit-user-select:none;user-select:none}
+.acc{font-family:var(--f-mono);font-size:30px;line-height:1;color:var(--accent-ink)}
+.wk{display:grid;grid-template-columns:minmax(96px,1.3fr) repeat(3,minmax(0,1fr));border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden;font-size:15px}
+.wk>span{padding:9px 14px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.wk>span.h{border-top:0;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.plan{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.plan-row{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:10px 14px;border-top:1px solid var(--line);font-size:15px}
+.plan-row:first-child{border-top:0}
+.plan-day{font-family:var(--f-mono);font-size:12.5px;color:var(--ink-3)}
+.focus-item{padding:12px 14px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
+@media (prefers-reduced-motion:reduce){.sh-text,.cd-bar i{transition:none}}
 </style>
 <div id="app"><div class="boot">Loading Say It Naturally…</div></div>
 <script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/preact/standalone.umd.js"></script>
@@ -470,6 +509,9 @@ const SCENARIOS = [
   { id: 'complaint', title: 'Making a complaint', situation: 'The headphones you bought arrived damaged, so you go to the shop’s service desk.', me: 'the customer', ai: 'the service desk employee', goal: 'Get a refund or a replacement.', twist: 'you don’t have the receipt with you' }
 ];
 
+const findScenario = id => id ? (SCENARIOS.find(x => x.id === id) || arr(Store.profile.customScenarios).find(x => x.id === id) || null) : null;
+const USES = ['Meetings', 'Emails and chat', 'Calls with clients', 'Presentations', 'Job interviews', 'Travel', 'Friends and social life', 'Films and series', 'Exams', 'Moving abroad'];
+
 const DIAG = [
   { q: 'I ___ to London three times, but I ___ there last year.', opts: ['have been / didn’t go', 'was / haven’t gone', 'went / haven’t been', 'have gone / didn’t went'], ans: 0, key: 'present-perfect-vs-past-simple', why: 'Doświadczenie bez podanego czasu → Present Perfect (have been). Konkretny czas w przeszłości (last year) → Past Simple (didn’t go).' },
   { q: 'She’s ___ engineer at ___ company I told you about.', opts: ['an / the', 'a / a', 'the / a', '– / the'], ans: 0, key: 'articles', why: '„An” przed samogłoską w wymowie (an engineer). „The”, bo chodzi o konkretną firmę, o której już była mowa.' },
@@ -502,12 +544,15 @@ const DRAFT_SPEAK = LS + 'draft.speaking';
 const DRAFT_DAILY = LS + 'draft.daily';
 const DRAFT_WRITE = LS + 'draft.writing';
 const DOCS = ['profile', 'mistakes', 'vocab'];
-const defaultProfile = () => ({ v: 1, onboarded: false, level: null, levelSource: null, levelHistory: [], explainMode: 'auto', correctionsEvery: 4, voice: 'en-GB', rate: 1, strengths: [], sessions: [], lastTopics: [], updatedAt: 0 });
+const defaultProfile = () => ({ v: 1, onboarded: false, level: null, levelSource: null, levelHistory: [], explainMode: 'auto', correctionsEvery: 4, voice: 'en-GB', rate: 1, strengths: [], sessions: [], lastTopics: [], about: defaultAbout(), customScenarios: [], reports: [], updatedAt: 0 });
+const defaultAbout = () => ({ role: '', uses: [], goals: '', interests: '', notes: '' });
 function sanitizeDoc(name, d) {
   if (!d || typeof d !== 'object') return null;
   if (name === 'profile') {
     const p = Object.assign(defaultProfile(), d);
-    ['levelHistory', 'strengths', 'sessions', 'lastTopics'].forEach(k => { p[k] = arr(p[k]); });
+    ['levelHistory', 'strengths', 'sessions', 'lastTopics', 'customScenarios', 'reports'].forEach(k => { p[k] = arr(p[k]); });
+    p.about = Object.assign(defaultAbout(), p.about && typeof p.about === 'object' ? p.about : {});
+    p.about.uses = arr(p.about.uses);
     return p;
   }
   return { items: arr(d.items), updatedAt: d.updatedAt || 0 };
@@ -595,6 +640,7 @@ const Mistakes = {
       this.items.push(m);
     }
     m.count += 1; m.lastSeen = now; m.box = 0; m.due = now;
+    m.hist = [now].concat(arr(m.hist)).slice(0, 30);
     if (c.polish_calque) m.calques = (m.calques || 0) + 1;
     const ex = { wrong: str(c.you_said), right: str(c.better), natural: str(c.more_natural), why: str(c.why), at: now };
     if (ex.wrong && ex.right && !m.examples.some(e => norm(e.wrong) === norm(ex.wrong))) { m.examples.unshift(ex); m.examples = m.examples.slice(0, 4); }
@@ -629,6 +675,7 @@ const normPhrase = p => {
   const d = str(p && p.difficulty).toUpperCase();
   return { en: str(p && p.en), pl: str(p && p.pl), example: str(p && p.example), alternatives: arr(p && p.alternatives).map(str).filter(Boolean).slice(0, 3), difficulty: ['A2', 'B1', 'B2', 'C1', 'C2'].includes(d) ? d : 'B2', kind: str(p && p.kind).toLowerCase().slice(0, 24) };
 };
+const V_INT = [0, 1, 3, 7, 14, 30];
 const vStatus = sc => sc >= 3 ? 'mastered' : sc >= 1 ? 'learning' : 'new';
 function coreOf(en) {
   return norm(en.replace(/\(.*?\)/g, ' ').replace(/\+.*$/, ' ').replace(/(\.\.\.|…)/g, ' ').replace(/\b(sb|sth|someone|something|somebody|smb|one's)\b/gi, ' '));
@@ -659,6 +706,23 @@ const Vocab = {
     v.score = status === 'mastered' ? 3 : status === 'learning' ? Math.min(2, Math.max(1, v.score || 1)) : 0;
   },
   remove(id) { Store.vocab.items = this.items.filter(i => i.id !== id); },
+  review(id, g) {
+    const v = this.items.find(i => i.id === id);
+    if (!v) return;
+    const now = Date.now();
+    v.reviews = (v.reviews || 0) + 1; v.lastReviewed = now;
+    if (g === 2) { v.box = Math.min(5, (v.box || 0) + 1); v.score = (v.score || 0) + 1; v.due = now + V_INT[v.box] * DAY; }
+    else if (g === 1) { v.box = Math.max(1, v.box || 0); v.due = now + DAY; }
+    else { v.box = 0; v.score = Math.max(0, (v.score || 0) - 1); v.due = now; }
+    v.status = vStatus(v.score);
+  },
+  isDue(v, now) { return v.due == null ? v.status !== 'mastered' : v.due <= now; },
+  due(n) {
+    const now = Date.now();
+    const rank = { learning: 0, new: 1, mastered: 2 };
+    return this.items.filter(v => this.isDue(v, now)).sort((a, b) => (rank[a.status] - rank[b.status]) || ((a.due || a.added || 0) - (b.due || b.added || 0))).slice(0, n || 999);
+  },
+  nextDue() { const t = this.items.filter(v => v.due != null && v.due > Date.now()).map(v => v.due); return t.length ? Math.min.apply(null, t) : null; },
   detectUse(text) {
     const t = ' ' + norm(text) + ' ';
     const now = Date.now();
@@ -716,6 +780,16 @@ function recordSession(x) {
   }
   if (arr(x.strengths).length) p.strengths = x.strengths.slice(0, 4);
   commit('profile');
+}
+function aboutText() {
+  const a = Store.profile.about || {};
+  const parts = [];
+  if (a.role) parts.push('Work / role: ' + a.role);
+  if (arr(a.uses).length) parts.push('Uses English for: ' + a.uses.join(', '));
+  if (a.goals) parts.push('Goals: ' + a.goals);
+  if (a.interests) parts.push('Interests: ' + a.interests);
+  if (a.notes) parts.push('Other: ' + a.notes);
+  return parts.join('; ').slice(0, 900);
 }
 function noteTopic(id) {
   const p = Store.profile;
@@ -806,6 +880,7 @@ function learnerContext() {
   const scores = r ? DIMS.filter(d => r[d] != null).map(d => d + ' ' + r[d].toFixed(1)).join(', ') : 'no sessions yet';
   return `LEARNER PROFILE
 - First language: Polish. Goals: speak fluently, sound natural, write better, learn phrases they will really use, stop repeating the same mistakes. They want to move from "Polish -> translate -> English" to thinking directly in English.
+- About the learner: ${aboutText() || 'not provided yet'}
 - Estimated level: ${p.level || 'not known yet (probably B1/B2)'}
 - Recurring mistakes (most important first): ${top}
 - Strong areas: ${p.strengths.join(', ') || 'not known yet'}
@@ -814,7 +889,7 @@ function learnerContext() {
 - Recent average scores (1-10): ${scores}`;
 }
 function sessionLabel(s) {
-  const sc = s.scenario && SCENARIOS.find(x => x.id === s.scenario);
+  const sc = findScenario(s.scenario);
   if (sc) return `Role-play: ${sc.situation} The learner is ${sc.me}; the partner is ${sc.ai}.`;
   const tp = s.topic && TOPICS.find(x => x.id === s.topic);
   return `Topic: ${tp ? tp.label : 'free conversation'}.`;
@@ -826,14 +901,15 @@ function transcript(msgs, from) {
 function partnerRules(s) {
   const lvl = Store.profile.level || 'B1/B2';
   const learning = Store.vocab.items.filter(v => v.status !== 'mastered').slice(0, 6).map(v => v.en).join('; ');
-  const sc = s.scenario && SCENARIOS.find(x => x.id === s.scenario);
+  const sc = findScenario(s.scenario);
   const tp = s.topic && TOPICS.find(x => x.id === s.topic);
   const setup = sc
     ? `ROLE-PLAY. Situation: ${sc.situation} You play ${sc.ai}. The learner plays ${sc.me}; their goal: ${sc.goal}
 Stay fully in character the whole time. Make it feel real, and at a natural moment add one small complication the learner has to react to spontaneously (${sc.twist}).${s.warmup ? ' This is a short warm-up of about 3 minutes, so keep the scene simple.' : ' When the situation is naturally resolved (usually after 8-14 exchanges), say a natural closing line and add [END] at the very end of that message.'}`
     : `CASUAL CONVERSATION. Topic: ${tp ? tp.label + ' (' + tp.seed + ')' : 'anything'}. You are Alex, a friendly, curious native English speaker in your thirties. Share your own small opinions and experiences too, like a real person, so it feels like a two-way chat.${s.warmup ? ' This is a short 3-minute warm-up, so ask easy, open questions.' : ''}`;
+  const about = aboutText();
   return `You are having a text conversation with an English learner whose first language is Polish (level ${lvl}). This is real conversation practice, not a lesson.
-
+${about ? 'What you know about the learner (use it naturally when relevant, never list it): ' + about + '\n' : ''}
 ${setup}
 
 RULES
@@ -1056,6 +1132,73 @@ Estimate their CEFR level (A2, B1, B1+, B2, B2+, C1 or C2), weighing the writing
 Reply with only JSON: {"level":"B1+","summary":"","strengths":[""],"focus":[{"you_said":"","better":"","why":"","mistake_key":"","mistake_label":""}]}`;
 }
 
+function scenariosPrompt(n) {
+  const existing = SCENARIOS.concat(arr(Store.profile.customScenarios)).map(x => x.title).join('; ');
+  return `Create ${n} realistic role-play situations in which this learner can practise speaking English, based on their real life and goals.
+
+${learnerContext()}
+
+Each situation: "title" (2-5 words), "situation" (one sentence starting with "You're" or "You've"), "me" (who the learner is, e.g. "the project manager"), "ai" (who the conversation partner plays), "goal" (one short sentence), "twist" (a small complication the learner must react to spontaneously). Make them varied (a meeting, a call, small talk, a problem to solve, a negotiation...) and pitched at level ${Store.profile.level || 'B1/B2'}. Don't repeat these: ${existing}.
+Reply with only JSON: {"scenarios":[{"title":"","situation":"","me":"","ai":"","goal":"","twist":""}]}`;
+}
+function customScenarioPrompt(desc) {
+  return `A Polish learner of English wants to practise this situation in a role-play: "${desc.slice(0, 600)}".
+Turn it into a role-play setup. "title" (2-5 words), "situation" (one sentence starting with "You're" or "You've"), "me" (who the learner is), "ai" (who the conversation partner plays), "goal" (one short sentence), "twist" (a small realistic complication). Write everything in English.
+Reply with only JSON: {"title":"","situation":"","me":"","ai":"","goal":"","twist":""}`;
+}
+function normScenario(x) {
+  const o = { id: 'c-' + uid(), custom: true, title: str(x && x.title).slice(0, 60), situation: str(x && x.situation).slice(0, 300), me: str(x && x.me).slice(0, 80) || 'yourself', ai: str(x && x.ai).slice(0, 120), goal: str(x && x.goal).slice(0, 160), twist: str(x && x.twist).slice(0, 160) || 'a small unexpected problem' };
+  return o.title && o.situation && o.ai ? o : null;
+}
+
+function sprintGenPrompt() {
+  return `Create a "Think in English" speed drill for this learner.
+
+${learnerContext()}
+
+1. "quick": 5 short, open, personal questions they can answer in 1-2 sentences within 30 seconds (everyday life, work, opinions, "what would you do if..."). Connect them to the learner's life and interests when known. Simple wording.
+2. "translate": 6 short, natural Polish sentences (5-12 words) that tempt typical Polish-speaker errors, especially this learner's recurring mistakes and word-for-word translations (tenses with "od" / "jak długo", articles, make/do, false friends like "aktualnie", prepositions, "mieć" constructions...). For each: "en" = a natural English version, "trap" = what Polish speakers typically get wrong, "mistake_key" = one of: ${keysList()}.
+${explainRule()}
+Reply with only JSON: {"quick":[{"q":""}],"translate":[{"pl":"","en":"","trap":"","mistake_key":""}]}`;
+}
+function sprintCheckPrompt(items) {
+  return `Check a Polish learner's answers from a timed "Think in English" drill (30 seconds per question, 20 seconds per translation). Speed matters more than perfection: accept anything understandable and natural. Mark ok=false only for real errors or clearly unnatural translations. An empty answer means "not answered in time".
+${explainRule()} Keep feedback to one short sentence.
+
+ITEMS
+${items.map(x => '#' + x.i + ' | ' + (x.kind === 'quick' ? 'Question: ' + x.prompt : 'Translate from Polish: ' + x.prompt + ' | Model: ' + x.expected + ' | Trap: ' + x.trap) + ' | Seconds used: ' + x.secs + ' | Answer: "' + x.given + '"').join('\n')}
+
+For each item: {"i": number, "ok": true or false, "feedback": "", "natural": "a natural version of what they meant (or the model translation)", "mistake_key": "a key from this list if there is a real error, else empty: ${keysList()}", "mistake_label": "", "polish_calque": false}.
+Also "summary" (2 short sentences) and "scores": fluency (speed and fullness), grammar, naturalness, each 1-10 (5 = solid B1, 7 = solid B2, 9 = C1+).
+Reply with only JSON: {"items":[{"i":0,"ok":true,"feedback":"","natural":"","mistake_key":"","mistake_label":"","polish_calque":false}],"summary":"","scores":{"fluency":0,"grammar":0,"naturalness":0}}`;
+}
+
+function shadowGenPrompt(theme) {
+  const about = aboutText();
+  return `Create 6 natural spoken English sentences for a shadowing exercise (listen, then repeat aloud) for a Polish learner at level ${Store.profile.level || 'B1/B2'}. Theme: ${theme}.
+${about ? 'About the learner: ' + about : ''}
+Mix lengths (6-16 words). Use contractions, common phrasal verbs and natural rhythm, like real speech. For each sentence add a short pronunciation tip for Polish speakers: word stress (stressed syllable in CAPITALS), linking ("want to" sounds like "wanna" in fast speech), weak forms, "th", w/v, final -ed.
+${explainRule()}
+Reply with only JSON: {"items":[{"text":"","tip":""}]}`;
+}
+
+function reportPrompt(w) {
+  return `Write a short weekly progress report for a Polish learner of English, as their personal coach.
+
+${learnerContext()}
+
+THIS WEEK (last 7 days) compared with the week before:
+${w.text}
+
+Write:
+- "summary": 2-3 sentences, honest and encouraging, specific to the numbers above.
+- "wins": 2-3 specific wins.
+- "focus": exactly 3 priorities for next week, most important first, each {"title": "", "why": "", "how": "a concrete action in the app or in real life"}.
+- "plan": 7 short daily sessions (10-15 minutes), each {"day": "Mon", "task": "", "mode": one of "speaking", "writing", "daily", "review", "sprint", "shadow"}. Vary the modes and serve the focus.
+${explainRule()}
+Reply with only JSON: {"summary":"","wins":[""],"focus":[{"title":"","why":"","how":""}],"plan":[{"day":"Mon","task":"","mode":"daily"}]}`;
+}
+
 /* ---------- normalisers ---------- */
 function normAnalysis(r) {
   r = r && typeof r === 'object' ? r : {};
@@ -1107,7 +1250,7 @@ function newSession(kind, id, warmup) {
   return { id: uid(), kind, topic: kind === 'topic' ? id : null, scenario: kind === 'scenario' ? id : null, warmup: !!warmup, messages: [], batches: [], analyzedUpTo: 0, startedAt: Date.now(), ended: false, feedback: null, scenarioDone: false };
 }
 function sessionTitle(s) {
-  const sc = s.scenario && SCENARIOS.find(x => x.id === s.scenario);
+  const sc = findScenario(s.scenario);
   if (sc) return sc.title;
   const tp = s.topic && TOPICS.find(x => x.id === s.topic);
   return tp ? tp.label : 'Conversation';
@@ -1139,14 +1282,14 @@ const TTS = {
     const score = v => (v.lang.replace('_', '-').toLowerCase().indexOf(want) === 0 ? 10 : 0) + (/natural|neural|google|premium|enhanced|siri/i.test(v.name) ? 3 : 0);
     return this.voices.slice().sort((a, b) => score(b) - score(a))[0] || null;
   },
-  speak(text) {
+  speak(text, rate) {
     if (!this.ok) return;
     try {
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(String(text).replace(/…|\.\.\./g, ', '));
       const v = this.pick();
       if (v) { u.voice = v; u.lang = v.lang; } else u.lang = Store.profile.voice || 'en-GB';
-      u.rate = Store.profile.rate || 1;
+      u.rate = rate || Store.profile.rate || 1;
       speechSynthesis.speak(u);
     } catch (e) {}
   }
@@ -1204,7 +1347,13 @@ const ICONS = {
   copy: () => html`<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/>`,
   trash: () => html`<path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/>`,
   plus: () => html`<path d="M12 5v14M5 12h14"/>`,
-  stop: () => html`<rect x="6.5" y="6.5" width="11" height="11" rx="2"/>`
+  stop: () => html`<rect x="6.5" y="6.5" width="11" height="11" rx="2"/>`,
+  cards: () => html`<rect x="3.5" y="7" width="12" height="13" rx="2"/><path d="M8 4h10.5a2 2 0 0 1 2 2v11"/>`,
+  bolt: () => html`<path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/>`,
+  wave: () => html`<path d="M3 12h2M7 8v8M11 5v14M15 9v6M19 7v10M21 12h0"/>`,
+  report: () => html`<path d="M6 3.5h9l3.5 3.5v13.5H6z"/><path d="M9 12h6M9 15.5h6M9 8.5h3"/>`,
+  user: () => html`<circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/>`,
+  play: () => html`<path d="M8 5.5v13l10.5-6.5z"/>`
 };
 function Icon({ n, s }) {
   const size = s || 18;
@@ -1432,6 +1581,9 @@ function Tile({ icon, title, desc, meta, onClick, accent }) {
     <span class="tile-meta">${meta}</span>
   </button>`;
 }
+function Extra({ icon, title, desc, onClick }) {
+  return html`<button class="xcard" onClick=${onClick}><span class="tile-ic"><${Icon} n=${icon} s=${20} /></span><span><b>${title}</b><span class="xd">${desc}</span></span></button>`;
+}
 function Home({ go }) {
   const p = Store.profile;
   const today = dayKey();
@@ -1442,6 +1594,9 @@ function Home({ go }) {
   const speakOn = sd && !sd.ended && arr(sd.messages).some(m => m.role === 'me');
   const top = Mistakes.top(3);
   const st = streak();
+  const due = Vocab.due().length;
+  const ab = p.about || {};
+  const aboutSet = !!(ab.role || ab.goals || arr(ab.uses).length);
   let dateLabel = '';
   try { dateLabel = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }); } catch (e) {}
   return html`<div class="page">
@@ -1450,11 +1605,21 @@ function Home({ go }) {
       <h1>What do you want to practice?</h1>
     </section>
     <div class="tiles">
-      <${Tile} icon="chat" title="Speaking" desc="Chat about everyday topics or role-play real situations. You keep talking; corrections come in batches." meta=${speakOn ? 'Conversation in progress · resume' : TOPICS.length + ' topics · ' + SCENARIOS.length + ' real-life situations'} onClick=${() => go('speaking')} />
+      <${Tile} icon="chat" title="Speaking" desc="Chat about everyday topics or role-play real situations. You keep talking; corrections come in batches." meta=${speakOn ? 'Conversation in progress · resume' : TOPICS.length + ' topics · ' + (SCENARIOS.length + arr(p.customScenarios).length) + ' real-life situations'} onClick=${() => go('speaking')} />
       <${Tile} icon="pen" title="Writing" desc="Paste an email, a message or a post. See the exact fixes, a more natural version and why." meta="Text check · Would a native say this?" onClick=${() => go('writing')} />
       <${Tile} icon="daily" title="Daily practice" desc="10–15 minutes: a short conversation, your top corrections, 5 phrases, an exercise and a review of old mistakes." meta=${dailyDone ? 'Done today ✓' : dailyOn ? 'In progress · step ' + dd.step + ' of 6' : 'Not done yet today'} accent=${!dailyDone} onClick=${() => go('daily')} />
       <${Tile} icon="chart" title="My progress" desc="Your recurring mistakes, your vocabulary list and how your English is changing." meta=${Mistakes.items.length + ' mistakes tracked · ' + Store.vocab.items.length + ' phrases'} onClick=${() => go('progress')} />
     </div>
+    <section class="focus">
+      <div class="block-h"><h2>More ways to practise</h2></div>
+      <div class="extras">
+        <${Extra} icon="cards" title="Phrase review" desc=${due ? due + ' phrase' + (due === 1 ? '' : 's') + ' to review · 3–5 min' : 'Nothing due · review anyway'} onClick=${() => go('review')} />
+        <${Extra} icon="bolt" title="Think in English" desc="30-second answers and a Polish → English sprint" onClick=${() => go('sprint')} />
+        <${Extra} icon="wave" title="Shadowing" desc="Listen, repeat with dictation, compare" onClick=${() => go('shadow')} />
+        <${Extra} icon="report" title="Weekly report" desc="Your week, your coach’s plan for the next one" onClick=${() => go('progress', { tab: 'report' })} />
+      </div>
+      ${!aboutSet ? html`<button class="nudge" onClick=${() => go('progress', { tab: 'about' })}><${Icon} n="user" s=${20} /><span><b>Tell your coach about yourself.</b> Your job, where you use English and your goals. Conversations, situations and phrases will match your real life.</span></button>` : null}
+    </section>
     <section class="focus">
       <div class="block-h"><h2>Your focus right now</h2>${top.length ? html`<button class="linkbtn" onClick=${() => go('progress', { tab: 'mistakes' })}>All mistakes →</button>` : null}</div>
       ${top.length
@@ -1742,6 +1907,7 @@ function SpeakSetup({ start }) {
       <div class="block-h"><h2>Talk about…</h2><button class="btn sm" onClick=${() => start('topic', pick(fresh.length ? fresh : TOPICS).id)}>Surprise me</button></div>
       <div class="chips">${TOPICS.map(t => html`<button class="chip big" onClick=${() => start('topic', t.id)}>${t.label}</button>`)}</div>
     </section>
+    <${MySituations} start=${start} />
     <section class="block">
       <div class="block-h"><h2>Role-play a real situation</h2></div>
       <p class="muted">Alex plays the other person. React spontaneously, like in real life. When the scene ends you get a full analysis of your English.</p>
@@ -1750,12 +1916,56 @@ function SpeakSetup({ start }) {
     <aside class="note"><b>Want to speak out loud?</b> Claude artifacts can’t use your microphone, so there’s no record button. Use your device’s dictation and your speech is typed into the box: <span class="kbd">Win</span>+<span class="kbd">H</span> on Windows, <span class="kbd">Fn</span> twice (or the Globe key) on Mac, or the mic key on your phone’s keyboard. Alex’s replies can be read aloud with the speaker button.</aside>
   </div>`;
 }
+function MySituations({ start }) {
+  const p = Store.profile;
+  const list = arr(p.customScenarios);
+  const [desc, setDesc] = useState('');
+  const [busy, setBusy] = useState('');
+  const [err, setErr] = useState('');
+  async function generate() {
+    setBusy('gen'); setErr('');
+    try {
+      const r = await aiJSON(scenariosPrompt(4), { modelTier: 'default', cache: false });
+      const add = arr(r && r.scenarios).map(normScenario).filter(Boolean).slice(0, 4);
+      if (!add.length) throw { code: 'invalid_json' };
+      p.customScenarios = add.concat(list).slice(0, 16);
+      commit('profile');
+    } catch (e) { setErr(errText(e)); }
+    finally { setBusy(''); }
+  }
+  async function describe() {
+    const t = desc.trim();
+    if (words(t) < 3) { setErr('Describe the situation in a few words first.'); return; }
+    setBusy('desc'); setErr('');
+    try {
+      const sc = normScenario(await aiJSON(customScenarioPrompt(t), { modelTier: 'quick', cache: false }));
+      if (!sc) throw { code: 'invalid_json' };
+      p.customScenarios = [sc].concat(list).slice(0, 16);
+      commit('profile');
+      setDesc('');
+    } catch (e) { setErr(errText(e)); }
+    finally { setBusy(''); }
+  }
+  function remove(id) { p.customScenarios = list.filter(x => x.id !== id); commit('profile'); }
+  const ab = p.about || {};
+  const hasAbout = !!(ab.role || ab.goals || arr(ab.uses).length);
+  return html`<section class="block">
+    <div class="block-h"><h2>Your situations</h2>${busy === 'gen' ? html`<${Thinking} label="Creating situations" />` : html`<button class="btn sm" onClick=${generate}>${list.length ? 'Create 4 more' : 'Create 4 from my profile'}</button>`}</div>
+    <p class="muted">${hasAbout ? 'Role-plays built around your job, goals and interests.' : 'Role-plays built around your real life. Fill in About me in My progress so they fit you better.'}</p>
+    ${list.length ? html`<div class="scen-grid">${list.map(sc => html`<div class="scen mine"><button class="scen-go" onClick=${() => start('scenario', sc.id)}><b>${sc.title}</b><span>${sc.situation}</span></button><button class="iconbtn scen-x" onClick=${() => remove(sc.id)} aria-label=${'Delete ' + sc.title}><${Icon} n="trash" s=${15} /></button></div>`)}</div>` : null}
+    <div class="row">
+      <input id="sc-desc" class="input" style="flex:1;min-width:220px" value=${desc} onInput=${e => setDesc(e.target.value)} onKeyDown=${e => { if (e.key === 'Enter') describe(); }} placeholder="Or describe one, e.g. “a call with a client who is angry about a delay”" aria-label="Describe your own situation" />
+      ${busy === 'desc' ? html`<${Thinking} label="Setting it up" />` : html`<button class="btn" onClick=${describe} disabled=${!desc.trim()}><${Icon} n="plus" s=${16} /> Add</button>`}
+    </div>
+    ${err ? html`<p class="err" role="alert">${err}</p>` : null}
+  </section>`;
+}
 function ChatSession({ init, go, onNew }) {
   const chat = useChat(init, { autoCorrect: true, onSave: s => (s.ended ? lsDel(DRAFT_SPEAK) : lsSet(DRAFT_SPEAK, s)) });
   const s = chat.s;
   const [fb, setFb] = useState({ busy: false, err: '' });
   const [auto, setAuto] = useState(() => !!lsGet(LS + 'autoread'));
-  const sc = s.scenario ? SCENARIOS.find(x => x.id === s.scenario) : null;
+  const sc = findScenario(s.scenario);
   const title = sessionTitle(s);
   const mineN = s.messages.filter(m => m.role === 'me').length;
   const every = Store.profile.correctionsEvery || 4;
@@ -1983,8 +2193,9 @@ function pickDaily() {
     const pool = TOPICS.filter(t => !recent.includes(t.id));
     return { kind: 'topic', id: pick(pool.length ? pool : TOPICS).id };
   }
-  const pool = SCENARIOS.filter(s => !recent.includes(s.id));
-  return { kind: 'scenario', id: pick(pool.length ? pool : SCENARIOS).id };
+  const all = SCENARIOS.concat(arr(Store.profile.customScenarios));
+  const pool = all.filter(s => !recent.includes(s.id));
+  return { kind: 'scenario', id: pick(pool.length ? pool : all).id };
 }
 function newDaily() {
   const p = pickDaily();
@@ -2097,7 +2308,7 @@ function Daily({ go, again }) {
   useEffect(() => { if (d.step === 6 && d.feedback && !d.recorded) finishDaily(); });
 
   const mine = d.chat.messages.filter(m => m.role === 'me').length;
-  const sc = d.chat.scenario && SCENARIOS.find(x => x.id === d.chat.scenario);
+  const sc = findScenario(d.chat.scenario);
   const Retry = ({ k, fn }) => errs[k] ? html`<div class="chat-err" role="alert"><span>${errs[k]}</span><button class="btn sm" onClick=${fn}>Try again</button></div>` : null;
   const Next = ({ to, label, disabled }) => html`<div class="stepnav"><button class="linkbtn" onClick=${() => toStep(d.step - 1)}><${Icon} n="back" s=${16} /> Back</button><button class="btn primary" disabled=${disabled} onClick=${() => toStep(to)}>${label}</button></div>`;
 
@@ -2178,11 +2389,11 @@ function Daily({ go, again }) {
 /* ---------- my progress ---------- */
 function Progress({ go, tab }) {
   const [t, setT] = useState(tab || 'overview');
-  const tabs = [['overview', 'Overview'], ['mistakes', 'My common mistakes'], ['vocab', 'My vocabulary'], ['history', 'History'], ['settings', 'Settings']];
+  const tabs = [['overview', 'Overview'], ['report', 'Weekly report'], ['mistakes', 'My common mistakes'], ['vocab', 'My vocabulary'], ['about', 'About me'], ['history', 'History'], ['settings', 'Settings']];
   return html`<div class="page">
     <header class="page-h"><h1>My progress</h1></header>
     <div class="tabs" role="tablist">${tabs.map(([k, l]) => html`<button role="tab" aria-selected=${t === k} class=${'tab' + (t === k ? ' on' : '')} onClick=${() => setT(k)}>${l}</button>`)}</div>
-    ${t === 'overview' ? html`<${Overview} setT=${setT} />` : t === 'mistakes' ? html`<${MistakesTab} />` : t === 'vocab' ? html`<${VocabTab} />` : t === 'history' ? html`<${HistoryTab} />` : html`<${SettingsTab} go=${go} />`}
+    ${t === 'overview' ? html`<${Overview} setT=${setT} />` : t === 'report' ? html`<${WeeklyReport} go=${go} />` : t === 'about' ? html`<${AboutMe} go=${go} />` : t === 'mistakes' ? html`<${MistakesTab} />` : t === 'vocab' ? html`<${VocabTab} go=${go} />` : t === 'history' ? html`<${HistoryTab} />` : html`<${SettingsTab} go=${go} />`}
   </div>`;
 }
 
@@ -2310,7 +2521,7 @@ function MistakesTab() {
   </div>`;
 }
 
-function VocabTab() {
+function VocabTab({ go }) {
   const [f, setF] = useState('all');
   const [q, setQ] = useState('');
   const [add, setAdd] = useState('');
@@ -2336,6 +2547,7 @@ function VocabTab() {
   }
   return html`<div class="block">
     <p class="muted">Whole constructions, not single words. Phrases from your sessions land here automatically. Use one in a conversation and it moves towards <b>mastered</b>; mastered phrases are no longer taught again.</p>
+    <div class="row"><button class="btn primary" onClick=${() => go('review')}><${Icon} n="cards" s=${16} /> Review phrases${Vocab.due().length ? ' (' + Vocab.due().length + ' due)' : ''}</button></div>
     <div class="vtools">
       <div class="chips">${[['all', 'All', all.length], ['new', 'New', count('new')], ['learning', 'Learning', count('learning')], ['mastered', 'Mastered', count('mastered')]].map(([k, l, n]) => html`<button class=${'chip' + (f === k ? ' on' : '')} onClick=${() => setF(k)} aria-pressed=${f === k}>${l} · ${n}</button>`)}</div>
       <div class="grow"></div>
@@ -2362,7 +2574,7 @@ function VocabTab() {
   </div>`;
 }
 
-const MODE_LABEL = { speaking: 'Conversation', scenario: 'Role-play', writing: 'Writing', daily: 'Daily practice' };
+const MODE_LABEL = { speaking: 'Conversation', scenario: 'Role-play', writing: 'Writing', daily: 'Daily practice', review: 'Phrase review', sprint: 'Think in English', shadowing: 'Shadowing' };
 function HistoryTab() {
   const ss = Store.profile.sessions.slice().reverse();
   if (!ss.length) return html`<p class="empty">No sessions yet.</p>`;
@@ -2437,6 +2649,436 @@ function SettingsTab({ go }) {
   </div>`;
 }
 
+
+/* ---------- extra practice: phrase review, think in English, shadowing, weekly report, about me ---------- */
+const shuffle = a => a.map(x => [Math.random(), x]).sort((p, q) => p[0] - q[0]).map(x => x[1]);
+function PageBack({ go, label }) {
+  return html`<button class="linkbtn" onClick=${() => go('home')}><${Icon} n="back" s=${16} /> ${label || 'Home'}</button>`;
+}
+
+/* phrase review (flashcards with spaced repetition) */
+function blankExample(v) {
+  const core = coreOf(v.en);
+  if (!v.example || core.length < 3) return '';
+  const esc = core.split(' ').map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('[\\s,]+');
+  const re = new RegExp(esc, 'i');
+  return re.test(v.example) ? v.example.replace(re, '_____') : '';
+}
+function VocabReview({ go }) {
+  const [deck, setDeck] = useState(() => Vocab.due(12).map(v => v.id));
+  const [i, setI] = useState(0);
+  const [shown, setShown] = useState(false);
+  const [typed, setTyped] = useState('');
+  const [stats, setStats] = useState({ knew: 0, almost: 0, again: 0 });
+  const [weak, setWeak] = useState([]);
+  const requeued = useRef(new Set());
+  const started = useRef(Date.now());
+  const recorded = useRef(false);
+  const keyRef = useRef(null);
+  const done = deck.length > 0 && i >= deck.length;
+  const v = !done && deck.length ? Store.vocab.items.find(x => x.id === deck[i]) : null;
+  function reveal() { setShown(true); }
+  function grade(g) {
+    if (!v) return;
+    Vocab.review(v.id, g);
+    commit('vocab');
+    const k = g === 2 ? 'knew' : g === 1 ? 'almost' : 'again';
+    setStats(s => Object.assign({}, s, { [k]: s[k] + 1 }));
+    if (g === 0 && !requeued.current.has(v.id)) { requeued.current.add(v.id); setDeck(deck.concat(v.id)); }
+    if (g < 2 && !weak.includes(v.id)) setWeak(weak.concat(v.id));
+    setI(i + 1); setShown(false); setTyped('');
+  }
+  keyRef.current = e => {
+    if (!v) return;
+    const tag = e.target && e.target.tagName;
+    if (tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (!shown && (e.key === 'Enter' || (e.key === ' ' && tag !== 'INPUT'))) { e.preventDefault(); reveal(); return; }
+    if (shown && ['1', '2', '3'].includes(e.key)) { e.preventDefault(); grade(Number(e.key) - 1); }
+  };
+  useEffect(() => { const h = e => keyRef.current && keyRef.current(e); window.addEventListener('keydown', h); return () => window.removeEventListener('keydown', h); }, []);
+  useEffect(() => {
+    if (done && !recorded.current) { recorded.current = true; recordSession({ mode: 'review', title: 'Phrase review', minutes: Math.max(1, Math.round((Date.now() - started.current) / 60000)) }); }
+  }, [done]);
+  function anyway() {
+    const pool = Store.vocab.items.filter(x => x.status !== 'mastered');
+    const ids = shuffle(pool.length >= 4 ? pool : Store.vocab.items).slice(0, 10).map(x => x.id);
+    setDeck(ids); setI(0); setShown(false); setStats({ knew: 0, almost: 0, again: 0 }); setWeak([]); requeued.current = new Set(); recorded.current = false; started.current = Date.now();
+  }
+  const head = html`<header class="page-h"><${PageBack} go=${go} /><h1>Phrase review</h1><p class="lead">Recall the English phrase from its Polish meaning, then check. Phrases you know come back less often; the ones you miss come back sooner.</p></header>`;
+  if (!Store.vocab.items.length) return html`<div class="page">${head}<p class="empty">Your vocabulary list is empty. Phrases from conversations, writing checks and daily practice land there automatically, or add your own in My progress → My vocabulary.</p></div>`;
+  if (!deck.length) {
+    const nd = Vocab.nextDue();
+    return html`<div class="page">${head}<div class="empty">Nothing is due right now.${nd ? ' Next review: ' + fmtDay(nd) + '.' : ''}</div><div class="row"><button class="btn primary" onClick=${anyway}>Review anyway</button><button class="btn" onClick=${() => go('progress', { tab: 'vocab' })}>See my vocabulary</button></div></div>`;
+  }
+  if (done) {
+    const ids = (weak.length ? weak : deck).filter((x, k, a) => a.indexOf(x) === k).slice(0, 3);
+    const items = ids.map(id => Store.vocab.items.find(x => x.id === id)).filter(Boolean).map(x => ({ id: x.id, type: 'respond', prompt: 'Write a sentence about your own life using “' + x.en + '”.', answer: x.example, target: x.en }));
+    return html`<div class="page">${head}
+      <div class="ov-sum">
+        <div class="ov-item"><span class="lbl">Knew it</span><b>${stats.knew}</b><small>come back later</small></div>
+        <div class="ov-item"><span class="lbl">Almost</span><b>${stats.almost}</b><small>back tomorrow</small></div>
+        <div class="ov-item"><span class="lbl">Didn’t know</span><b>${stats.again}</b><small>back next time</small></div>
+        <div class="ov-item"><span class="lbl">Cards</span><b>${deck.length}</b><small>reviewed</small></div>
+      </div>
+      ${items.length ? html`<section class="block"><div class="block-h"><h2>Now use them</h2><span class="small muted">A phrase sticks once you use it about your own life.</span></div>
+        <${Exercises} items=${items} idPrefix="vr" onChecked=${(res, ans, first) => { if (!first) return; items.forEach((x, k) => { if (!res[k].skipped) Vocab.bump(x.id, res[k].ok); }); commit('vocab'); }} /></section>` : null}
+      <div class="row"><button class="btn primary" onClick=${() => go('home')}>Done</button><button class="btn" onClick=${() => { const ids2 = Vocab.due(12).map(x => x.id); if (ids2.length) { setDeck(ids2); setI(0); setStats({ knew: 0, almost: 0, again: 0 }); setWeak([]); requeued.current = new Set(); recorded.current = false; started.current = Date.now(); } else anyway(); }}>Review more</button></div>
+    </div>`;
+  }
+  if (!v) return html`<div class="page">${head}<div class="row"><span class="muted">This phrase was removed.</span><button class="btn" onClick=${() => setI(i + 1)}>Skip</button></div></div>`;
+  const blank = blankExample(v);
+  const frontLabel = v.pl ? 'How do you say it in English?' : blank ? 'Complete the sentence' : 'Recall the phrase';
+  const front = v.pl || blank || (v.en.split(' ')[0] + ' …');
+  const ok = typed.trim() && norm(typed).includes(coreOf(v.en));
+  return html`<div class="page">${head}
+    <div class="fcard">
+      <div class="row"><span class="lbl">Card ${i + 1} of ${deck.length}</span><span class="tag">${v.status}</span><div class="grow"></div><span class="small muted">✓ ${stats.knew} · ~ ${stats.almost} · ✗ ${stats.again}</span></div>
+      <div class="progressbar"><i style=${'width:' + (i / deck.length * 100) + '%'}></i></div>
+      <span class="lbl">${frontLabel}</span>
+      <p class="fc-front">${front}</p>
+      ${v.kind ? html`<span class="small muted">Type: ${v.kind}</span>` : null}
+      <input id="fc-type" class="input" value=${typed} onInput=${e => setTyped(e.target.value)} readOnly=${shown} placeholder="Type it (optional), or say it out loud" aria-label="Your answer" />
+      ${!shown ? html`<div class="row"><button class="btn primary" onClick=${reveal}>Show answer</button><span class="small muted">or press Enter</span></div>` : html`
+        <div class="fc-back">
+          <p class="fc-en">${v.en} <${Say} text=${v.en} /></p>
+          ${typed.trim() ? (ok ? html`<p class="okt"><${Icon} n="check" s=${15} /> Spot on</p>` : html`<p class="small">Yours: <${DiffView} ops=${diffWords(typed, v.en)} fallback=${typed} /></p>`) : null}
+          ${v.example ? html`<p class="phrase-ex">“${v.example}”</p>` : null}
+          ${v.alternatives && v.alternatives.length ? html`<p class="phrase-alt">Also: ${v.alternatives.join(' · ')}</p>` : null}
+        </div>
+        <div class="grades">
+          <button class="btn" onClick=${() => grade(0)}>Didn’t know<kbd>1</kbd></button>
+          <button class="btn" onClick=${() => grade(1)}>Almost<kbd>2</kbd></button>
+          <button class="btn primary" onClick=${() => grade(2)}>Knew it<kbd>3</kbd></button>
+        </div>`}
+    </div>
+  </div>`;
+}
+
+/* think in English: timed answers and a Polish-to-English sprint */
+function Countdown({ secs, onUp }) {
+  const [left, setLeft] = useState(secs);
+  const up = useRef(onUp);
+  up.current = onUp;
+  useEffect(() => {
+    const s = Date.now();
+    const id = setInterval(() => {
+      const l = Math.max(0, secs - (Date.now() - s) / 1000);
+      setLeft(l);
+      if (l <= 0) { clearInterval(id); up.current(); }
+    }, 200);
+    return () => clearInterval(id);
+  }, []);
+  return html`<div class="cd" role="timer" aria-label=${Math.ceil(left) + ' seconds left'}><div class="cd-bar"><i style=${'width:' + (left / secs * 100) + '%'}></i></div><span class="timer">${Math.ceil(left)}s</span></div>`;
+}
+function Sprint({ go }) {
+  const [phase, setPhase] = useState('intro');
+  const [items, setItems] = useState([]);
+  const [i, setI] = useState(0);
+  const [cur, setCur] = useState('');
+  const [res, setRes] = useState(null);
+  const [err, setErr] = useState('');
+  const curRef = useRef('');
+  const ansRef = useRef([]);
+  const t0 = useRef(0);
+  const ta = useRef(null);
+  const lastIdx = useRef(-1);
+  useEffect(() => { if (phase === 'run' && ta.current) ta.current.focus(); }, [phase, i]);
+  async function start() {
+    setPhase('loading'); setErr('');
+    try {
+      const r = await aiJSON(sprintGenPrompt(), { modelTier: 'default', cache: false });
+      const q = arr(r && r.quick).map(x => str(x && x.q)).filter(Boolean).slice(0, 5).map(p => ({ kind: 'quick', prompt: p, limit: 30 }));
+      const t = arr(r && r.translate).map(x => ({ kind: 'translate', prompt: str(x && x.pl), expected: str(x && x.en), trap: str(x && x.trap), limit: 20 })).filter(x => x.prompt).slice(0, 6);
+      if (q.length + t.length < 3) throw { code: 'invalid_json' };
+      lastIdx.current = -1;
+      setItems(q.concat(t)); ansRef.current = []; curRef.current = ''; setCur(''); setI(0); t0.current = Date.now(); setPhase('run');
+    } catch (e) { setErr(errText(e)); setPhase('intro'); }
+  }
+  function next() {
+    const it = items[i];
+    if (!it || lastIdx.current === i) return;
+    lastIdx.current = i;
+    ansRef.current = ansRef.current.concat({ given: curRef.current.trim(), secs: Math.min(it.limit, Math.round((Date.now() - t0.current) / 1000)) });
+    curRef.current = ''; setCur('');
+    if (i + 1 < items.length) { setI(i + 1); t0.current = Date.now(); }
+    else check();
+  }
+  async function check() {
+    setPhase('checking'); setErr('');
+    const a = ansRef.current;
+    try {
+      const list = items.map((x, k) => ({ i: k, kind: x.kind, prompt: x.prompt, expected: x.expected, trap: x.trap, secs: a[k] ? a[k].secs : x.limit, given: a[k] ? a[k].given : '' }));
+      const r = await aiJSON(sprintCheckPrompt(list), { modelTier: 'default' });
+      const rs = arr(r && r.items);
+      const out = items.map((x, k) => {
+        const y = rs.find(z => z && Number(z.i) === k) || {};
+        return { ok: !!y.ok && !!(a[k] && a[k].given), feedback: str(y.feedback), natural: str(y.natural) || x.expected || '', key: slug(y.mistake_key), label: str(y.mistake_label), calque: !!y.polish_calque };
+      });
+      let rec = false;
+      out.forEach((o, k) => { if (!o.ok && o.key && a[k] && a[k].given && o.natural) { o.repeat = Mistakes.record({ mistake_key: o.key, mistake_label: o.label, you_said: a[k].given, better: o.natural, more_natural: o.natural, why: o.feedback, polish_calque: o.calque }); rec = true; } });
+      if (rec) commit('mistakes');
+      const sc = (r && r.scores) || {};
+      const scores = { fluency: score10(sc.fluency), grammar: score10(sc.grammar), vocabulary: null, naturalness: score10(sc.naturalness), confidence: null };
+      recordSession({ mode: 'sprint', title: 'Think in English', scores, calques: out.filter(o => o.calque).length, corrections: out.filter(o => !o.ok).length, minutes: Math.max(1, Math.round(a.reduce((n, x) => n + x.secs, 0) / 60)), words: a.reduce((n, x) => n + words(x.given), 0) });
+      setRes({ items: out, summary: str(r && r.summary), scores });
+      setPhase('result');
+    } catch (e) { setErr(errText(e)); setPhase('checkfail'); }
+  }
+  const head = html`<header class="page-h"><${PageBack} go=${go} /><h1>Think in English</h1></header>`;
+  if (phase === 'intro' || phase === 'loading') return html`<div class="page">${head}
+    <p class="lead">A speed drill that trains you to answer straight in English instead of translating in your head. About 5 minutes.</p>
+    <div class="opts">
+      <div class="opt" style="cursor:default"><span class="lbl">Part 1 · 5 questions</span><span class="t">30-second answers</span><span class="d">Personal questions. Answer in 1–2 sentences before the time runs out. Simple English is fine; speed matters more than perfection.</span></div>
+      <div class="opt" style="cursor:default"><span class="lbl">Part 2 · 6 sentences</span><span class="t">Polish → English sprint</span><span class="d">Short Polish sentences built around the traps you fall into. 20 seconds each. Say what the sentence means, not what the words are.</span></div>
+    </div>
+    ${err ? html`<p class="err" role="alert">${err}</p>` : null}
+    <div class="row">${phase === 'loading' ? html`<${Thinking} label="Preparing your drill" />` : html`<button class="btn primary" onClick=${start}>Start the drill</button><span class="small muted">Tip: use dictation and answer out loud.</span>`}</div>
+  </div>`;
+  if (phase === 'run') {
+    const it = items[i];
+    return html`<div class="page">${head}
+      <div class="fcard" style="max-width:760px">
+        <div class="row"><span class="lbl">${it.kind === 'quick' ? 'Part 1 · answer in English' : 'Part 2 · say it in English'} · ${i + 1} of ${items.length}</span></div>
+        <${Countdown} key=${i} secs=${it.limit} onUp=${next} />
+        <p class="fc-front">${it.prompt}</p>
+        <textarea id="sp-in" ref=${ta} class="input" rows="3" value=${cur} onInput=${e => { curRef.current = e.target.value; setCur(e.target.value); }} onKeyDown=${e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); next(); } }} placeholder=${it.kind === 'quick' ? 'Your answer…' : 'In English…'} aria-label="Your answer"></textarea>
+        <div class="row"><span class="small muted">Don’t translate word for word. Say what you can.</span><div class="grow"></div><button class="btn primary" onClick=${next}>${i + 1 < items.length ? 'Next' : 'Finish'}</button></div>
+      </div>
+    </div>`;
+  }
+  if (phase === 'checking' || phase === 'checkfail') return html`<div class="page">${head}
+    ${phase === 'checking' ? html`<${Thinking} label="Checking your answers" />` : html`<div class="chat-err" role="alert"><span>${err}</span><button class="btn sm" onClick=${check}>Try again</button></div>`}
+  </div>`;
+  const a = ansRef.current;
+  const answered = a.filter(x => x.given).length;
+  const secs = a.filter(x => x.given).map(x => x.secs);
+  return html`<div class="page">${head}
+    <div class="ov-sum">
+      <div class="ov-item"><span class="lbl">Answered</span><b>${answered} / ${items.length}</b><small>in time</small></div>
+      <div class="ov-item"><span class="lbl">Average time</span><b>${secs.length ? Math.round(avg(secs)) + 's' : '–'}</b><small>per answer</small></div>
+      <div class="ov-item"><span class="lbl">Correct</span><b>${res.items.filter(x => x.ok).length}</b><small>natural enough</small></div>
+      <div class="ov-item"><span class="lbl">From Polish</span><b>${res.items.filter(x => x.calque).length}</b><small>word-for-word slips</small></div>
+    </div>
+    <${FeedbackPanel} fb=${{ headline: res.summary, scores: res.scores }} dims=${['fluency', 'grammar', 'naturalness']} title="Your drill" />
+    <div class="exs">${items.map((it, k) => { const o = res.items[k]; return html`<div class=${'ex' + (o.ok ? ' ok' : ' no')}>
+      <span class="lbl">${k + 1}. ${it.kind === 'quick' ? 'Question' : 'Polish → English'}</span>
+      <p class="ex-p">${it.prompt}</p>
+      <p>${a[k] && a[k].given ? a[k].given : html`<span class="muted">No answer in time</span>`}</p>
+      <div class="ex-r"><div>${o.ok ? html`<b class="okt"><${Icon} n="check" s=${15} /> Good</b>` : html`<b class="not">Not quite</b>`}${o.feedback ? ' · ' + o.feedback : ''}</div>
+        ${o.natural ? html`<div class="ex-better"><span class="lbl">Natural</span> <span class="native">${o.natural}</span> <${Say} text=${o.natural} /></div>` : null}
+        ${it.trap && !o.ok ? html`<div class="small muted">Trap: ${it.trap}</div>` : null}</div>
+    </div>`; })}</div>
+    <div class="row"><button class="btn primary" onClick=${start}>New drill</button><button class="btn" onClick=${() => go('home')}>Home</button></div>
+  </div>`;
+}
+
+/* shadowing: listen, repeat with dictation, compare */
+const SHADOW_THEMES = [['mine', 'From my phrases', 'Example sentences from your vocabulary list'], ['everyday', 'Everyday conversation', 'Plans, opinions, small talk'], ['work', 'Work and meetings', 'Updates, questions, polite disagreement'], ['travel', 'Travel', 'Hotels, directions, problems on the way'], ['sounds', 'Tricky sounds', 'th, w/v, -ed endings and word stress']];
+function Shadowing({ go }) {
+  const [phase, setPhase] = useState('setup');
+  const [items, setItems] = useState([]);
+  const [i, setI] = useState(0);
+  const [attempt, setAttempt] = useState('');
+  const [showText, setShowText] = useState(false);
+  const [checked, setChecked] = useState(null);
+  const [results, setResults] = useState([]);
+  const [err, setErr] = useState('');
+  const started = useRef(Date.now());
+  const head = html`<header class="page-h"><${PageBack} go=${go} /><h1>Shadowing</h1></header>`;
+  if (!TTS.ok) return html`<div class="page">${head}<p class="empty">This browser can’t read text aloud, so shadowing isn’t available here. Try the page in Chrome, Edge or Safari, or in the Claude app on your phone.</p></div>`;
+  function begin(its) { setItems(its); setI(0); setResults([]); setAttempt(''); setShowText(false); setChecked(null); started.current = Date.now(); setPhase('run'); }
+  async function start(k) {
+    setErr('');
+    const theme = SHADOW_THEMES.find(t => t[0] === k);
+    if (k === 'mine') {
+      const ex = Store.vocab.items.filter(v => v.example && words(v.example) >= 4);
+      if (ex.length < 3) { setErr('You need at least 3 phrases with example sentences in My vocabulary. Pick another theme for now.'); return; }
+      begin(shuffle(ex).slice(0, 6).map(v => ({ text: v.example, tip: 'Key phrase: ' + v.en })));
+      return;
+    }
+    setPhase('loading');
+    try {
+      const r = await aiJSON(shadowGenPrompt(theme[1] + ' (' + theme[2] + ')'), { modelTier: 'default', cache: false });
+      const its = arr(r && r.items).map(x => ({ text: str(x && x.text), tip: str(x && x.tip) })).filter(x => words(x.text) >= 3).slice(0, 6);
+      if (!its.length) throw { code: 'invalid_json' };
+      begin(its);
+    } catch (e) { setErr(errText(e)); setPhase('setup'); }
+  }
+  function check() {
+    const target = items[i].text;
+    const ops = diffWords(norm(target), norm(attempt)) || [];
+    const tw = words(norm(target));
+    let eq = 0;
+    const missed = [];
+    ops.forEach(o => { if (o.t === 'eq') eq += words(o.s); else if (o.t === 'del') o.s.trim().split(/\s+/).forEach(w => { if (w) missed.push(w); }); });
+    const acc = tw ? Math.round(eq / tw * 100) : 0;
+    setChecked({ acc, missed, ops });
+    setShowText(true);
+    const rs = results.slice(); rs[i] = { acc, missed }; setResults(rs);
+  }
+  function retry() { setAttempt(''); setChecked(null); setShowText(false); }
+  function nextItem() {
+    if (i + 1 < items.length) { setI(i + 1); setAttempt(''); setShowText(false); setChecked(null); window.scrollTo(0, 0); }
+    else { setPhase('done'); recordSession({ mode: 'shadowing', title: 'Shadowing', minutes: Math.max(1, Math.round((Date.now() - started.current) / 60000)) }); }
+  }
+  if (phase === 'setup' || phase === 'loading') return html`<div class="page">${head}
+    <p class="lead">Listen to a natural sentence, repeat it straight away out loud and copy the rhythm. Your device’s dictation types what you said, and the app compares it with the original.</p>
+    <aside class="note"><b>How to repeat out loud:</b> click into the answer box and start dictation: <span class="kbd">Win</span>+<span class="kbd">H</span> on Windows, <span class="kbd">Fn</span> twice on Mac, or the mic key on your phone’s keyboard. If dictation writes a different word, it probably didn’t catch your pronunciation clearly. It’s a rough signal, not a pronunciation grade.</aside>
+    <div class="scen-grid">${SHADOW_THEMES.map(t => html`<button class="scen" disabled=${phase === 'loading'} onClick=${() => start(t[0])}><b>${t[1]}</b><span>${t[2]}</span></button>`)}</div>
+    ${phase === 'loading' ? html`<${Thinking} label="Writing sentences for you" />` : null}
+    ${err ? html`<p class="err" role="alert">${err}</p>` : null}
+  </div>`;
+  if (phase === 'done') {
+    const accs = results.filter(Boolean).map(r => r.acc);
+    const missed = Array.from(new Set(results.filter(Boolean).flatMap(r => r.missed))).slice(0, 16);
+    return html`<div class="page">${head}
+      <div class="ov-sum">
+        <div class="ov-item"><span class="lbl">Match</span><b>${accs.length ? Math.round(avg(accs)) + '%' : '–'}</b><small>average of ${accs.length} sentences</small></div>
+        <div class="ov-item"><span class="lbl">Sentences</span><b>${items.length}</b><small>practised</small></div>
+      </div>
+      ${missed.length ? html`<section class="block"><div class="block-h"><h2>Words to practise</h2><span class="small muted">Dictation missed these. Listen and repeat each one slowly.</span></div>
+        <div class="chips">${missed.map(w => html`<button class="chip" onClick=${() => TTS.speak(w, 0.8)}><${Icon} n="speaker" s=${14} /> ${w}</button>`)}</div></section>` : html`<p class="praise"><${Icon} n="check" s=${16} /><span>Dictation caught every word. Try a harder theme next time.</span></p>`}
+      <div class="row"><button class="btn primary" onClick=${() => setPhase('setup')}>Another set</button><button class="btn" onClick=${() => go('home')}>Home</button></div>
+    </div>`;
+  }
+  const it = items[i];
+  return html`<div class="page">${head}
+    <div class="fcard" style="max-width:760px">
+      <div class="row"><span class="lbl">Sentence ${i + 1} of ${items.length}</span></div>
+      <div class="progressbar"><i style=${'width:' + (i / items.length * 100) + '%'}></i></div>
+      <div class="row"><button class="btn primary" onClick=${() => TTS.speak(it.text)}><${Icon} n="play" s=${16} /> Listen</button><button class="btn" onClick=${() => TTS.speak(it.text, 0.72)}>Slowly</button><div class="grow"></div><button class="linkbtn" onClick=${() => setShowText(!showText)}>${showText ? 'Hide text' : 'Show text'}</button></div>
+      <p class=${'sh-text' + (showText ? '' : ' blur')} aria-hidden=${showText ? 'false' : 'true'}>${it.text}</p>
+      <ol class="small muted" style="display:flex;flex-direction:column;gap:2px"><li>Listen once or twice without reading.</li><li>Repeat it out loud straight away with dictation, copying the rhythm.</li><li>Check, then listen again.</li></ol>
+      <textarea id="sh-in" class="input" rows="2" value=${attempt} onInput=${e => setAttempt(e.target.value)} readOnly=${!!checked} placeholder="Your dictated words appear here (or type what you heard)" aria-label="What you said"></textarea>
+      ${!checked ? html`<div class="row"><button class="btn primary" disabled=${!attempt.trim()} onClick=${check}>Check</button></div>` : html`
+        <div class="fc-back">
+          <div class="row"><span class="acc">${checked.acc}%</span><span class="muted">of the words matched</span></div>
+          <p class="small">Compared with the original: <${DiffView} ops=${checked.ops} fallback=${attempt} /></p>
+          ${checked.missed.length ? html`<div class="chips">${checked.missed.slice(0, 8).map(w => html`<button class="chip" onClick=${() => TTS.speak(w, 0.8)}><${Icon} n="speaker" s=${14} /> ${w}</button>`)}</div>` : null}
+          ${it.tip ? html`<p class="pattern" style="font-weight:400">${it.tip}</p>` : null}
+        </div>
+        <div class="row"><button class="btn" onClick=${retry}>Try again</button><button class="btn primary" onClick=${nextItem}>${i + 1 < items.length ? 'Next sentence' : 'Finish'}</button></div>`}
+    </div>
+  </div>`;
+}
+
+/* weekly report */
+function weekStats() {
+  const now = Date.now(), w1 = now - 7 * DAY, w2 = now - 14 * DAY;
+  const ss = Store.profile.sessions.map(s => Object.assign({ t: Date.parse(s.date) || 0 }, s));
+  const cur = ss.filter(s => s.t >= w1), prev = ss.filter(s => s.t >= w2 && s.t < w1);
+  const dimAvg = (list, d) => { const v = list.filter(s => s.scores && s.scores[d] != null).map(s => s.scores[d]); return v.length ? avg(v) : null; };
+  const dims = DIMS.map(d => ({ d, cur: dimAvg(cur, d), prev: dimAvg(prev, d) }));
+  const minutes = cur.reduce((n, s) => n + (s.minutes || 0), 0);
+  const days = new Set(cur.map(s => s.day)).size;
+  const prevDays = new Set(prev.map(s => s.day)).size;
+  const modes = {};
+  cur.forEach(s => { modes[s.mode] = (modes[s.mode] || 0) + 1; });
+  const v = Store.vocab.items;
+  const newPhrases = v.filter(x => (x.added || 0) >= w1).length;
+  const mastered = v.filter(x => x.status === 'mastered' && Math.max(x.lastReviewed || 0, x.lastUsed || 0) >= w1).length;
+  const ms = Mistakes.items.map(m => { const h = arr(m.hist); return { m, c1: h.filter(t => t >= w1).length, c0: h.filter(t => t >= w2 && t < w1).length }; });
+  const better = ms.filter(x => x.c0 > 0 && x.c1 < x.c0).sort((a, b) => (b.c0 - b.c1) - (a.c0 - a.c1)).slice(0, 4);
+  const back = ms.filter(x => x.c1 >= 2 || (x.c1 > 0 && x.c1 > x.c0)).sort((a, b) => b.c1 - a.c1).slice(0, 4);
+  const calques = cur.reduce((n, s) => n + (s.calques || 0), 0);
+  const f = x => x == null ? 'n/a' : x.toFixed(1);
+  const text = [
+    'Days practised: ' + days + '/7 (week before: ' + prevDays + '); sessions: ' + cur.length + ' (week before: ' + prev.length + '); about ' + minutes + ' minutes.',
+    'Session types: ' + (Object.keys(modes).map(k => (MODE_LABEL[k] || k) + ' ' + modes[k]).join(', ') || 'none'),
+    'Average scores this week (week before): ' + dims.map(x => x.d + ' ' + f(x.cur) + ' (' + f(x.prev) + ')').join(', '),
+    'New phrases: ' + newPhrases + '; phrases mastered this week: ' + mastered + '.',
+    'Mistakes getting better: ' + (better.map(x => x.m.label + ' (' + x.c0 + ' -> ' + x.c1 + ')').join('; ') || 'none yet'),
+    'Mistakes coming back: ' + (back.map(x => x.m.label + ' (' + x.c1 + 'x this week)').join('; ') || 'none'),
+    'Word-for-word translations from Polish this week: ' + calques + '.'
+  ].join('\n');
+  return { w1, now, cur, dims, minutes, days, newPhrases, mastered, better, back, calques, text };
+}
+const PLAN_MODES = { speaking: 'speaking', writing: 'writing', daily: 'daily', review: 'review', sprint: 'sprint', shadow: 'shadow' };
+function WeeklyReport({ go }) {
+  const w = weekStats();
+  const p = Store.profile;
+  const last = arr(p.reports)[0];
+  const fresh = last && Date.now() - last.at < 7 * DAY ? last : null;
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  async function write() {
+    setBusy(true); setErr('');
+    try {
+      const r = await aiJSON(reportPrompt(w), { modelTier: 'default', cache: false });
+      const rep = {
+        at: Date.now(), summary: str(r && r.summary),
+        wins: arr(r && r.wins).map(str).filter(Boolean).slice(0, 3),
+        focus: arr(r && r.focus).map(x => ({ title: str(x && x.title), why: str(x && x.why), how: str(x && x.how) })).filter(x => x.title).slice(0, 3),
+        plan: arr(r && r.plan).map(x => ({ day: str(x && x.day).slice(0, 3), task: str(x && x.task), mode: PLAN_MODES[str(x && x.mode)] || 'daily' })).filter(x => x.task).slice(0, 7)
+      };
+      if (!rep.summary && !rep.focus.length) throw { code: 'invalid_json' };
+      p.reports = [rep].concat(arr(p.reports)).slice(0, 6);
+      commit('profile');
+    } catch (e) { setErr(errText(e)); }
+    finally { setBusy(false); }
+  }
+  const f = x => x == null ? '–' : x.toFixed(1);
+  return html`<div class="block" style="gap:24px">
+    <div class="block-h"><h2>${fmtDay(w.w1)} – ${fmtDay(w.now)}</h2><span class="small muted">The last 7 days compared with the 7 before</span></div>
+    <div class="ov-sum">
+      <div class="ov-item"><span class="lbl">Days practised</span><b>${w.days}/7</b><small>${w.cur.length} session${w.cur.length === 1 ? '' : 's'}</small></div>
+      <div class="ov-item"><span class="lbl">Time</span><b>${w.minutes}</b><small>minutes</small></div>
+      <div class="ov-item"><span class="lbl">New phrases</span><b>${w.newPhrases}</b><small>${w.mastered} mastered this week</small></div>
+      <div class="ov-item"><span class="lbl">From Polish</span><b>${w.calques}</b><small>word-for-word slips</small></div>
+    </div>
+    ${w.dims.some(x => x.cur != null || x.prev != null) ? html`<div style="overflow-x:auto"><div class="wk">
+      <span class="h">Skill</span><span class="h">This week</span><span class="h">Before</span><span class="h">Change</span>
+      ${w.dims.map(x => { const d = x.cur != null && x.prev != null ? x.cur - x.prev : null; return html`<span>${DIM_LABEL[x.d]}</span><span>${f(x.cur)}</span><span>${f(x.prev)}</span><span class=${'stat-d ' + (d == null ? 'flat' : d > 0.05 ? 'up' : d < -0.05 ? 'down' : 'flat')} style="font-size:14px">${d == null ? '–' : (d > 0.05 ? '▲ +' : d < -0.05 ? '▼ ' : '■ ') + d.toFixed(1)}</span>`; })}
+    </div></div>` : null}
+    <div class="fb-cols">
+      <div class="block" style="gap:8px"><span class="lbl">Getting better</span>${w.better.length ? w.better.map(x => html`<div class="row" style="gap:8px"><span>${x.m.label}</span><span class="tag">${x.c0} → ${x.c1}</span></div>`) : html`<p class="small muted">Shows up once a mistake appears less often than the week before.</p>`}</div>
+      <div class="block" style="gap:8px"><span class="lbl">Keep an eye on</span>${w.back.length ? w.back.map(x => html`<div class="row" style="gap:8px"><span>${x.m.label}</span><span class="tag err">×${x.c1} this week</span></div>`) : html`<p class="small muted">No mistake kept coming back this week.</p>`}</div>
+    </div>
+    <section class="block">
+      <div class="block-h"><h2>Your coach’s report</h2>${busy ? html`<${Thinking} label="Writing your report" />` : html`<button class=${'btn ' + (fresh ? 'sm' : 'primary')} onClick=${write}>${fresh ? 'Write a new one' : 'Write my weekly report'}</button>`}</div>
+      ${err ? html`<p class="err" role="alert">${err}</p>` : null}
+      ${fresh ? html`
+        <p class="small muted">Written ${fmtDay(fresh.at)}</p>
+        ${fresh.summary ? html`<p class="lead" style="color:var(--ink)">${fresh.summary}</p>` : null}
+        ${fresh.wins.length ? html`<div><span class="lbl">Wins</span><ul style="margin-top:6px">${fresh.wins.map(x => html`<li>${x}</li>`)}</ul></div>` : null}
+        ${fresh.focus.length ? html`<div class="block" style="gap:8px"><span class="lbl">Focus for next week</span>${fresh.focus.map((x, k) => html`<div class="focus-item"><b>${k + 1}. ${x.title}</b>${x.why ? html`<span class="small muted">${x.why}</span>` : null}${x.how ? html`<span class="small">${x.how}</span>` : null}</div>`)}</div>` : null}
+        ${fresh.plan.length ? html`<div class="block" style="gap:8px"><span class="lbl">Plan for the next 7 days</span><div class="plan">${fresh.plan.map(x => html`<div class="plan-row"><span class="plan-day">${x.day}</span><span>${x.task}</span><button class="btn sm" onClick=${() => go(x.mode)}>Start</button></div>`)}</div></div>` : null}
+      ` : html`<p class="muted">A short summary of your week, your wins, three priorities and a day-by-day plan built from your data.</p>`}
+    </section>
+  </div>`;
+}
+
+/* about me */
+function AboutMe({ go }) {
+  const a = Store.profile.about || {};
+  const [f, setF] = useState(() => ({ role: a.role || '', uses: arr(a.uses).slice(), goals: a.goals || '', interests: a.interests || '', notes: a.notes || '' }));
+  const [saved, setSaved] = useState(false);
+  const upd = (k, v) => { setF(Object.assign({}, f, { [k]: v })); setSaved(false); };
+  const toggleUse = u => upd('uses', f.uses.includes(u) ? f.uses.filter(x => x !== u) : f.uses.concat(u));
+  function save() {
+    Store.profile.about = { role: str(f.role).slice(0, 160), uses: f.uses, goals: str(f.goals).slice(0, 400), interests: str(f.interests).slice(0, 200), notes: str(f.notes).slice(0, 400) };
+    commit('profile');
+    setSaved(true);
+    toast('Saved. Your coach uses this from now on.');
+  }
+  return html`<div class="block">
+    <p class="muted">Your coach uses this in every conversation, role-play, drill and set of phrases, so practice matches your real life. Write in English or Polish.</p>
+    <div class="form" style="max-width:680px">
+      <label class="lbl" for="ab-role">What do you do?</label>
+      <input id="ab-role" class="input" value=${f.role} onInput=${e => upd('role', e.target.value)} placeholder="e.g. project manager at a software company, nurse, student" />
+      <span class="lbl">Where do you use English?</span>
+      <div class="chips">${USES.map(u => html`<button class=${'chip' + (f.uses.includes(u) ? ' on' : '')} onClick=${() => toggleUse(u)} aria-pressed=${f.uses.includes(u)}>${u}</button>`)}</div>
+      <label class="lbl" for="ab-goals">What do you want to be able to do?</label>
+      <textarea id="ab-goals" class="input" rows="3" value=${f.goals} onInput=${e => upd('goals', e.target.value)} placeholder="e.g. speak up in meetings without preparing, write emails faster, pass a job interview"></textarea>
+      <label class="lbl" for="ab-int">Interests</label>
+      <input id="ab-int" class="input" value=${f.interests} onInput=${e => upd('interests', e.target.value)} placeholder="e.g. cycling, cooking, sci-fi series" />
+      <label class="lbl" for="ab-notes">Anything else your coach should know?</label>
+      <textarea id="ab-notes" class="input" rows="2" value=${f.notes} onInput=${e => upd('notes', e.target.value)} placeholder="e.g. weekly calls with a client in London; I freeze when people speak fast"></textarea>
+      <div class="row"><button class="btn primary" onClick=${save}>Save</button>${saved ? html`<span class="okt small"><${Icon} n="check" s=${15} /> Saved</span><button class="linkbtn" onClick=${() => go('speaking')}>Create role-plays from my profile →</button>` : null}</div>
+    </div>
+  </div>`;
+}
+
 /* ---------- app ---------- */
 function App() {
   const [, setTick] = useState(0);
@@ -2444,7 +3086,7 @@ function App() {
   const [route, setRoute] = useState(() => {
     let h = '';
     try { h = (location.hash || '').slice(1); } catch (e) {}
-    return ['speaking', 'writing', 'daily', 'progress'].includes(h) ? { name: h } : { name: 'home' };
+    return ['speaking', 'writing', 'daily', 'progress', 'review', 'sprint', 'shadow'].includes(h) ? { name: h } : { name: 'home' };
   });
   const go = (name, extra) => { if (TTS.ok) { try { speechSynthesis.cancel(); } catch (e) {} } setRoute(Object.assign({ name }, extra || {})); window.scrollTo(0, 0); };
   const p = Store.profile;
@@ -2454,6 +3096,9 @@ function App() {
   else if (route.name === 'speaking') view = html`<${Speaking} go=${go} />`;
   else if (route.name === 'writing') view = html`<${Writing} />`;
   else if (route.name === 'daily') view = html`<${DailyHost} go=${go} />`;
+  else if (route.name === 'review') view = html`<${VocabReview} go=${go} />`;
+  else if (route.name === 'sprint') view = html`<${Sprint} go=${go} />`;
+  else if (route.name === 'shadow') view = html`<${Shadowing} go=${go} />`;
   else if (route.name === 'progress') view = html`<${Progress} key=${route.tab || 'p'} go=${go} tab=${route.tab} />`;
   else view = html`<${Home} go=${go} />`;
   return html`<${TopBar} route=${route} go=${go} /><main class="wrap"><${AIBanner} />${view}</main><${Toaster} />`;

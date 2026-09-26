@@ -13,7 +13,7 @@ out=say-it-naturally.html
   echo "const appEl = document.getElementById('app');"
   echo "if (!window.htmPreact) { appEl.innerHTML = '<div class=\"boot\">The app couldn’t load its interface library. Check your connection and reload the page.</div>'; return; }"
   echo 'const { html, render, useState, useEffect, useRef, useMemo } = window.htmPreact;'
-  for f in src/02-core.js src/03-ai.js src/04-ui-shared.js src/05-ui-home.js src/06-ui-speaking.js src/07-ui-writing.js src/08-ui-daily.js src/09-ui-progress.js; do
+  for f in src/02-core.js src/03-ai.js src/04-ui-shared.js src/05-ui-home.js src/06-ui-speaking.js src/07-ui-writing.js src/08-ui-daily.js src/09-ui-progress.js src/10-ui-extras.js src/99-app.js; do
     echo
     cat "$f"
   done
