@@ -222,7 +222,7 @@ function toggleTheme() {
 function TopBar({ route, go }) {
   const p = Store.profile;
   const dark = currentTheme() === 'dark';
-  const nav = [['speaking', 'Speaking'], ['writing', 'Writing'], ['daily', 'Daily practice'], ['progress', 'My progress']];
+  const nav = [['speaking', 'Speaking'], ['writing', 'Writing'], ['daily', 'Daily practice'], ['career', 'Career'], ['progress', 'My progress']];
   return html`<header class="top"><div class="top-in">
     <button class="brand" onClick=${() => go('home')} aria-label="Say It Naturally, home">Say it <span class="hlw">naturally</span></button>
     ${p.onboarded ? html`<nav class="topnav" aria-label="Modes">${nav.map(([k, l]) => html`<button class=${'navlink' + (route.name === k ? ' on' : '')} onClick=${() => go(k)}>${l}</button>`)}</nav>` : null}

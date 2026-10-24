@@ -21,6 +21,7 @@ function Home({ go }) {
   const top = Mistakes.top(3);
   const st = streak();
   const due = Vocab.due().length;
+  const followUps = Store.career.apps.filter(a => a.next && a.next <= today && (a.status === 'applied' || a.status === 'interview'));
   const ab = p.about || {};
   const aboutSet = !!(ab.role || ab.goals || arr(ab.uses).length);
   let dateLabel = '';
@@ -36,6 +37,12 @@ function Home({ go }) {
       <${Tile} icon="daily" title="Daily practice" desc="10–15 minutes: a short conversation, your top corrections, 5 phrases, an exercise and a review of old mistakes." meta=${dailyDone ? 'Done today ✓' : dailyOn ? 'In progress · step ' + dd.step + ' of 6' : 'Not done yet today'} accent=${!dailyDone} onClick=${() => go('daily')} />
       <${Tile} icon="chart" title="My progress" desc="Your recurring mistakes, your vocabulary list and how your English is changing." meta=${Mistakes.items.length + ' mistakes tracked · ' + Store.vocab.items.length + ' phrases'} onClick=${() => go('progress')} />
     </div>
+    <button class="career-card" onClick=${() => go('career', followUps.length ? { tab: 'tracker' } : {})}>
+      <span class="tile-ic"><${Icon} n="report" s=${24} /></span>
+      <span><span class="tile-t" style="font-size:22px">Career English</span>
+        <span class="tile-d">Apply to networking and security roles in English: tailored letters from a pasted listing, CV review, interview role-plays and an application tracker.</span>
+        ${followUps.length ? html`<span class="tag err" style="margin-top:8px">${followUps.length} follow-up${followUps.length === 1 ? '' : 's'} due: ${followUps.slice(0, 2).map(a => a.company).join(', ')}</span>` : html`<span class="tile-meta">${Store.career.apps.length} application${Store.career.apps.length === 1 ? '' : 's'} tracked${Store.career.cv ? ' · CV added' : ' · add your CV'}</span>`}</span>
+    </button>
     <section class="focus">
       <div class="block-h"><h2>More ways to practise</h2></div>
       <div class="extras">

@@ -5,14 +5,15 @@ function App() {
   const [route, setRoute] = useState(() => {
     let h = '';
     try { h = (location.hash || '').slice(1); } catch (e) {}
-    return ['speaking', 'writing', 'daily', 'progress', 'review', 'sprint', 'shadow'].includes(h) ? { name: h } : { name: 'home' };
+    return ['speaking', 'writing', 'daily', 'progress', 'review', 'sprint', 'shadow', 'career'].includes(h) ? { name: h } : { name: 'home' };
   });
   const go = (name, extra) => { if (TTS.ok) { try { speechSynthesis.cancel(); } catch (e) {} } setRoute(Object.assign({ name }, extra || {})); window.scrollTo(0, 0); };
   const p = Store.profile;
   let view;
   if (!p.onboarded && !Persist.settled) view = html`<div class="boot"><${Thinking} label="Loading your progress" /></div>`;
   else if (!p.onboarded || route.name === 'onboard') view = html`<${Onboarding} go=${go} retake=${p.onboarded && route.name === 'onboard'} />`;
-  else if (route.name === 'speaking') view = html`<${Speaking} go=${go} />`;
+  else if (route.name === 'speaking') view = html`<${Speaking} key=${route.start || 'sp'} go=${go} autostart=${route.start} />`;
+  else if (route.name === 'career') view = html`<${Career} key=${route.tab || 'c'} go=${go} tab=${route.tab} />`;
   else if (route.name === 'writing') view = html`<${Writing} />`;
   else if (route.name === 'daily') view = html`<${DailyHost} go=${go} />`;
   else if (route.name === 'review') view = html`<${VocabReview} go=${go} />`;
