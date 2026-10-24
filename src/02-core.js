@@ -208,7 +208,10 @@ function stamp(n) {
 function mergeDocs(n, a, b) {
   if (!b) return a;
   if (!a) return b;
-  const out = JSON.parse(JSON.stringify((b.settingsAt || 0) > (a.settingsAt || 0) ? b : a));
+  // Settings come from the copy changed last; on a tie (data saved before change tracking existed) the newer document wins.
+  const bNewer = (b.updatedAt || 0) > (a.updatedAt || 0);
+  const pickB = (b.settingsAt || 0) > (a.settingsAt || 0) || ((b.settingsAt || 0) === (a.settingsAt || 0) && bNewer);
+  const out = JSON.parse(JSON.stringify(pickB ? b : a));
   const del = Object.assign({}, a.del || {});
   Object.entries(b.del || {}).forEach(([k, t]) => { if (!del[k] || del[k] < t) del[k] = t; });
   const cutoff = Date.now() - 120 * DAY;
@@ -216,12 +219,13 @@ function mergeDocs(n, a, b) {
   out.del = del;
   Object.entries(DOC_LISTS[n]).forEach(([f, k]) => {
     const map = new Map(), order = [];
-    [arr(a[f]), arr(b[f])].forEach(list => list.forEach(x => {
+    // The newer document is read second so it wins ties between items that have no change time yet.
+    (bNewer ? [arr(a[f]), arr(b[f])] : [arr(b[f]), arr(a[f])]).forEach(list => list.forEach(x => {
       const id = itemKey(x, k);
       if (id == null) return;
       const cur = map.get(id);
       if (!cur) { map.set(id, x); order.push(id); }
-      else if ((x.u || 0) > (cur.u || 0)) map.set(id, x);
+      else if ((x.u || 0) >= (cur.u || 0)) map.set(id, x);
     }));
     out[f] = order.map(id => map.get(id)).filter(x => { const t = del[f + ':' + itemKey(x, k)]; return !(t && t >= (x.u || 0)); }).map(x => JSON.parse(JSON.stringify(x)));
   });
