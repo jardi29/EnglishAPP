@@ -44,7 +44,7 @@ function useChat(init, opts) {
     if (err && err.kind === 'analysis') setErr(null);
     s.analyzedUpTo = to; save();
     try {
-      const raw = await aiJSON(analysisPrompt(s, from, to, max || 5, aopts), { modelTier: 'default' });
+      const raw = await aiJSON(analysisPrompt(s, from, to, Store.profile.economy ? Math.min(3, max || 5) : (max || 5), aopts), { modelTier: tier() });
       const result = normAnalysis(raw);
       recordAnalysis(result, s.warmup ? 'daily' : 'speaking');
       const b = { id: uid(), at: s.messages.length, count, result };
@@ -148,8 +148,11 @@ function ScenarioBrief({ sc }) {
 }
 
 /* ---------- speaking ---------- */
-function Speaking({ go }) {
-  const [sess, setSess] = useState(() => { const d = lsGet(DRAFT_SPEAK); return d && !d.ended && d.messages ? d : null; });
+function Speaking({ go, autostart }) {
+  const [sess, setSess] = useState(() => {
+    if (autostart && findScenario(autostart)) { const s = newSession('scenario', autostart, false); lsSet(DRAFT_SPEAK, s); return s; }
+    const d = lsGet(DRAFT_SPEAK); return d && !d.ended && d.messages ? d : null;
+  });
   function start(kind, id) {
     const s = newSession(kind, id, false);
     noteTopic(id);
@@ -187,10 +190,10 @@ function MySituations({ start }) {
   async function generate() {
     setBusy('gen'); setErr('');
     try {
-      const r = await aiJSON(scenariosPrompt(4), { modelTier: 'default', cache: false });
+      const r = await aiJSON(scenariosPrompt(4), { modelTier: tier(), cache: false });
       const add = arr(r && r.scenarios).map(normScenario).filter(Boolean).slice(0, 4);
       if (!add.length) throw { code: 'invalid_json' };
-      p.customScenarios = add.concat(list).slice(0, 16);
+      Store.profile.customScenarios = add.concat(arr(Store.profile.customScenarios)).slice(0, 16);
       commit('profile');
     } catch (e) { setErr(errText(e)); }
     finally { setBusy(''); }
@@ -202,13 +205,13 @@ function MySituations({ start }) {
     try {
       const sc = normScenario(await aiJSON(customScenarioPrompt(t), { modelTier: 'quick', cache: false }));
       if (!sc) throw { code: 'invalid_json' };
-      p.customScenarios = [sc].concat(list).slice(0, 16);
+      Store.profile.customScenarios = [sc].concat(arr(Store.profile.customScenarios)).slice(0, 16);
       commit('profile');
       setDesc('');
     } catch (e) { setErr(errText(e)); }
     finally { setBusy(''); }
   }
-  function remove(id) { p.customScenarios = list.filter(x => x.id !== id); commit('profile'); }
+  function remove(id) { Store.profile.customScenarios = arr(Store.profile.customScenarios).filter(x => x.id !== id); commit('profile'); }
   const ab = p.about || {};
   const hasAbout = !!(ab.role || ab.goals || arr(ab.uses).length);
   return html`<section class="block">
@@ -239,7 +242,7 @@ function ChatSession({ init, go, onNew }) {
     setFb({ busy: true, err: '' });
     const pa = pend ? chat.analyze(4) : Promise.resolve(null);
     try {
-      const r = await aiJSON(feedbackPrompt(s), { modelTier: 'default' });
+      const r = await aiJSON(feedbackPrompt(s), { modelTier: tier() });
       await pa;
       const f = normFeedback(r);
       const m = chatMetrics(s);

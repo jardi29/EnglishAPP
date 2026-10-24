@@ -15,10 +15,12 @@ function onAIError(e) {
   else if (c === 'sampling_disabled' || c === 'not_declared' || c === 'capability_disabled') { AI.status = 'unavailable'; emit(); }
 }
 function aiBlocked() { return { code: AI.status === 'denied' ? 'not_granted' : 'unavailable' }; }
+const inChars = input => typeof input === 'string' ? input.length : arr(input).reduce((n, m) => n + String(m.content || '').length, 0);
+const tier = () => (Store.profile.economy ? 'quick' : 'default');
 async function aiText(input, opts) {
   await AI.ready;
   if (!AI.fn) throw aiBlocked();
-  try { return await AI.fn(input, opts || {}); }
+  try { const r = await AI.fn(input, opts || {}); Usage.add(inChars(input), str(r && r.text).length); return r; }
   catch (e) { onAIError(e); throw e; }
 }
 function looseJSON(t) {
@@ -32,7 +34,7 @@ function looseJSON(t) {
 async function aiJSON(input, opts) {
   await AI.ready;
   if (!AI.fn) throw aiBlocked();
-  try { return await AI.fn.json(input, opts || {}); }
+  try { const r = await AI.fn.json(input, opts || {}); Usage.add(inChars(input), JSON.stringify(r || '').length); return r; }
   catch (e) {
     if (e && e.code === 'capability_removed') {
       const r = await aiText(input, opts);
@@ -73,10 +75,10 @@ function keysList() {
 }
 function learnerContext() {
   const p = Store.profile;
-  const top = Mistakes.top(6).map(m => m.label + ' [' + m.key + '] x' + m.count).join('; ') || 'none recorded yet';
+  const top = Mistakes.top(5).map(m => m.label + ' [' + m.key + '] x' + m.count).join('; ') || 'none recorded yet';
   const v = Store.vocab.items;
-  const mastered = v.filter(x => x.status === 'mastered').slice(0, 40).map(x => x.en).join('; ') || 'none yet';
-  const learning = v.filter(x => x.status !== 'mastered').slice(0, 25).map(x => x.en).join('; ') || 'none yet';
+  const mastered = v.filter(x => x.status === 'mastered').slice(0, 20).map(x => x.en).join('; ') || 'none yet';
+  const learning = v.filter(x => x.status !== 'mastered').slice(0, 12).map(x => x.en).join('; ') || 'none yet';
   const r = recentScores();
   const scores = r ? DIMS.filter(d => r[d] != null).map(d => d + ' ' + r[d].toFixed(1)).join(', ') : 'no sessions yet';
   return `LEARNER PROFILE
@@ -123,7 +125,7 @@ ${learning ? '- When it fits naturally, use some of these phrases the learner is
 }
 function buildTurns(s) {
   const rules = partnerRules(s);
-  const msgs = s.messages.slice(-40);
+  const msgs = s.messages.slice(Store.profile.economy ? -16 : -40);
   if (!msgs.length) return [{ role: 'user', content: rules + '\n\n' + (s.scenario ? 'Start the scene now with your first line, in character (1-2 sentences).' : 'Start the conversation now with a natural, friendly opening line and one question.') }];
   const turns = [{ role: 'user', content: rules + '\n\n(The conversation follows. Reply only as your character.)' }];
   msgs.forEach(m => turns.push({ role: m.role === 'me' ? 'user' : 'assistant', content: m.text }));
@@ -144,7 +146,9 @@ ${learnerContext()}
 PRIORITIES, in this order: 1) communication (was the meaning clear?), 2) naturalness (would a native speaker really say it like this?), 3) the learner's recurring mistakes, 4) grammar, 5) vocabulary.
 
 RULES
-- Give at most ${max} corrections: only the ones that matter most. Ignore typos, capital letters, missing final punctuation and small slips that don't affect communication, unless they match a recurring mistake. Don't correct things that are already fine. Fewer is better than more.
+- Give at most ${max} corrections: only the ones that matter most. Fewer is better than more.
+- NEVER correct a sentence that is already correct and natural. Informal chat style is fine (contractions, "yeah", lowercase), and so are British vs American spelling and phrasing.
+- The learner may be dictating: ignore missing punctuation, capital letters, typos and words obviously misheard by dictation, unless the error is clearly a language mistake or matches a recurring mistake.
 - "you_said": the learner's exact words (the shortest part that shows the problem, or the whole sentence if needed).
 - "better": the minimal correct version. "more_natural": what a native speaker would typically say here (it can be the same as "better").
 - "type": "grammar", "vocabulary", "unnatural" (grammatical, but not how natives say it) or "pronunciation".
@@ -209,7 +213,7 @@ TEXT TYPE: ${t}
 CONTEXT / READER: ${ctx || 'not given'}
 
 TASKS
-1. "corrected": the full text with only the necessary corrections (grammar, wrong words, punctuation, spelling). Keep everything else exactly as written, including line breaks and the learner's style.
+1. "corrected": the full text with only the necessary corrections (grammar, wrong words, punctuation, spelling). Keep everything else exactly as written, including line breaks, the learner's style and their choice of British or American English. Stylistic preferences are not mistakes.
 2. "natural": the full text as a fluent native speaker would write this ${t}: same meaning and personal voice, the right tone and formality, not longer than needed. Keep the line breaks and structure.
 3. "mistakes": the ${max} most important issues at most, most important first (communication and naturalness before small grammar points). "original": an exact substring copied from the ORIGINAL text. "corrected": that part corrected. "natural": a more natural way to say that part (or the same as "corrected"). "why": 1-2 short sentences. "type": "grammar", "vocabulary", "unnatural", "punctuation" or "tone". "mistake_key": reuse one of: ${keysList()} (or a new short kebab-case key). "mistake_label": short English name. "polish_calque": true if it's a word-for-word translation from Polish. Skip trivial issues.
 4. "expressions": 3-5 useful expressions for this type of text that the learner could use next time (chunks, collocations, sentence patterns, not single words), each with a natural Polish meaning and an example.
@@ -308,7 +312,7 @@ Reply with only JSON: {"explanation":"","pattern":"","examples":[{"en":"","note"
 }
 
 function checkPrompt(items) {
-  return `Check a Polish learner's answers to short English exercises. Be fair and encouraging: accept any answer that is correct, natural and does what the task asks (other wording, contractions and inflected forms are fine). Mention small typos without failing the answer for them.
+  return `Check a Polish learner's answers to short English exercises. Be fair and encouraging: accept any answer that is correct, natural and does what the task asks (other wording, contractions and inflected forms are fine). Mention small typos without failing the answer for them. Never mark a correct, natural answer as wrong because it differs from the model answer.
 ${explainRule()} Keep each feedback to 1-2 short sentences.
 
 ITEMS

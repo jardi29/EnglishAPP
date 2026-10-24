@@ -58,13 +58,14 @@ function Daily({ go, again }) {
     if (d.content || flight.current.content) return;
     setB('content', true); setE('content', '');
     try {
-      const r = await aiJSON(dailyContentPrompt(d), { modelTier: 'default' });
+      const r = await aiJSON(dailyContentPrompt(d), { modelTier: tier() });
       const phrases = arr(r && r.phrases).map(normPhrase).filter(p => p.en).slice(0, 5);
       if (!phrases.length) throw { code: 'invalid_json' };
       phrases.forEach(p => { const v = Vocab.add(p, 'daily'); if (v) p.vid = v.id; });
       commit('vocab');
       const exercises = arr(r.exercises).map(x => ({ phrase: Math.max(0, Math.min(phrases.length - 1, Number(x && x.phrase) || 0)), type: ['gap', 'rewrite', 'respond'].includes(x && x.type) ? x.type : 'respond', prompt: str(x && x.prompt), answer: str(x && x.answer) })).filter(x => x.prompt).slice(0, 5);
-      d.content = { phrases, exercises };
+      const review = Vocab.due(8).filter(v => !phrases.some(x => norm(x.en) === norm(v.en))).slice(0, 2).map(v => ({ vid: v.id, en: v.en, example: v.example }));
+      d.content = { phrases, exercises, review };
       save();
     } catch (e) { setE('content', errText(e)); }
     finally { setB('content', false); }
@@ -76,7 +77,7 @@ function Daily({ go, again }) {
     if (!ms.length) { if (d.analysis) { d.review = { items: [] }; save(); } return; }
     setB('review', true); setE('review', '');
     try {
-      const r = await aiJSON(reviewPrompt(ms), { modelTier: 'default' });
+      const r = await aiJSON(reviewPrompt(ms), { modelTier: tier() });
       const items = arr(r && r.items).map((it, i) => {
         let key = slug(it && it.key);
         if (!Mistakes.find(key)) key = ms[i] ? ms[i].key : key;
@@ -92,7 +93,7 @@ function Daily({ go, again }) {
     setB('feedback', true); setE('feedback', '');
     try {
       const exs = d.ex ? 'EXERCISES WITH TODAY\'S PHRASES: ' + d.ex.results.filter(r => r.ok).length + '/' + d.ex.results.length + ' correct.' : '';
-      const r = await aiJSON(feedbackPrompt(d.chat, 'This was a daily practice session: a 3-minute warm-up conversation, then corrections, 5 new phrases, an exercise and a review of old mistakes. ' + exs), { modelTier: 'default' });
+      const r = await aiJSON(feedbackPrompt(d.chat, 'This was a daily practice session: a 3-minute warm-up conversation, then corrections, 5 new phrases, an exercise and a review of old mistakes. ' + exs), { modelTier: tier() });
       d.feedback = normFeedback(r);
       save();
     } catch (e) { setE('feedback', errText(e)); }
@@ -150,11 +151,17 @@ function Daily({ go, again }) {
       <${Next} to=${4} label="Next: use them" disabled=${!d.content} />
     </div>`;
   } else if (d.step === 4) {
-    const items = d.content ? d.content.exercises.map(x => ({ type: x.type, prompt: x.prompt, answer: x.answer, target: (d.content.phrases[x.phrase] || {}).en })) : [];
+    const items = d.content ? d.content.exercises.map(x => ({ type: x.type, prompt: x.prompt, answer: x.answer, target: (d.content.phrases[x.phrase] || {}).en }))
+      .concat(arr(d.content.review).map(v => ({ type: 'respond', group: 'From earlier', prompt: 'Use “' + v.en + '” in a sentence about your day.', answer: v.example, target: v.en }))) : [];
     body = html`<div class="block">
       <span class="lbl">Step 4 · Use today’s phrases</span>
       ${d.content ? html`<${Exercises} items=${items} idPrefix="dx" initial=${d.ex} onChecked=${(res, ans, first) => {
-        if (first) { d.content.exercises.forEach((x, i) => { const p = d.content.phrases[x.phrase]; if (p && p.vid && !res[i].skipped) Vocab.bump(p.vid, res[i].ok); }); commit('vocab'); }
+        if (first) {
+          const n = d.content.exercises.length;
+          d.content.exercises.forEach((x, i) => { const p = d.content.phrases[x.phrase]; if (p && p.vid && !res[i].skipped) Vocab.bump(p.vid, res[i].ok); });
+          arr(d.content.review).forEach((v, k) => { const r = res[n + k]; if (r && !r.skipped) Vocab.review(v.vid, r.ok ? 2 : 0); });
+          commit('vocab');
+        }
         d.ex = { answers: ans, results: res }; save();
       }} />` : busy.content ? html`<${Thinking} label="Preparing the exercise" />` : null}
       <${Retry} k="content" fn=${runContent} />

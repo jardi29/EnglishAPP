@@ -133,38 +133,128 @@ const LS = 'sayitnat.v1.';
 const DRAFT_SPEAK = LS + 'draft.speaking';
 const DRAFT_DAILY = LS + 'draft.daily';
 const DRAFT_WRITE = LS + 'draft.writing';
-const DOCS = ['profile', 'mistakes', 'vocab'];
-const defaultProfile = () => ({ v: 1, onboarded: false, level: null, levelSource: null, levelHistory: [], explainMode: 'auto', correctionsEvery: 4, voice: 'en-GB', rate: 1, strengths: [], sessions: [], lastTopics: [], about: defaultAbout(), customScenarios: [], reports: [], updatedAt: 0 });
+const DOCS = ['profile', 'mistakes', 'vocab', 'career'];
+// List fields per document and the key that identifies an item; used to merge copies from different devices.
+const DOC_LISTS = {
+  profile: { sessions: 'id', levelHistory: 'date', customScenarios: 'id', reports: 'at' },
+  mistakes: { items: 'key' },
+  vocab: { items: 'id' },
+  career: { apps: 'id', packs: 'id' }
+};
+const META = ['updatedAt', 'settingsAt', 'del'];
+const defaultProfile = () => ({ v: 1, onboarded: false, level: null, levelSource: null, levelHistory: [], explainMode: 'auto', correctionsEvery: 4, voice: 'en-GB', rate: 1, economy: false, strengths: [], sessions: [], lastTopics: [], about: defaultAbout(), customScenarios: [], reports: [], updatedAt: 0 });
 const defaultAbout = () => ({ role: '', uses: [], goals: '', interests: '', notes: '' });
+const defaultPrefs = () => ({ industry: 'IT: networking and cybersecurity', role: '', years: '', goal: 'both', location: 'Poland, open to remote (EU)', pay: '', certs: '', languages: 'Polish (native), English', assumed: true });
+const defaultCareer = () => ({ prefs: defaultPrefs(), cv: '', cvName: '', cvAt: 0, review: null, comp: null, apps: [], packs: [], updatedAt: 0 });
 function sanitizeDoc(name, d) {
   if (!d || typeof d !== 'object') return null;
+  let out;
   if (name === 'profile') {
-    const p = Object.assign(defaultProfile(), d);
-    ['levelHistory', 'strengths', 'sessions', 'lastTopics', 'customScenarios', 'reports'].forEach(k => { p[k] = arr(p[k]); });
-    p.about = Object.assign(defaultAbout(), p.about && typeof p.about === 'object' ? p.about : {});
-    p.about.uses = arr(p.about.uses);
-    return p;
+    out = Object.assign(defaultProfile(), d);
+    ['levelHistory', 'strengths', 'sessions', 'lastTopics', 'customScenarios', 'reports'].forEach(k => { out[k] = arr(out[k]); });
+    out.about = Object.assign(defaultAbout(), out.about && typeof out.about === 'object' ? out.about : {});
+    out.about.uses = arr(out.about.uses);
+  } else if (name === 'career') {
+    out = Object.assign(defaultCareer(), d);
+    out.prefs = Object.assign(defaultPrefs(), out.prefs && typeof out.prefs === 'object' ? out.prefs : {});
+    out.apps = arr(out.apps); out.packs = arr(out.packs);
+  } else {
+    out = { items: arr(d.items), updatedAt: d.updatedAt || 0 };
   }
-  return { items: arr(d.items), updatedAt: d.updatedAt || 0 };
+  out.settingsAt = d.settingsAt || 0;
+  out.del = d.del && typeof d.del === 'object' ? d.del : {};
+  return out;
 }
-const Store = { profile: defaultProfile(), mistakes: { items: [], updatedAt: 0 }, vocab: { items: [], updatedAt: 0 }, subs: new Set() };
+const Store = { profile: defaultProfile(), mistakes: { items: [], updatedAt: 0 }, vocab: { items: [], updatedAt: 0 }, career: defaultCareer(), subs: new Set() };
 DOCS.forEach(n => { const d = sanitizeDoc(n, lsGet(LS + n)); if (d) Store[n] = d; });
 function emit() { Store.subs.forEach(f => { try { f(); } catch (e) {} }); }
-function commit(n) { Store[n].updatedAt = Date.now(); Persist.save(n); emit(); }
+
+/* change tracking: every item gets `u` (last change) and deletions leave tombstones, so two devices can be merged */
+const Snap = {};
+const itemKey = (x, k) => x && x[k] != null ? String(x[k]) : null;
+const itemJSON = x => { const c = Object.assign({}, x); delete c.u; return JSON.stringify(c); };
+function scalarsJSON(n, d) {
+  const o = {};
+  Object.keys(d).sort().forEach(k => { if (!META.includes(k) && !DOC_LISTS[n][k]) o[k] = d[k]; });
+  return JSON.stringify(o);
+}
+function snapshot(n) {
+  const d = Store[n], s = { lists: {}, scal: scalarsJSON(n, d) };
+  Object.entries(DOC_LISTS[n]).forEach(([f, k]) => {
+    const m = new Map();
+    arr(d[f]).forEach(x => { const id = itemKey(x, k); if (id != null) m.set(id, itemJSON(x)); });
+    s.lists[f] = m;
+  });
+  Snap[n] = s;
+}
+function stamp(n) {
+  const d = Store[n], s = Snap[n], now = Date.now();
+  if (!s) { snapshot(n); return; }
+  d.del = d.del || {};
+  Object.entries(DOC_LISTS[n]).forEach(([f, k]) => {
+    const prev = s.lists[f] || new Map();
+    const seen = new Set();
+    arr(d[f]).forEach(x => {
+      const id = itemKey(x, k);
+      if (id == null) return;
+      seen.add(id);
+      if (prev.get(id) !== itemJSON(x)) { x.u = now; delete d.del[f + ':' + id]; }
+    });
+    prev.forEach((_, id) => { if (!seen.has(id)) d.del[f + ':' + id] = now; });
+  });
+  if (scalarsJSON(n, d) !== s.scal) d.settingsAt = now;
+  snapshot(n);
+}
+function mergeDocs(n, a, b) {
+  if (!b) return a;
+  if (!a) return b;
+  const out = JSON.parse(JSON.stringify((b.settingsAt || 0) > (a.settingsAt || 0) ? b : a));
+  const del = Object.assign({}, a.del || {});
+  Object.entries(b.del || {}).forEach(([k, t]) => { if (!del[k] || del[k] < t) del[k] = t; });
+  const cutoff = Date.now() - 120 * DAY;
+  Object.keys(del).forEach(k => { if (del[k] < cutoff) delete del[k]; });
+  out.del = del;
+  Object.entries(DOC_LISTS[n]).forEach(([f, k]) => {
+    const map = new Map(), order = [];
+    [arr(a[f]), arr(b[f])].forEach(list => list.forEach(x => {
+      const id = itemKey(x, k);
+      if (id == null) return;
+      const cur = map.get(id);
+      if (!cur) { map.set(id, x); order.push(id); }
+      else if ((x.u || 0) > (cur.u || 0)) map.set(id, x);
+    }));
+    out[f] = order.map(id => map.get(id)).filter(x => { const t = del[f + ':' + itemKey(x, k)]; return !(t && t >= (x.u || 0)); }).map(x => JSON.parse(JSON.stringify(x)));
+  });
+  const byStr = f => (x, y) => String(x[f]).localeCompare(String(y[f]));
+  if (n === 'profile') { out.sessions.sort(byStr('date')); out.levelHistory.sort(byStr('date')); out.reports.sort((x, y) => (y.at || 0) - (x.at || 0)); }
+  if (n === 'vocab') out.items.sort((x, y) => (y.added || 0) - (x.added || 0));
+  if (n === 'career') { out.apps.sort((x, y) => (y.created || 0) - (x.created || 0)); out.packs.sort((x, y) => (y.at || 0) - (x.at || 0)); }
+  out.updatedAt = Math.max(a.updatedAt || 0, b.updatedAt || 0);
+  out.settingsAt = Math.max(a.settingsAt || 0, b.settingsAt || 0);
+  return sanitizeDoc(n, out);
+}
+DOCS.forEach(snapshot);
+function commit(n) { Store[n].updatedAt = Date.now(); fitDoc(n); stamp(n); Persist.save(n); emit(); }
 
 function fitDoc(n) {
   const size = () => JSON.stringify(Store[n]).length;
   let guard = 0;
-  while (size() > 230000 && guard++ < 200) {
+  while (size() > 230000 && guard++ < 300) {
     if (n === 'profile' && Store.profile.sessions.length > 10) Store.profile.sessions.shift();
     else if (n === 'mistakes') { const m = Store.mistakes.items.find(x => x.lesson); if (m) m.lesson = null; else Store.mistakes.items.pop(); }
     else if (n === 'vocab') Store.vocab.items.pop();
+    else if (n === 'career' && Store.career.packs.length > 2) Store.career.packs.pop();
+    else if (n === 'career' && Store.career.review) Store.career.review = null;
     else break;
   }
 }
 
 const Persist = {
-  mode: 'local', settled: false, db: null, path: null, writing: {}, dirty: {}, timers: {}, fails: {},
+  mode: 'local', settled: false, db: null, path: null, writing: {}, dirty: {}, timers: {}, fails: {}, pending: {}, lastPull: 0,
+  async pull(n) {
+    const snap = await this.db.doc(this.path(n)).get();
+    return snap.exists ? sanitizeDoc(n, JSON.parse(JSON.stringify(snap.data()))) : null;
+  },
   async init() {
     try {
       const c = window.claude;
@@ -174,25 +264,45 @@ const Persist = {
       const id = await user.id();
       if (!id) return;
       this.path = n => 'data/users/' + id + '/' + n;
+      this.db = db;
+      const toWrite = [];
       for (const n of DOCS) {
-        let snap = null;
-        try { snap = await db.doc(this.path(n)).get(); }
+        let remote;
+        try { remote = await this.pull(n); }
         catch (e) {
-          if (e && e.code === 'unavailable') { await sleep(700 + Math.random() * 700); snap = await db.doc(this.path(n)).get().catch(() => null); }
+          if (e && e.code === 'unavailable') { await sleep(700 + Math.random() * 700); remote = await this.pull(n).catch(() => undefined); }
         }
-        if (!snap) return;
-        const remote = snap.exists ? sanitizeDoc(n, JSON.parse(JSON.stringify(snap.data()))) : null;
-        if (remote && (remote.updatedAt || 0) >= (Store[n].updatedAt || 0)) { Store[n] = remote; lsSet(LS + n, remote); }
+        if (remote === undefined) { this.db = null; return; }
+        if (remote) { Store[n] = mergeDocs(n, Store[n], remote); lsSet(LS + n, Store[n]); snapshot(n); }
+        if ((Store[n].updatedAt || 0) > ((remote && remote.updatedAt) || 0)) toWrite.push(n);
       }
-      this.db = db; this.mode = 'cloud';
-      DOCS.forEach(n => { if ((Store[n].updatedAt || 0) > 0) this.write(n); });
-    } catch (e) { /* stays in browser storage */ }
+      this.mode = 'cloud';
+      toWrite.forEach(n => this.write(n));
+      const onBack = () => { if (document.visibilityState === 'visible') this.refresh(); };
+      document.addEventListener('visibilitychange', onBack);
+      window.addEventListener('focus', onBack);
+    } catch (e) { this.db = null; }
     finally { this.settled = true; emit(); }
   },
+  async refresh() {
+    if (!this.db || Date.now() - this.lastPull < 15000) return;
+    this.lastPull = Date.now();
+    let changed = false;
+    for (const n of DOCS) {
+      if (this.writing[n] || this.pending[n]) continue;
+      try {
+        const remote = await this.pull(n);
+        if (!remote || (remote.updatedAt || 0) <= (Store[n].updatedAt || 0)) continue;
+        Store[n] = mergeDocs(n, Store[n], remote);
+        lsSet(LS + n, Store[n]); snapshot(n); changed = true;
+      } catch (e) { /* try again on the next return to the app */ }
+    }
+    if (changed) emit();
+  },
   save(n) {
-    fitDoc(n);
     lsSet(LS + n, Store[n]);
     if (!this.db) return;
+    this.pending[n] = true;
     clearTimeout(this.timers[n]);
     this.fails[n] = 0;
     this.timers[n] = setTimeout(() => this.write(n), 900);
@@ -201,8 +311,19 @@ const Persist = {
     if (!this.db) return;
     if (this.writing[n]) { this.dirty[n] = true; return; }
     this.writing[n] = true;
-    try { await this.db.doc(this.path(n)).set(JSON.parse(JSON.stringify(Store[n]))); this.fails[n] = 0; }
-    catch (e) {
+    try {
+      const remote = await this.pull(n).catch(() => null);
+      if (remote && (remote.updatedAt || 0) > 0) {
+        const before = JSON.stringify(Store[n]);
+        Store[n] = mergeDocs(n, Store[n], remote);
+        snapshot(n); lsSet(LS + n, Store[n]);
+        if (JSON.stringify(Store[n]) !== before) emit();
+      }
+      Store[n].updatedAt = Math.max(Date.now(), (remote && remote.updatedAt || 0) + 1);
+      await this.db.doc(this.path(n)).set(JSON.parse(JSON.stringify(Store[n])));
+      lsSet(LS + n, Store[n]);
+      this.fails[n] = 0; this.pending[n] = false;
+    } catch (e) {
       const c = e && e.code;
       if (c === 'unavailable' || c === 'resource_exhausted') {
         this.fails[n] = (this.fails[n] || 0) + 1;
@@ -212,6 +333,26 @@ const Persist = {
       this.writing[n] = false;
       if (this.dirty[n] && this.db) { this.dirty[n] = false; this.write(n); }
     }
+  }
+};
+
+/* AI usage on this device (rough estimate: 4 characters ≈ 1 token) */
+const Usage = {
+  key: LS + 'usage',
+  add(inChars, outChars) {
+    const u = lsGet(this.key) || {};
+    const d = dayKey();
+    const x = u[d] || { n: 0, tin: 0, tout: 0 };
+    x.n += 1; x.tin += Math.round(inChars / 4); x.tout += Math.round(outChars / 4);
+    u[d] = x;
+    Object.keys(u).sort().slice(0, -31).forEach(k => { delete u[k]; });
+    lsSet(this.key, u);
+  },
+  sum(days) {
+    const u = lsGet(this.key) || {};
+    const out = { n: 0, tok: 0 };
+    for (let i = 0; i < days; i++) { const d = new Date(); d.setDate(d.getDate() - i); const x = u[dayKey(d)]; if (x) { out.n += x.n; out.tok += x.tin + x.tout; } }
+    return out;
   }
 };
 
@@ -374,7 +515,9 @@ function recordSession(x) {
 function aboutText() {
   const a = Store.profile.about || {};
   const parts = [];
-  if (a.role) parts.push('Work / role: ' + a.role);
+  const pf = Store.career && Store.career.prefs;
+  if (pf && pf.industry) parts.push('Industry: ' + pf.industry);
+  if (a.role || (pf && pf.role)) parts.push('Work / role: ' + (a.role || pf.role));
   if (arr(a.uses).length) parts.push('Uses English for: ' + a.uses.join(', '));
   if (a.goals) parts.push('Goals: ' + a.goals);
   if (a.interests) parts.push('Interests: ' + a.interests);

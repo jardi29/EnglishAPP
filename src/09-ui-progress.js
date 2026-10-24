@@ -97,10 +97,10 @@ function MistakeCard({ m }) {
   async function lesson(refresh) {
     setBusy(true); setErr('');
     try {
-      const r = await aiJSON(lessonPrompt(m), refresh ? { modelTier: 'default', cache: false } : { modelTier: 'default' });
+      const r = await aiJSON(lessonPrompt(m), refresh ? { modelTier: tier(), cache: false } : { modelTier: tier() });
       const L = normLesson(r);
       L.id = uid();
-      m.lesson = L;
+      (Mistakes.find(m.key) || m).lesson = L;
       commit('mistakes');
     } catch (e) { setErr(errText(e)); }
     finally { setBusy(false); }
@@ -233,6 +233,11 @@ function SettingsTab({ go }) {
     <section class="set"><h3>Explanations of your mistakes</h3>
       <div class="chips">${[['auto', 'Auto (now: ' + EXPLAIN_LABEL[em] + ')'], ['pl', 'Polish'], ['mix', 'Polish + English'], ['en', 'English']].map(([k, l]) => html`<button class=${'chip' + (p.explainMode === k ? ' on' : '')} onClick=${() => set('explainMode', k)} aria-pressed=${p.explainMode === k}>${l}</button>`)}</div>
       <p class="small muted">Auto starts in Polish and switches to more English as your level and scores go up.</p></section>
+    <section class="set"><h3>AI usage</h3>
+      <div class="row"><span>Today: <b>${Usage.sum(1).n}</b> requests, ~${Math.round(Usage.sum(1).tok / 1000)}k tokens</span><span class="muted">· last 7 days: <b>${Usage.sum(7).n}</b> requests, ~${Math.round(Usage.sum(7).tok / 1000)}k tokens</span></div>
+      <p class="small muted">Counted on this device only, as a rough estimate (4 characters ≈ 1 token). AI answers use your Claude plan’s usage; flashcards, shadowing from your phrases and everything in My progress use none.</p>
+      <div class="chips"><button class=${'chip' + (!p.economy ? ' on' : '')} onClick=${() => set('economy', false)} aria-pressed=${!p.economy}>Best quality</button><button class=${'chip' + (p.economy ? ' on' : '')} onClick=${() => set('economy', true)} aria-pressed=${!!p.economy}>Economy mode</button></div>
+      <p class="small muted">Economy mode uses the faster model for corrections, summaries and exercises, sends a shorter conversation history and shows at most 3 corrections at a time. Roughly half the usage; explanations get a little less detailed. Writing checks keep the best model.</p></section>
     <section class="set"><h3>Corrections during conversations</h3>
       <div class="chips">${[3, 4, 5, 6].map(n => html`<button class=${'chip' + (p.correctionsEvery === n ? ' on' : '')} onClick=${() => set('correctionsEvery', n)} aria-pressed=${p.correctionsEvery === n}>Every ${n} messages</button>`)}</div></section>
     <section class="set"><h3>Level</h3>

@@ -134,7 +134,7 @@ function Sprint({ go }) {
   async function start() {
     setPhase('loading'); setErr('');
     try {
-      const r = await aiJSON(sprintGenPrompt(), { modelTier: 'default', cache: false });
+      const r = await aiJSON(sprintGenPrompt(), { modelTier: tier(), cache: false });
       const q = arr(r && r.quick).map(x => str(x && x.q)).filter(Boolean).slice(0, 5).map(p => ({ kind: 'quick', prompt: p, limit: 30 }));
       const t = arr(r && r.translate).map(x => ({ kind: 'translate', prompt: str(x && x.pl), expected: str(x && x.en), trap: str(x && x.trap), limit: 20 })).filter(x => x.prompt).slice(0, 6);
       if (q.length + t.length < 3) throw { code: 'invalid_json' };
@@ -156,7 +156,7 @@ function Sprint({ go }) {
     const a = ansRef.current;
     try {
       const list = items.map((x, k) => ({ i: k, kind: x.kind, prompt: x.prompt, expected: x.expected, trap: x.trap, secs: a[k] ? a[k].secs : x.limit, given: a[k] ? a[k].given : '' }));
-      const r = await aiJSON(sprintCheckPrompt(list), { modelTier: 'default' });
+      const r = await aiJSON(sprintCheckPrompt(list), { modelTier: tier() });
       const rs = arr(r && r.items);
       const out = items.map((x, k) => {
         const y = rs.find(z => z && Number(z.i) === k) || {};
@@ -246,7 +246,7 @@ function Shadowing({ go }) {
     }
     setPhase('loading');
     try {
-      const r = await aiJSON(shadowGenPrompt(theme[1] + ' (' + theme[2] + ')'), { modelTier: 'default', cache: false });
+      const r = await aiJSON(shadowGenPrompt(theme[1] + ' (' + theme[2] + ')'), { modelTier: tier(), cache: false });
       const its = arr(r && r.items).map(x => ({ text: str(x && x.text), tip: str(x && x.tip) })).filter(x => words(x.text) >= 3).slice(0, 6);
       if (!its.length) throw { code: 'invalid_json' };
       begin(its);
@@ -300,7 +300,7 @@ function Shadowing({ go }) {
       <textarea id="sh-in" class="input" rows="2" value=${attempt} onInput=${e => setAttempt(e.target.value)} readOnly=${!!checked} placeholder="Your dictated words appear here (or type what you heard)" aria-label="What you said"></textarea>
       ${!checked ? html`<div class="row"><button class="btn primary" disabled=${!attempt.trim()} onClick=${check}>Check</button></div>` : html`
         <div class="fc-back">
-          <div class="row"><span class="acc">${checked.acc}%</span><span class="muted">of the words matched</span></div>
+          <div class="row"><span class="acc-num">${checked.acc}%</span><span class="muted">of the words matched</span></div>
           <p class="small">Compared with the original: <${DiffView} ops=${checked.ops} fallback=${attempt} /></p>
           ${checked.missed.length ? html`<div class="chips">${checked.missed.slice(0, 8).map(w => html`<button class="chip" onClick=${() => TTS.speak(w, 0.8)}><${Icon} n="speaker" s=${14} /> ${w}</button>`)}</div>` : null}
           ${it.tip ? html`<p class="pattern" style="font-weight:400">${it.tip}</p>` : null}
@@ -352,7 +352,7 @@ function WeeklyReport({ go }) {
   async function write() {
     setBusy(true); setErr('');
     try {
-      const r = await aiJSON(reportPrompt(w), { modelTier: 'default', cache: false });
+      const r = await aiJSON(reportPrompt(w), { modelTier: tier(), cache: false });
       const rep = {
         at: Date.now(), summary: str(r && r.summary),
         wins: arr(r && r.wins).map(str).filter(Boolean).slice(0, 3),
@@ -360,7 +360,7 @@ function WeeklyReport({ go }) {
         plan: arr(r && r.plan).map(x => ({ day: str(x && x.day).slice(0, 3), task: str(x && x.task), mode: PLAN_MODES[str(x && x.mode)] || 'daily' })).filter(x => x.task).slice(0, 7)
       };
       if (!rep.summary && !rep.focus.length) throw { code: 'invalid_json' };
-      p.reports = [rep].concat(arr(p.reports)).slice(0, 6);
+      Store.profile.reports = [rep].concat(arr(Store.profile.reports)).slice(0, 6);
       commit('profile');
     } catch (e) { setErr(errText(e)); }
     finally { setBusy(false); }
