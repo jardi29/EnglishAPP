@@ -9,6 +9,8 @@ A personal English coach built as a single-page Claude Artifact. It focuses on c
 - **Daily practice**: warm-up conversation (3 min) → top 3 corrections → 5 phrases → exercise → review of recurring mistakes → summary.
 - **My progress**: trends, weekly report, common mistakes with spaced-repetition review and mini-lessons, vocabulary list (new / learning / mastered), About me, history, settings.
 
+- **Career English** (IT networking and cybersecurity): paste a job listing or client brief and get a ready-to-send pack (fit analysis, ATS keywords, cover letter or proposal in the listing's language plus English, recruiter message, screening answers, follow-up email, interview role-play); CV review with an improved CV and LinkedIn texts (PDF/TXT upload, export as .md/.txt); an application tracker with follow-up reminders and CSV export; a competency map with a 12-month plan, target roles and client segments; and a researched guide to job boards, freelance platforms, bug bounty programmes and client channels (checked 24 Oct 2026, with sources). Drafts only: nothing is sent on the user's behalf.
+
 Extra practice (from the home screen):
 
 - **Phrase review**: flashcards (Polish → English) with spaced repetition, then "use it in a sentence" checked by AI.
@@ -27,7 +29,11 @@ The page is assembled from `src/` into `say-it-naturally.html`:
 ./build.sh
 ```
 
-Runtime capabilities used when published: `sample` (Claude answers), `db` + `user` (private per-user storage under `data/users/<id>/`). Without them the page falls back to browser storage and shows that the AI tutor is unavailable.
+Runtime capabilities used when published: `sample` (Claude answers), `db` + `user` (private per-user storage under `data/users/<id>/`), `downloads` (CV and tracker export). Without them the page falls back to browser storage and shows that the AI tutor is unavailable.
+
+Data is kept in four private documents (profile, mistakes, vocab, career). Every list item carries a change time and deletions leave tombstones, so copies from a phone and a computer are merged instead of overwritten. Settings show an estimate of AI usage on the device and offer an economy mode (faster model for corrections and summaries, shorter history).
+
+Prompt test cases for the correction prompts are in `tests/prompt-cases.md`.
 
 ## Known limits
 

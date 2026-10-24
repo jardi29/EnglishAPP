@@ -382,13 +382,23 @@ mark.m sup{font-family:var(--f-mono);font-size:10px;color:var(--err);margin-left
 .grades{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .grades .btn{flex-direction:column;gap:2px;padding:10px 6px}
 .grades kbd{font-family:var(--f-mono);font-size:10.5px;opacity:.7}
+.career-card{display:flex;gap:16px;align-items:flex-start;text-align:left;padding:20px 22px;border-radius:var(--r-lg);border:1px solid var(--line);background:var(--surface);color:var(--ink);transition:border-color .15s,box-shadow .15s}
+.career-card:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+.career-card .tile-ic{margin:2px 0 0}
+.career-card .tile-meta{display:block;padding-top:8px}
+.career-card .tile-d{display:block;margin-top:4px}
+.trow{display:grid;grid-template-columns:1fr auto;gap:14px;padding:12px 16px;border-top:1px solid var(--line)}
+.trow:first-child{border-top:0}
+.trow select{border:1px solid var(--line-2);background:var(--surface);border-radius:8px;padding:4px 8px;font-size:13.5px}
+@media (max-width:560px){.trow{grid-template-columns:1fr}.trow .vmeta{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start}}
+details summary{list-style-position:inside}
 @media (pointer:coarse){.grades kbd{display:none}}
 .cd{display:flex;align-items:center;gap:12px}
 .cd-bar{flex:1;height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden}
 .cd-bar i{display:block;height:100%;background:var(--accent);transition:width .2s linear}
 .sh-text{font-family:var(--f-display);font-size:clamp(20px,3.4vw,26px);font-weight:500;line-height:1.35;padding:14px 16px;border-radius:var(--r);background:var(--sunk);transition:filter .2s}
 .sh-text.blur{filter:blur(7px);-webkit-user-select:none;user-select:none}
-.acc{font-family:var(--f-mono);font-size:30px;line-height:1;color:var(--accent-ink)}
+.acc-num{font-family:var(--f-mono);font-size:30px;line-height:1;color:var(--accent-ink)}
 .wk{display:grid;grid-template-columns:minmax(96px,1.3fr) repeat(3,minmax(0,1fr));border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden;font-size:15px}
 .wk>span{padding:9px 14px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
 .wk>span.h{border-top:0;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
@@ -398,6 +408,7 @@ mark.m sup{font-family:var(--f-mono);font-size:10px;color:var(--err);margin-left
 .plan-day{font-family:var(--f-mono);font-size:12.5px;color:var(--ink-3)}
 .focus-item{padding:12px 14px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
 @media (prefers-reduced-motion:reduce){.sh-text,.cd-bar i{transition:none}}
+@media (pointer:coarse){.btn.sm{min-height:40px;padding-inline:13px}.chip{min-height:40px}.say{min-width:34px;min-height:34px}.iconbtn{width:42px;height:42px}.linkbtn{min-height:36px}.tab{padding-block:12px}}
 </style>
 <div id="app"><div class="boot">Loading Say It Naturally…</div></div>
 <script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/preact/standalone.umd.js"></script>
@@ -543,38 +554,128 @@ const LS = 'sayitnat.v1.';
 const DRAFT_SPEAK = LS + 'draft.speaking';
 const DRAFT_DAILY = LS + 'draft.daily';
 const DRAFT_WRITE = LS + 'draft.writing';
-const DOCS = ['profile', 'mistakes', 'vocab'];
-const defaultProfile = () => ({ v: 1, onboarded: false, level: null, levelSource: null, levelHistory: [], explainMode: 'auto', correctionsEvery: 4, voice: 'en-GB', rate: 1, strengths: [], sessions: [], lastTopics: [], about: defaultAbout(), customScenarios: [], reports: [], updatedAt: 0 });
+const DOCS = ['profile', 'mistakes', 'vocab', 'career'];
+// List fields per document and the key that identifies an item; used to merge copies from different devices.
+const DOC_LISTS = {
+  profile: { sessions: 'id', levelHistory: 'date', customScenarios: 'id', reports: 'at' },
+  mistakes: { items: 'key' },
+  vocab: { items: 'id' },
+  career: { apps: 'id', packs: 'id' }
+};
+const META = ['updatedAt', 'settingsAt', 'del'];
+const defaultProfile = () => ({ v: 1, onboarded: false, level: null, levelSource: null, levelHistory: [], explainMode: 'auto', correctionsEvery: 4, voice: 'en-GB', rate: 1, economy: false, strengths: [], sessions: [], lastTopics: [], about: defaultAbout(), customScenarios: [], reports: [], updatedAt: 0 });
 const defaultAbout = () => ({ role: '', uses: [], goals: '', interests: '', notes: '' });
+const defaultPrefs = () => ({ industry: 'IT: networking and cybersecurity', role: '', years: '', goal: 'both', location: 'Poland, open to remote (EU)', pay: '', certs: '', languages: 'Polish (native), English', assumed: true });
+const defaultCareer = () => ({ prefs: defaultPrefs(), cv: '', cvName: '', cvAt: 0, review: null, comp: null, apps: [], packs: [], updatedAt: 0 });
 function sanitizeDoc(name, d) {
   if (!d || typeof d !== 'object') return null;
+  let out;
   if (name === 'profile') {
-    const p = Object.assign(defaultProfile(), d);
-    ['levelHistory', 'strengths', 'sessions', 'lastTopics', 'customScenarios', 'reports'].forEach(k => { p[k] = arr(p[k]); });
-    p.about = Object.assign(defaultAbout(), p.about && typeof p.about === 'object' ? p.about : {});
-    p.about.uses = arr(p.about.uses);
-    return p;
+    out = Object.assign(defaultProfile(), d);
+    ['levelHistory', 'strengths', 'sessions', 'lastTopics', 'customScenarios', 'reports'].forEach(k => { out[k] = arr(out[k]); });
+    out.about = Object.assign(defaultAbout(), out.about && typeof out.about === 'object' ? out.about : {});
+    out.about.uses = arr(out.about.uses);
+  } else if (name === 'career') {
+    out = Object.assign(defaultCareer(), d);
+    out.prefs = Object.assign(defaultPrefs(), out.prefs && typeof out.prefs === 'object' ? out.prefs : {});
+    out.apps = arr(out.apps); out.packs = arr(out.packs);
+  } else {
+    out = { items: arr(d.items), updatedAt: d.updatedAt || 0 };
   }
-  return { items: arr(d.items), updatedAt: d.updatedAt || 0 };
+  out.settingsAt = d.settingsAt || 0;
+  out.del = d.del && typeof d.del === 'object' ? d.del : {};
+  return out;
 }
-const Store = { profile: defaultProfile(), mistakes: { items: [], updatedAt: 0 }, vocab: { items: [], updatedAt: 0 }, subs: new Set() };
+const Store = { profile: defaultProfile(), mistakes: { items: [], updatedAt: 0 }, vocab: { items: [], updatedAt: 0 }, career: defaultCareer(), subs: new Set() };
 DOCS.forEach(n => { const d = sanitizeDoc(n, lsGet(LS + n)); if (d) Store[n] = d; });
 function emit() { Store.subs.forEach(f => { try { f(); } catch (e) {} }); }
-function commit(n) { Store[n].updatedAt = Date.now(); Persist.save(n); emit(); }
+
+/* change tracking: every item gets `u` (last change) and deletions leave tombstones, so two devices can be merged */
+const Snap = {};
+const itemKey = (x, k) => x && x[k] != null ? String(x[k]) : null;
+const itemJSON = x => { const c = Object.assign({}, x); delete c.u; return JSON.stringify(c); };
+function scalarsJSON(n, d) {
+  const o = {};
+  Object.keys(d).sort().forEach(k => { if (!META.includes(k) && !DOC_LISTS[n][k]) o[k] = d[k]; });
+  return JSON.stringify(o);
+}
+function snapshot(n) {
+  const d = Store[n], s = { lists: {}, scal: scalarsJSON(n, d) };
+  Object.entries(DOC_LISTS[n]).forEach(([f, k]) => {
+    const m = new Map();
+    arr(d[f]).forEach(x => { const id = itemKey(x, k); if (id != null) m.set(id, itemJSON(x)); });
+    s.lists[f] = m;
+  });
+  Snap[n] = s;
+}
+function stamp(n) {
+  const d = Store[n], s = Snap[n], now = Date.now();
+  if (!s) { snapshot(n); return; }
+  d.del = d.del || {};
+  Object.entries(DOC_LISTS[n]).forEach(([f, k]) => {
+    const prev = s.lists[f] || new Map();
+    const seen = new Set();
+    arr(d[f]).forEach(x => {
+      const id = itemKey(x, k);
+      if (id == null) return;
+      seen.add(id);
+      if (prev.get(id) !== itemJSON(x)) { x.u = now; delete d.del[f + ':' + id]; }
+    });
+    prev.forEach((_, id) => { if (!seen.has(id)) d.del[f + ':' + id] = now; });
+  });
+  if (scalarsJSON(n, d) !== s.scal) d.settingsAt = now;
+  snapshot(n);
+}
+function mergeDocs(n, a, b) {
+  if (!b) return a;
+  if (!a) return b;
+  const out = JSON.parse(JSON.stringify((b.settingsAt || 0) > (a.settingsAt || 0) ? b : a));
+  const del = Object.assign({}, a.del || {});
+  Object.entries(b.del || {}).forEach(([k, t]) => { if (!del[k] || del[k] < t) del[k] = t; });
+  const cutoff = Date.now() - 120 * DAY;
+  Object.keys(del).forEach(k => { if (del[k] < cutoff) delete del[k]; });
+  out.del = del;
+  Object.entries(DOC_LISTS[n]).forEach(([f, k]) => {
+    const map = new Map(), order = [];
+    [arr(a[f]), arr(b[f])].forEach(list => list.forEach(x => {
+      const id = itemKey(x, k);
+      if (id == null) return;
+      const cur = map.get(id);
+      if (!cur) { map.set(id, x); order.push(id); }
+      else if ((x.u || 0) > (cur.u || 0)) map.set(id, x);
+    }));
+    out[f] = order.map(id => map.get(id)).filter(x => { const t = del[f + ':' + itemKey(x, k)]; return !(t && t >= (x.u || 0)); }).map(x => JSON.parse(JSON.stringify(x)));
+  });
+  const byStr = f => (x, y) => String(x[f]).localeCompare(String(y[f]));
+  if (n === 'profile') { out.sessions.sort(byStr('date')); out.levelHistory.sort(byStr('date')); out.reports.sort((x, y) => (y.at || 0) - (x.at || 0)); }
+  if (n === 'vocab') out.items.sort((x, y) => (y.added || 0) - (x.added || 0));
+  if (n === 'career') { out.apps.sort((x, y) => (y.created || 0) - (x.created || 0)); out.packs.sort((x, y) => (y.at || 0) - (x.at || 0)); }
+  out.updatedAt = Math.max(a.updatedAt || 0, b.updatedAt || 0);
+  out.settingsAt = Math.max(a.settingsAt || 0, b.settingsAt || 0);
+  return sanitizeDoc(n, out);
+}
+DOCS.forEach(snapshot);
+function commit(n) { Store[n].updatedAt = Date.now(); fitDoc(n); stamp(n); Persist.save(n); emit(); }
 
 function fitDoc(n) {
   const size = () => JSON.stringify(Store[n]).length;
   let guard = 0;
-  while (size() > 230000 && guard++ < 200) {
+  while (size() > 230000 && guard++ < 300) {
     if (n === 'profile' && Store.profile.sessions.length > 10) Store.profile.sessions.shift();
     else if (n === 'mistakes') { const m = Store.mistakes.items.find(x => x.lesson); if (m) m.lesson = null; else Store.mistakes.items.pop(); }
     else if (n === 'vocab') Store.vocab.items.pop();
+    else if (n === 'career' && Store.career.packs.length > 2) Store.career.packs.pop();
+    else if (n === 'career' && Store.career.review) Store.career.review = null;
     else break;
   }
 }
 
 const Persist = {
-  mode: 'local', settled: false, db: null, path: null, writing: {}, dirty: {}, timers: {}, fails: {},
+  mode: 'local', settled: false, db: null, path: null, writing: {}, dirty: {}, timers: {}, fails: {}, pending: {}, lastPull: 0,
+  async pull(n) {
+    const snap = await this.db.doc(this.path(n)).get();
+    return snap.exists ? sanitizeDoc(n, JSON.parse(JSON.stringify(snap.data()))) : null;
+  },
   async init() {
     try {
       const c = window.claude;
@@ -584,25 +685,45 @@ const Persist = {
       const id = await user.id();
       if (!id) return;
       this.path = n => 'data/users/' + id + '/' + n;
+      this.db = db;
+      const toWrite = [];
       for (const n of DOCS) {
-        let snap = null;
-        try { snap = await db.doc(this.path(n)).get(); }
+        let remote;
+        try { remote = await this.pull(n); }
         catch (e) {
-          if (e && e.code === 'unavailable') { await sleep(700 + Math.random() * 700); snap = await db.doc(this.path(n)).get().catch(() => null); }
+          if (e && e.code === 'unavailable') { await sleep(700 + Math.random() * 700); remote = await this.pull(n).catch(() => undefined); }
         }
-        if (!snap) return;
-        const remote = snap.exists ? sanitizeDoc(n, JSON.parse(JSON.stringify(snap.data()))) : null;
-        if (remote && (remote.updatedAt || 0) >= (Store[n].updatedAt || 0)) { Store[n] = remote; lsSet(LS + n, remote); }
+        if (remote === undefined) { this.db = null; return; }
+        if (remote) { Store[n] = mergeDocs(n, Store[n], remote); lsSet(LS + n, Store[n]); snapshot(n); }
+        if ((Store[n].updatedAt || 0) > ((remote && remote.updatedAt) || 0)) toWrite.push(n);
       }
-      this.db = db; this.mode = 'cloud';
-      DOCS.forEach(n => { if ((Store[n].updatedAt || 0) > 0) this.write(n); });
-    } catch (e) { /* stays in browser storage */ }
+      this.mode = 'cloud';
+      toWrite.forEach(n => this.write(n));
+      const onBack = () => { if (document.visibilityState === 'visible') this.refresh(); };
+      document.addEventListener('visibilitychange', onBack);
+      window.addEventListener('focus', onBack);
+    } catch (e) { this.db = null; }
     finally { this.settled = true; emit(); }
   },
+  async refresh() {
+    if (!this.db || Date.now() - this.lastPull < 15000) return;
+    this.lastPull = Date.now();
+    let changed = false;
+    for (const n of DOCS) {
+      if (this.writing[n] || this.pending[n]) continue;
+      try {
+        const remote = await this.pull(n);
+        if (!remote || (remote.updatedAt || 0) <= (Store[n].updatedAt || 0)) continue;
+        Store[n] = mergeDocs(n, Store[n], remote);
+        lsSet(LS + n, Store[n]); snapshot(n); changed = true;
+      } catch (e) { /* try again on the next return to the app */ }
+    }
+    if (changed) emit();
+  },
   save(n) {
-    fitDoc(n);
     lsSet(LS + n, Store[n]);
     if (!this.db) return;
+    this.pending[n] = true;
     clearTimeout(this.timers[n]);
     this.fails[n] = 0;
     this.timers[n] = setTimeout(() => this.write(n), 900);
@@ -611,8 +732,19 @@ const Persist = {
     if (!this.db) return;
     if (this.writing[n]) { this.dirty[n] = true; return; }
     this.writing[n] = true;
-    try { await this.db.doc(this.path(n)).set(JSON.parse(JSON.stringify(Store[n]))); this.fails[n] = 0; }
-    catch (e) {
+    try {
+      const remote = await this.pull(n).catch(() => null);
+      if (remote && (remote.updatedAt || 0) > 0) {
+        const before = JSON.stringify(Store[n]);
+        Store[n] = mergeDocs(n, Store[n], remote);
+        snapshot(n); lsSet(LS + n, Store[n]);
+        if (JSON.stringify(Store[n]) !== before) emit();
+      }
+      Store[n].updatedAt = Math.max(Date.now(), (remote && remote.updatedAt || 0) + 1);
+      await this.db.doc(this.path(n)).set(JSON.parse(JSON.stringify(Store[n])));
+      lsSet(LS + n, Store[n]);
+      this.fails[n] = 0; this.pending[n] = false;
+    } catch (e) {
       const c = e && e.code;
       if (c === 'unavailable' || c === 'resource_exhausted') {
         this.fails[n] = (this.fails[n] || 0) + 1;
@@ -622,6 +754,26 @@ const Persist = {
       this.writing[n] = false;
       if (this.dirty[n] && this.db) { this.dirty[n] = false; this.write(n); }
     }
+  }
+};
+
+/* AI usage on this device (rough estimate: 4 characters ≈ 1 token) */
+const Usage = {
+  key: LS + 'usage',
+  add(inChars, outChars) {
+    const u = lsGet(this.key) || {};
+    const d = dayKey();
+    const x = u[d] || { n: 0, tin: 0, tout: 0 };
+    x.n += 1; x.tin += Math.round(inChars / 4); x.tout += Math.round(outChars / 4);
+    u[d] = x;
+    Object.keys(u).sort().slice(0, -31).forEach(k => { delete u[k]; });
+    lsSet(this.key, u);
+  },
+  sum(days) {
+    const u = lsGet(this.key) || {};
+    const out = { n: 0, tok: 0 };
+    for (let i = 0; i < days; i++) { const d = new Date(); d.setDate(d.getDate() - i); const x = u[dayKey(d)]; if (x) { out.n += x.n; out.tok += x.tin + x.tout; } }
+    return out;
   }
 };
 
@@ -784,7 +936,9 @@ function recordSession(x) {
 function aboutText() {
   const a = Store.profile.about || {};
   const parts = [];
-  if (a.role) parts.push('Work / role: ' + a.role);
+  const pf = Store.career && Store.career.prefs;
+  if (pf && pf.industry) parts.push('Industry: ' + pf.industry);
+  if (a.role || (pf && pf.role)) parts.push('Work / role: ' + (a.role || pf.role));
   if (arr(a.uses).length) parts.push('Uses English for: ' + a.uses.join(', '));
   if (a.goals) parts.push('Goals: ' + a.goals);
   if (a.interests) parts.push('Interests: ' + a.interests);
@@ -814,10 +968,12 @@ function onAIError(e) {
   else if (c === 'sampling_disabled' || c === 'not_declared' || c === 'capability_disabled') { AI.status = 'unavailable'; emit(); }
 }
 function aiBlocked() { return { code: AI.status === 'denied' ? 'not_granted' : 'unavailable' }; }
+const inChars = input => typeof input === 'string' ? input.length : arr(input).reduce((n, m) => n + String(m.content || '').length, 0);
+const tier = () => (Store.profile.economy ? 'quick' : 'default');
 async function aiText(input, opts) {
   await AI.ready;
   if (!AI.fn) throw aiBlocked();
-  try { return await AI.fn(input, opts || {}); }
+  try { const r = await AI.fn(input, opts || {}); Usage.add(inChars(input), str(r && r.text).length); return r; }
   catch (e) { onAIError(e); throw e; }
 }
 function looseJSON(t) {
@@ -831,7 +987,7 @@ function looseJSON(t) {
 async function aiJSON(input, opts) {
   await AI.ready;
   if (!AI.fn) throw aiBlocked();
-  try { return await AI.fn.json(input, opts || {}); }
+  try { const r = await AI.fn.json(input, opts || {}); Usage.add(inChars(input), JSON.stringify(r || '').length); return r; }
   catch (e) {
     if (e && e.code === 'capability_removed') {
       const r = await aiText(input, opts);
@@ -872,10 +1028,10 @@ function keysList() {
 }
 function learnerContext() {
   const p = Store.profile;
-  const top = Mistakes.top(6).map(m => m.label + ' [' + m.key + '] x' + m.count).join('; ') || 'none recorded yet';
+  const top = Mistakes.top(5).map(m => m.label + ' [' + m.key + '] x' + m.count).join('; ') || 'none recorded yet';
   const v = Store.vocab.items;
-  const mastered = v.filter(x => x.status === 'mastered').slice(0, 40).map(x => x.en).join('; ') || 'none yet';
-  const learning = v.filter(x => x.status !== 'mastered').slice(0, 25).map(x => x.en).join('; ') || 'none yet';
+  const mastered = v.filter(x => x.status === 'mastered').slice(0, 20).map(x => x.en).join('; ') || 'none yet';
+  const learning = v.filter(x => x.status !== 'mastered').slice(0, 12).map(x => x.en).join('; ') || 'none yet';
   const r = recentScores();
   const scores = r ? DIMS.filter(d => r[d] != null).map(d => d + ' ' + r[d].toFixed(1)).join(', ') : 'no sessions yet';
   return `LEARNER PROFILE
@@ -922,7 +1078,7 @@ ${learning ? '- When it fits naturally, use some of these phrases the learner is
 }
 function buildTurns(s) {
   const rules = partnerRules(s);
-  const msgs = s.messages.slice(-40);
+  const msgs = s.messages.slice(Store.profile.economy ? -16 : -40);
   if (!msgs.length) return [{ role: 'user', content: rules + '\n\n' + (s.scenario ? 'Start the scene now with your first line, in character (1-2 sentences).' : 'Start the conversation now with a natural, friendly opening line and one question.') }];
   const turns = [{ role: 'user', content: rules + '\n\n(The conversation follows. Reply only as your character.)' }];
   msgs.forEach(m => turns.push({ role: m.role === 'me' ? 'user' : 'assistant', content: m.text }));
@@ -943,7 +1099,9 @@ ${learnerContext()}
 PRIORITIES, in this order: 1) communication (was the meaning clear?), 2) naturalness (would a native speaker really say it like this?), 3) the learner's recurring mistakes, 4) grammar, 5) vocabulary.
 
 RULES
-- Give at most ${max} corrections: only the ones that matter most. Ignore typos, capital letters, missing final punctuation and small slips that don't affect communication, unless they match a recurring mistake. Don't correct things that are already fine. Fewer is better than more.
+- Give at most ${max} corrections: only the ones that matter most. Fewer is better than more.
+- NEVER correct a sentence that is already correct and natural. Informal chat style is fine (contractions, "yeah", lowercase), and so are British vs American spelling and phrasing.
+- The learner may be dictating: ignore missing punctuation, capital letters, typos and words obviously misheard by dictation, unless the error is clearly a language mistake or matches a recurring mistake.
 - "you_said": the learner's exact words (the shortest part that shows the problem, or the whole sentence if needed).
 - "better": the minimal correct version. "more_natural": what a native speaker would typically say here (it can be the same as "better").
 - "type": "grammar", "vocabulary", "unnatural" (grammatical, but not how natives say it) or "pronunciation".
@@ -1008,7 +1166,7 @@ TEXT TYPE: ${t}
 CONTEXT / READER: ${ctx || 'not given'}
 
 TASKS
-1. "corrected": the full text with only the necessary corrections (grammar, wrong words, punctuation, spelling). Keep everything else exactly as written, including line breaks and the learner's style.
+1. "corrected": the full text with only the necessary corrections (grammar, wrong words, punctuation, spelling). Keep everything else exactly as written, including line breaks, the learner's style and their choice of British or American English. Stylistic preferences are not mistakes.
 2. "natural": the full text as a fluent native speaker would write this ${t}: same meaning and personal voice, the right tone and formality, not longer than needed. Keep the line breaks and structure.
 3. "mistakes": the ${max} most important issues at most, most important first (communication and naturalness before small grammar points). "original": an exact substring copied from the ORIGINAL text. "corrected": that part corrected. "natural": a more natural way to say that part (or the same as "corrected"). "why": 1-2 short sentences. "type": "grammar", "vocabulary", "unnatural", "punctuation" or "tone". "mistake_key": reuse one of: ${keysList()} (or a new short kebab-case key). "mistake_label": short English name. "polish_calque": true if it's a word-for-word translation from Polish. Skip trivial issues.
 4. "expressions": 3-5 useful expressions for this type of text that the learner could use next time (chunks, collocations, sentence patterns, not single words), each with a natural Polish meaning and an example.
@@ -1107,7 +1265,7 @@ Reply with only JSON: {"explanation":"","pattern":"","examples":[{"en":"","note"
 }
 
 function checkPrompt(items) {
-  return `Check a Polish learner's answers to short English exercises. Be fair and encouraging: accept any answer that is correct, natural and does what the task asks (other wording, contractions and inflected forms are fine). Mention small typos without failing the answer for them.
+  return `Check a Polish learner's answers to short English exercises. Be fair and encouraging: accept any answer that is correct, natural and does what the task asks (other wording, contractions and inflected forms are fine). Mention small typos without failing the answer for them. Never mark a correct, natural answer as wrong because it differs from the model answer.
 ${explainRule()} Keep each feedback to 1-2 short sentences.
 
 ITEMS
@@ -1556,7 +1714,7 @@ function toggleTheme() {
 function TopBar({ route, go }) {
   const p = Store.profile;
   const dark = currentTheme() === 'dark';
-  const nav = [['speaking', 'Speaking'], ['writing', 'Writing'], ['daily', 'Daily practice'], ['progress', 'My progress']];
+  const nav = [['speaking', 'Speaking'], ['writing', 'Writing'], ['daily', 'Daily practice'], ['career', 'Career'], ['progress', 'My progress']];
   return html`<header class="top"><div class="top-in">
     <button class="brand" onClick=${() => go('home')} aria-label="Say It Naturally, home">Say it <span class="hlw">naturally</span></button>
     ${p.onboarded ? html`<nav class="topnav" aria-label="Modes">${nav.map(([k, l]) => html`<button class=${'navlink' + (route.name === k ? ' on' : '')} onClick=${() => go(k)}>${l}</button>`)}</nav>` : null}
@@ -1595,6 +1753,7 @@ function Home({ go }) {
   const top = Mistakes.top(3);
   const st = streak();
   const due = Vocab.due().length;
+  const followUps = Store.career.apps.filter(a => a.next && a.next <= today && (a.status === 'applied' || a.status === 'interview'));
   const ab = p.about || {};
   const aboutSet = !!(ab.role || ab.goals || arr(ab.uses).length);
   let dateLabel = '';
@@ -1610,6 +1769,12 @@ function Home({ go }) {
       <${Tile} icon="daily" title="Daily practice" desc="10–15 minutes: a short conversation, your top corrections, 5 phrases, an exercise and a review of old mistakes." meta=${dailyDone ? 'Done today ✓' : dailyOn ? 'In progress · step ' + dd.step + ' of 6' : 'Not done yet today'} accent=${!dailyDone} onClick=${() => go('daily')} />
       <${Tile} icon="chart" title="My progress" desc="Your recurring mistakes, your vocabulary list and how your English is changing." meta=${Mistakes.items.length + ' mistakes tracked · ' + Store.vocab.items.length + ' phrases'} onClick=${() => go('progress')} />
     </div>
+    <button class="career-card" onClick=${() => go('career', followUps.length ? { tab: 'tracker' } : {})}>
+      <span class="tile-ic"><${Icon} n="report" s=${24} /></span>
+      <span><span class="tile-t" style="font-size:22px">Career English</span>
+        <span class="tile-d">Apply to networking and security roles in English: tailored letters from a pasted listing, CV review, interview role-plays and an application tracker.</span>
+        ${followUps.length ? html`<span class="tag err" style="margin-top:8px">${followUps.length} follow-up${followUps.length === 1 ? '' : 's'} due: ${followUps.slice(0, 2).map(a => a.company).join(', ')}</span>` : html`<span class="tile-meta">${Store.career.apps.length} application${Store.career.apps.length === 1 ? '' : 's'} tracked${Store.career.cv ? ' · CV added' : ' · add your CV'}</span>`}</span>
+    </button>
     <section class="focus">
       <div class="block-h"><h2>More ways to practise</h2></div>
       <div class="extras">
@@ -1782,7 +1947,7 @@ function useChat(init, opts) {
     if (err && err.kind === 'analysis') setErr(null);
     s.analyzedUpTo = to; save();
     try {
-      const raw = await aiJSON(analysisPrompt(s, from, to, max || 5, aopts), { modelTier: 'default' });
+      const raw = await aiJSON(analysisPrompt(s, from, to, Store.profile.economy ? Math.min(3, max || 5) : (max || 5), aopts), { modelTier: tier() });
       const result = normAnalysis(raw);
       recordAnalysis(result, s.warmup ? 'daily' : 'speaking');
       const b = { id: uid(), at: s.messages.length, count, result };
@@ -1886,8 +2051,11 @@ function ScenarioBrief({ sc }) {
 }
 
 /* ---------- speaking ---------- */
-function Speaking({ go }) {
-  const [sess, setSess] = useState(() => { const d = lsGet(DRAFT_SPEAK); return d && !d.ended && d.messages ? d : null; });
+function Speaking({ go, autostart }) {
+  const [sess, setSess] = useState(() => {
+    if (autostart && findScenario(autostart)) { const s = newSession('scenario', autostart, false); lsSet(DRAFT_SPEAK, s); return s; }
+    const d = lsGet(DRAFT_SPEAK); return d && !d.ended && d.messages ? d : null;
+  });
   function start(kind, id) {
     const s = newSession(kind, id, false);
     noteTopic(id);
@@ -1925,10 +2093,10 @@ function MySituations({ start }) {
   async function generate() {
     setBusy('gen'); setErr('');
     try {
-      const r = await aiJSON(scenariosPrompt(4), { modelTier: 'default', cache: false });
+      const r = await aiJSON(scenariosPrompt(4), { modelTier: tier(), cache: false });
       const add = arr(r && r.scenarios).map(normScenario).filter(Boolean).slice(0, 4);
       if (!add.length) throw { code: 'invalid_json' };
-      p.customScenarios = add.concat(list).slice(0, 16);
+      Store.profile.customScenarios = add.concat(arr(Store.profile.customScenarios)).slice(0, 16);
       commit('profile');
     } catch (e) { setErr(errText(e)); }
     finally { setBusy(''); }
@@ -1940,13 +2108,13 @@ function MySituations({ start }) {
     try {
       const sc = normScenario(await aiJSON(customScenarioPrompt(t), { modelTier: 'quick', cache: false }));
       if (!sc) throw { code: 'invalid_json' };
-      p.customScenarios = [sc].concat(list).slice(0, 16);
+      Store.profile.customScenarios = [sc].concat(arr(Store.profile.customScenarios)).slice(0, 16);
       commit('profile');
       setDesc('');
     } catch (e) { setErr(errText(e)); }
     finally { setBusy(''); }
   }
-  function remove(id) { p.customScenarios = list.filter(x => x.id !== id); commit('profile'); }
+  function remove(id) { Store.profile.customScenarios = arr(Store.profile.customScenarios).filter(x => x.id !== id); commit('profile'); }
   const ab = p.about || {};
   const hasAbout = !!(ab.role || ab.goals || arr(ab.uses).length);
   return html`<section class="block">
@@ -1977,7 +2145,7 @@ function ChatSession({ init, go, onNew }) {
     setFb({ busy: true, err: '' });
     const pa = pend ? chat.analyze(4) : Promise.resolve(null);
     try {
-      const r = await aiJSON(feedbackPrompt(s), { modelTier: 'default' });
+      const r = await aiJSON(feedbackPrompt(s), { modelTier: tier() });
       await pa;
       const f = normFeedback(r);
       const m = chatMetrics(s);
@@ -2244,13 +2412,14 @@ function Daily({ go, again }) {
     if (d.content || flight.current.content) return;
     setB('content', true); setE('content', '');
     try {
-      const r = await aiJSON(dailyContentPrompt(d), { modelTier: 'default' });
+      const r = await aiJSON(dailyContentPrompt(d), { modelTier: tier() });
       const phrases = arr(r && r.phrases).map(normPhrase).filter(p => p.en).slice(0, 5);
       if (!phrases.length) throw { code: 'invalid_json' };
       phrases.forEach(p => { const v = Vocab.add(p, 'daily'); if (v) p.vid = v.id; });
       commit('vocab');
       const exercises = arr(r.exercises).map(x => ({ phrase: Math.max(0, Math.min(phrases.length - 1, Number(x && x.phrase) || 0)), type: ['gap', 'rewrite', 'respond'].includes(x && x.type) ? x.type : 'respond', prompt: str(x && x.prompt), answer: str(x && x.answer) })).filter(x => x.prompt).slice(0, 5);
-      d.content = { phrases, exercises };
+      const review = Vocab.due(8).filter(v => !phrases.some(x => norm(x.en) === norm(v.en))).slice(0, 2).map(v => ({ vid: v.id, en: v.en, example: v.example }));
+      d.content = { phrases, exercises, review };
       save();
     } catch (e) { setE('content', errText(e)); }
     finally { setB('content', false); }
@@ -2262,7 +2431,7 @@ function Daily({ go, again }) {
     if (!ms.length) { if (d.analysis) { d.review = { items: [] }; save(); } return; }
     setB('review', true); setE('review', '');
     try {
-      const r = await aiJSON(reviewPrompt(ms), { modelTier: 'default' });
+      const r = await aiJSON(reviewPrompt(ms), { modelTier: tier() });
       const items = arr(r && r.items).map((it, i) => {
         let key = slug(it && it.key);
         if (!Mistakes.find(key)) key = ms[i] ? ms[i].key : key;
@@ -2278,7 +2447,7 @@ function Daily({ go, again }) {
     setB('feedback', true); setE('feedback', '');
     try {
       const exs = d.ex ? 'EXERCISES WITH TODAY\'S PHRASES: ' + d.ex.results.filter(r => r.ok).length + '/' + d.ex.results.length + ' correct.' : '';
-      const r = await aiJSON(feedbackPrompt(d.chat, 'This was a daily practice session: a 3-minute warm-up conversation, then corrections, 5 new phrases, an exercise and a review of old mistakes. ' + exs), { modelTier: 'default' });
+      const r = await aiJSON(feedbackPrompt(d.chat, 'This was a daily practice session: a 3-minute warm-up conversation, then corrections, 5 new phrases, an exercise and a review of old mistakes. ' + exs), { modelTier: tier() });
       d.feedback = normFeedback(r);
       save();
     } catch (e) { setE('feedback', errText(e)); }
@@ -2336,11 +2505,17 @@ function Daily({ go, again }) {
       <${Next} to=${4} label="Next: use them" disabled=${!d.content} />
     </div>`;
   } else if (d.step === 4) {
-    const items = d.content ? d.content.exercises.map(x => ({ type: x.type, prompt: x.prompt, answer: x.answer, target: (d.content.phrases[x.phrase] || {}).en })) : [];
+    const items = d.content ? d.content.exercises.map(x => ({ type: x.type, prompt: x.prompt, answer: x.answer, target: (d.content.phrases[x.phrase] || {}).en }))
+      .concat(arr(d.content.review).map(v => ({ type: 'respond', group: 'From earlier', prompt: 'Use “' + v.en + '” in a sentence about your day.', answer: v.example, target: v.en }))) : [];
     body = html`<div class="block">
       <span class="lbl">Step 4 · Use today’s phrases</span>
       ${d.content ? html`<${Exercises} items=${items} idPrefix="dx" initial=${d.ex} onChecked=${(res, ans, first) => {
-        if (first) { d.content.exercises.forEach((x, i) => { const p = d.content.phrases[x.phrase]; if (p && p.vid && !res[i].skipped) Vocab.bump(p.vid, res[i].ok); }); commit('vocab'); }
+        if (first) {
+          const n = d.content.exercises.length;
+          d.content.exercises.forEach((x, i) => { const p = d.content.phrases[x.phrase]; if (p && p.vid && !res[i].skipped) Vocab.bump(p.vid, res[i].ok); });
+          arr(d.content.review).forEach((v, k) => { const r = res[n + k]; if (r && !r.skipped) Vocab.review(v.vid, r.ok ? 2 : 0); });
+          commit('vocab');
+        }
         d.ex = { answers: ans, results: res }; save();
       }} />` : busy.content ? html`<${Thinking} label="Preparing the exercise" />` : null}
       <${Retry} k="content" fn=${runContent} />
@@ -2485,10 +2660,10 @@ function MistakeCard({ m }) {
   async function lesson(refresh) {
     setBusy(true); setErr('');
     try {
-      const r = await aiJSON(lessonPrompt(m), refresh ? { modelTier: 'default', cache: false } : { modelTier: 'default' });
+      const r = await aiJSON(lessonPrompt(m), refresh ? { modelTier: tier(), cache: false } : { modelTier: tier() });
       const L = normLesson(r);
       L.id = uid();
-      m.lesson = L;
+      (Mistakes.find(m.key) || m).lesson = L;
       commit('mistakes');
     } catch (e) { setErr(errText(e)); }
     finally { setBusy(false); }
@@ -2621,6 +2796,11 @@ function SettingsTab({ go }) {
     <section class="set"><h3>Explanations of your mistakes</h3>
       <div class="chips">${[['auto', 'Auto (now: ' + EXPLAIN_LABEL[em] + ')'], ['pl', 'Polish'], ['mix', 'Polish + English'], ['en', 'English']].map(([k, l]) => html`<button class=${'chip' + (p.explainMode === k ? ' on' : '')} onClick=${() => set('explainMode', k)} aria-pressed=${p.explainMode === k}>${l}</button>`)}</div>
       <p class="small muted">Auto starts in Polish and switches to more English as your level and scores go up.</p></section>
+    <section class="set"><h3>AI usage</h3>
+      <div class="row"><span>Today: <b>${Usage.sum(1).n}</b> requests, ~${Math.round(Usage.sum(1).tok / 1000)}k tokens</span><span class="muted">· last 7 days: <b>${Usage.sum(7).n}</b> requests, ~${Math.round(Usage.sum(7).tok / 1000)}k tokens</span></div>
+      <p class="small muted">Counted on this device only, as a rough estimate (4 characters ≈ 1 token). AI answers use your Claude plan’s usage; flashcards, shadowing from your phrases and everything in My progress use none.</p>
+      <div class="chips"><button class=${'chip' + (!p.economy ? ' on' : '')} onClick=${() => set('economy', false)} aria-pressed=${!p.economy}>Best quality</button><button class=${'chip' + (p.economy ? ' on' : '')} onClick=${() => set('economy', true)} aria-pressed=${!!p.economy}>Economy mode</button></div>
+      <p class="small muted">Economy mode uses the faster model for corrections, summaries and exercises, sends a shorter conversation history and shows at most 3 corrections at a time. Roughly half the usage; explanations get a little less detailed. Writing checks keep the best model.</p></section>
     <section class="set"><h3>Corrections during conversations</h3>
       <div class="chips">${[3, 4, 5, 6].map(n => html`<button class=${'chip' + (p.correctionsEvery === n ? ' on' : '')} onClick=${() => set('correctionsEvery', n)} aria-pressed=${p.correctionsEvery === n}>Every ${n} messages</button>`)}</div></section>
     <section class="set"><h3>Level</h3>
@@ -2786,7 +2966,7 @@ function Sprint({ go }) {
   async function start() {
     setPhase('loading'); setErr('');
     try {
-      const r = await aiJSON(sprintGenPrompt(), { modelTier: 'default', cache: false });
+      const r = await aiJSON(sprintGenPrompt(), { modelTier: tier(), cache: false });
       const q = arr(r && r.quick).map(x => str(x && x.q)).filter(Boolean).slice(0, 5).map(p => ({ kind: 'quick', prompt: p, limit: 30 }));
       const t = arr(r && r.translate).map(x => ({ kind: 'translate', prompt: str(x && x.pl), expected: str(x && x.en), trap: str(x && x.trap), limit: 20 })).filter(x => x.prompt).slice(0, 6);
       if (q.length + t.length < 3) throw { code: 'invalid_json' };
@@ -2808,7 +2988,7 @@ function Sprint({ go }) {
     const a = ansRef.current;
     try {
       const list = items.map((x, k) => ({ i: k, kind: x.kind, prompt: x.prompt, expected: x.expected, trap: x.trap, secs: a[k] ? a[k].secs : x.limit, given: a[k] ? a[k].given : '' }));
-      const r = await aiJSON(sprintCheckPrompt(list), { modelTier: 'default' });
+      const r = await aiJSON(sprintCheckPrompt(list), { modelTier: tier() });
       const rs = arr(r && r.items);
       const out = items.map((x, k) => {
         const y = rs.find(z => z && Number(z.i) === k) || {};
@@ -2898,7 +3078,7 @@ function Shadowing({ go }) {
     }
     setPhase('loading');
     try {
-      const r = await aiJSON(shadowGenPrompt(theme[1] + ' (' + theme[2] + ')'), { modelTier: 'default', cache: false });
+      const r = await aiJSON(shadowGenPrompt(theme[1] + ' (' + theme[2] + ')'), { modelTier: tier(), cache: false });
       const its = arr(r && r.items).map(x => ({ text: str(x && x.text), tip: str(x && x.tip) })).filter(x => words(x.text) >= 3).slice(0, 6);
       if (!its.length) throw { code: 'invalid_json' };
       begin(its);
@@ -2952,7 +3132,7 @@ function Shadowing({ go }) {
       <textarea id="sh-in" class="input" rows="2" value=${attempt} onInput=${e => setAttempt(e.target.value)} readOnly=${!!checked} placeholder="Your dictated words appear here (or type what you heard)" aria-label="What you said"></textarea>
       ${!checked ? html`<div class="row"><button class="btn primary" disabled=${!attempt.trim()} onClick=${check}>Check</button></div>` : html`
         <div class="fc-back">
-          <div class="row"><span class="acc">${checked.acc}%</span><span class="muted">of the words matched</span></div>
+          <div class="row"><span class="acc-num">${checked.acc}%</span><span class="muted">of the words matched</span></div>
           <p class="small">Compared with the original: <${DiffView} ops=${checked.ops} fallback=${attempt} /></p>
           ${checked.missed.length ? html`<div class="chips">${checked.missed.slice(0, 8).map(w => html`<button class="chip" onClick=${() => TTS.speak(w, 0.8)}><${Icon} n="speaker" s=${14} /> ${w}</button>`)}</div>` : null}
           ${it.tip ? html`<p class="pattern" style="font-weight:400">${it.tip}</p>` : null}
@@ -3004,7 +3184,7 @@ function WeeklyReport({ go }) {
   async function write() {
     setBusy(true); setErr('');
     try {
-      const r = await aiJSON(reportPrompt(w), { modelTier: 'default', cache: false });
+      const r = await aiJSON(reportPrompt(w), { modelTier: tier(), cache: false });
       const rep = {
         at: Date.now(), summary: str(r && r.summary),
         wins: arr(r && r.wins).map(str).filter(Boolean).slice(0, 3),
@@ -3012,7 +3192,7 @@ function WeeklyReport({ go }) {
         plan: arr(r && r.plan).map(x => ({ day: str(x && x.day).slice(0, 3), task: str(x && x.task), mode: PLAN_MODES[str(x && x.mode)] || 'daily' })).filter(x => x.task).slice(0, 7)
       };
       if (!rep.summary && !rep.focus.length) throw { code: 'invalid_json' };
-      p.reports = [rep].concat(arr(p.reports)).slice(0, 6);
+      Store.profile.reports = [rep].concat(arr(Store.profile.reports)).slice(0, 6);
       commit('profile');
     } catch (e) { setErr(errText(e)); }
     finally { setBusy(false); }
@@ -3079,6 +3259,567 @@ function AboutMe({ go }) {
   </div>`;
 }
 
+/* ---------- career module: researched guide (checked 24 Oct 2026) ---------- */
+const GUIDE_CHECKED = '24 Oct 2026';
+// Facts gathered with web search; passed to the AI so its advice matches the current market.
+const MARKET_NOTES = `MARKET NOTES for IT networking and cybersecurity in Poland (researched ${GUIDE_CHECKED}; treat numbers as indicative):
+- NIS2 is implemented in Poland by the amended National Cybersecurity System Act (KSC), in force since 3 April 2026. It widens the set of regulated companies (key and important entities). Self-registration ran 7 May to 3 October 2026. Most sources put full implementation of security measures at 3 April 2027; key entities need a first statutory audit by 3 April 2028. Supply-chain duties push requirements onto suppliers too. Practical demand: gap assessments, ISMS support, network segmentation, firewall and VPN hardening, logging/SIEM, incident response plans, staff training.
+- Polish IT candidates mainly use JustJoin.it, No Fluff Jobs and Bulldogjob; Pracuj.pl covers general roles. GoldenLine closed in 2024.
+- Network and security listings in Poland often ask for Cisco and Fortinet firewall experience.
+- Salary guides disagree. One guide: network engineer employment contract roughly 6.5-8.5k PLN gross (junior), 11-14k (mid), 18-25k (senior); B2B about 12-22k PLN net. A Network & Security Engineer listing offered 20.9-27.9k PLN on B2B. Posted ranges on JustJoin.it / No Fluff Jobs are the best live check.
+- ISC2 2025 workforce study: most-cited skill needs were AI security (41%) and cloud security (36%).
+- Certifications that keep appearing: CCNA/CCNP, Fortinet and Palo Alto firewall certs, CompTIA Security+, CISSP (senior), OSCP and PenTest+ (offensive).
+- Crowdsourced security: HackerOne reported record researcher payouts (US$89.1M, Jul 2025 - Jun 2026). Intigriti (EU) and YesWeHack (Paris; European Commission framework contract 2025) are European platforms. Bugcrowd throttles low-accuracy, AI-generated submissions, so quality matters. Cobalt Core hires freelance pentesters with 4+ years of experience; postings are often limited to certain countries and referrals help.
+- Remote cybersecurity roles for Western European employers reportedly pay about 8-15% above local office rates (recruiter source).`;
+
+const GUIDE = [
+  { title: 'Job boards in Poland', items: [
+    { name: 'JustJoin.it', url: 'https://justjoin.it', checked: true, good: 'IT-only board with a Security category; salary ranges on most offers; many remote roles.', how: 'Apply on the offer page or the employer’s form; a profile with a CV speeds it up.', lang: 'Polish and English offers', cost: 'Free for candidates', tip: 'Filter by Security and by B2B vs employment contract to compare real rates.' },
+    { name: 'No Fluff Jobs', url: 'https://nofluffjobs.com', checked: true, good: 'IT board with mandatory salary ranges; useful for network and security roles.', how: 'Apply through the offer; some redirect to the company ATS.', lang: 'Polish and English', cost: 'Free', tip: 'Read the “must have” list and mirror those keywords in your CV.' },
+    { name: 'Bulldogjob', url: 'https://bulldogjob.pl', checked: true, good: 'Third big IT board in Poland.', how: 'Apply on the offer page.', lang: 'Mostly Polish', cost: 'Free', tip: 'Good for companies that don’t post elsewhere.' },
+    { name: 'Pracuj.pl', url: 'https://www.pracuj.pl', checked: true, good: 'Largest general board; IT admin, network and corporate security roles, plus public sector and banks.', how: 'One-click apply with a profile, or the employer’s form.', lang: 'Mostly Polish', cost: 'Free', tip: 'Search “network engineer”, “administrator sieci”, “SOC”, “cyberbezpieczeństwo”.' },
+    { name: 'theprotocol.it', url: 'https://theprotocol.it', checked: false, good: 'IT board run by the Pracuj group.', how: 'Apply on the offer page.', lang: 'Polish and English', cost: 'Free', tip: 'Not checked today; compare its security listings with JustJoin.it.' },
+    { name: 'LinkedIn Jobs', url: 'https://www.linkedin.com/jobs', checked: false, good: 'International and remote roles; recruiters search profiles directly.', how: 'Easy Apply or the company site; recruiter messages.', lang: 'Mostly English', cost: 'Free (Premium optional)', tip: 'An English headline with your stack (Cisco, Fortinet, SIEM) gets you found by recruiters.' }
+  ] },
+  { title: 'Remote and international', items: [
+    { name: 'Working Nomads', url: 'https://www.workingnomads.com/remote-cyber-security-jobs-europe', checked: true, good: 'Remote cyber security jobs in Europe (full-time, part-time, freelance).', how: 'Links out to the employer’s application.', lang: 'English', cost: 'Free', tip: 'Check time-zone and contract requirements; some roles are country-limited.' },
+    { name: 'EURES', url: 'https://eures.europa.eu', checked: false, good: 'EU job mobility portal.', how: 'Apply via the listing or national employment services.', lang: 'Mostly English and local languages', cost: 'Free', tip: 'Not checked today.' },
+    { name: 'Recruitment agencies (e.g. Michael Page)', url: 'https://www.michaelpage.pl', checked: true, good: 'Network and security roles in Polish cities, often not public elsewhere.', how: 'Send a CV to a consultant or apply on the listing; expect a screening call.', lang: 'Polish and English', cost: 'Free for candidates', tip: 'Ask the recruiter for the salary band before the first interview.' }
+  ] },
+  { title: 'Freelance and B2B', items: [
+    { name: 'Useme', url: 'https://useme.com', checked: true, good: 'Polish platform that invoices clients for you if you don’t have a company; also lists projects.', how: 'Fill in a short form (client, project, price); the client pays via a link.', lang: 'Polish', cost: 'Fee per invoice or subscription (check current pricing)', tip: 'Useful for first small network jobs before registering a business.' },
+    { name: 'Upwork', url: 'https://www.upwork.com', checked: false, good: 'Global freelance projects: firewall setup, VPN, network audits, security reviews.', how: 'Proposals cost paid credits (“Connects”); write short, specific proposals.', lang: 'English', cost: 'Platform fee + Connects', tip: 'Not checked today. Lead with a concrete result and one relevant certificate.' },
+    { name: 'Malt / Toptal / Contra', url: 'https://www.malt.com', checked: false, good: 'European and vetted freelance networks.', how: 'Profile + screening (Toptal has a multi-stage test).', lang: 'English', cost: 'Commission', tip: 'Not checked today; pick one and complete the profile fully.' }
+  ] },
+  { title: 'Bug bounty and freelance pentesting', items: [
+    { name: 'Intigriti', url: 'https://www.intigriti.com', checked: true, good: 'European bug bounty platform; pay for valid findings.', how: 'Create a researcher profile, join public programs, submit reports.', lang: 'English', cost: 'Free', tip: 'Start with a few programs and learn to write clear reports; quality beats volume.' },
+    { name: 'YesWeHack', url: 'https://www.yeswehack.com', checked: true, good: 'European platform (Paris) with public and private programs, including EU institutions.', how: 'Researcher account, public programs, invitations to private ones.', lang: 'English', cost: 'Free', tip: 'Good reports lead to private invitations.' },
+    { name: 'HackerOne / Bugcrowd', url: 'https://www.hackerone.com', checked: true, good: 'Largest platforms; record payouts reported for 2025-26.', how: 'Join programs and submit reports.', lang: 'English', cost: 'Free', tip: 'Bugcrowd throttles low-accuracy AI-generated reports; never submit unverified findings.' },
+    { name: 'Cobalt Core', url: 'https://www.cobalt.io', checked: true, good: 'Paid freelance pentests (web, API, internal/external networks).', how: 'Apply via careers; selective, 4+ years experience, often country-limited, referrals preferred.', lang: 'English', cost: 'Free', tip: 'Certs like OSCP or PenTest+ help; check which countries the current posting accepts.' }
+  ] },
+  { title: 'Finding your own clients', items: [
+    { name: 'NIS2 / KSC readiness for SMEs', url: 'https://kpmg.com/pl/en/insights/law/legal-alert-the-nis2-directive-implemented-in-poland-new-cybersecurity-obligations-for-entrepreneurs.html', checked: true, good: 'Companies covered by KSC, and their suppliers, must implement security measures (most sources: by 3 April 2027).', how: 'Offer a fixed-price technical package: network inventory, segmentation, firewall/VPN hardening, logging, incident response plan.', lang: 'Polish', cost: '–', tip: 'Partner with a law or compliance firm: they cover legal duties, you cover the technical work.' },
+    { name: 'MSP / MSSP subcontracting', url: 'https://clutch.co', checked: false, good: 'Managed service providers need extra hands for deployments and audits.', how: 'Find MSPs (Clutch, LinkedIn, local IT firms) and offer white-label work.', lang: 'Polish and English', cost: '–', tip: 'A one-page offer with rates and 3 example jobs works better than a CV.' },
+    { name: 'Local businesses', url: '', checked: false, good: 'Offices, clinics, accounting firms: Wi-Fi, VPN, backups, basic hardening.', how: 'Referrals, local business groups, a simple website or Google Business profile.', lang: 'Polish', cost: '–', tip: 'Fixed-price packages are easier to sell than hourly rates.' },
+    { name: 'Community and conferences', url: '', checked: false, good: 'OWASP Poland chapters, BSides Warsaw, CONFidence (Kraków), PLNOG (network operators).', how: 'Attend, give a short talk, follow up on LinkedIn in English.', lang: 'Polish and English', cost: 'Tickets vary', tip: 'Not checked today; confirm dates on each event’s site.' }
+  ] }
+];
+
+const GUIDE_SOURCES = [
+  ['KPMG Poland: NIS2 implemented in Poland', 'https://kpmg.com/pl/en/insights/law/legal-alert-the-nis2-directive-implemented-in-poland-new-cybersecurity-obligations-for-entrepreneurs.html'],
+  ['Osborne Clarke: KSC amendment signed', 'https://www.osborneclarke.com/insights/polands-amendment-national-cybersecurity-system-act-has-been-signed-president'],
+  ['CMS: NIS2 supply-chain duties in Poland', 'https://cms.law/en/pol/legal-updates/cybersecurity-in-the-supply-chain-what-nis2-changes-in-poland'],
+  ['100hires: Polish job boards compared (2026)', 'https://100hires.com/polish-job-boards.html'],
+  ['JustJoin.it security offers', 'https://justjoin.it/job-offers/poznan/security'],
+  ['Freenance: network engineer salary in Poland 2026', 'https://freenance.io/professions/network-engineer-salary-poland/'],
+  ['ITmagination: Network & Security Engineer listing', 'https://www.itmagination.com/open-jobs/8050000033855733'],
+  ['Infosec Institute: top security certifications 2026', 'https://infosecinstitute.com/resources/professional-development/7-top-security-certifications-you-should-have/'],
+  ['Stingrai: bug bounty statistics 2026', 'https://www.stingrai.io/blog/bug-bounty-statistics-2026'],
+  ['Cobalt Core pentester posting', 'https://job-boards.greenhouse.io/cobaltio/jobs/5688200002'],
+  ['YesWeHack: European Commission bug bounty tender', 'https://www.businesswire.com/news/home/20251001342504/en/YesWeHack-Won-the-European-Commissions-Latest-Bug-Bounty-Tender'],
+  ['Useme (Wikipedia)', 'https://en.wikipedia.org/wiki/Useme'],
+  ['Working Nomads: remote cyber security jobs in Europe', 'https://www.workingnomads.com/remote-cyber-security-jobs-europe'],
+  ['Optima Europe: remote cybersecurity hiring in Europe', 'https://www.optimaeurope.com/recruitment-blog/remote-cybersecurity-hiring-salary-and-compliance-guide-europe']
+];
+const APP_STATUS = [['saved', 'Saved'], ['applied', 'Applied'], ['interview', 'Interview'], ['offer', 'Offer'], ['rejected', 'Rejected']];
+
+/* ---------- career English: listings, CV, applications, growth ---------- */
+const GOAL_LABEL = { job: 'a job', clients: 'freelance / B2B clients', both: 'a job and freelance / B2B clients' };
+function careerContext(maxCv) {
+  const c = Store.career, pf = c.prefs;
+  return `CANDIDATE
+- Industry: ${pf.industry}; current role: ${pf.role || 'not given'}; experience: ${pf.years || 'not given'}
+- Looking for: ${GOAL_LABEL[pf.goal] || GOAL_LABEL.both}; location: ${pf.location || 'not given'}; expected pay: ${pf.pay || 'not given'}
+- Certificates: ${pf.certs || 'none listed'}; languages: ${pf.languages || 'Polish, English'}; English level: ${Store.profile.level || 'B1/B2'}
+- About: ${aboutText() || 'not provided'}
+CV:
+"""
+${c.cv ? c.cv.slice(0, maxCv || 9000) : '(no CV provided yet: work from the profile and say what the CV should add)'}
+"""`;
+}
+const HONESTY = 'Never invent employers, dates, certificates, tools or numbers that are not in the CV or profile. Where a number would help, use a placeholder like [X] and say the candidate should fill it in.';
+
+function competencyPrompt() {
+  return `You are a senior career advisor for IT networking and cybersecurity in Poland and the EU, and an English coach for a Polish professional.
+
+${careerContext()}
+
+${MARKET_NOTES}
+
+Build an honest competency map based on the CV and profile. ${HONESTY}
+Return:
+- "summary": 2-3 sentences on where the candidate stands in this market.
+- "strengths": up to 6 {"skill", "evidence" (quote or paraphrase the CV, or "not evidenced in the CV yet"), "level": "basic" | "solid" | "strong"}.
+- "gaps": up to 5 {"skill", "why" (market reason), "how" (one concrete step: lab, project, course or certificate)}.
+- "path": 4-6 steps for the next 12 months, each {"when": "Months 1-2", "step", "outcome"}.
+- "roles": 4-6 realistic target roles {"title", "fit": "high" | "medium" | "stretch", "why"}.
+- "clients": 3-4 freelance / B2B client segments {"segment", "offer" (a fixed-price package), "where" (how to reach them)}.
+- "outreach": {"linkedin": "a short English LinkedIn message to a potential client or recruiter (max 80 words)", "email": "a short cold email in Polish to a Polish SME about the technical side of NIS2/KSC readiness (max 120 words)"}.
+- "phrases": 8 English phrases this person needs at work (network/security meetings, incident calls, client calls), each {"en", "pl", "example"}.
+${explainRule()} This applies to "summary", "why", "how" and "outcome". Outreach texts use the language stated above.
+Reply with only JSON: {"summary":"","strengths":[{"skill":"","evidence":"","level":"solid"}],"gaps":[{"skill":"","why":"","how":""}],"path":[{"when":"","step":"","outcome":""}],"roles":[{"title":"","fit":"high","why":""}],"clients":[{"segment":"","offer":"","where":""}],"outreach":{"linkedin":"","email":""},"phrases":[{"en":"","pl":"","example":""}]}`;
+}
+
+function packPrompt(listing, link) {
+  return `You are an expert recruiter and career coach for IT networking and cybersecurity roles. Prepare a complete, ready-to-send application pack for the listing below.
+
+${careerContext(7000)}
+
+${MARKET_NOTES}
+
+LISTING${link ? ' (' + link + ')' : ''}:
+"""
+${listing.slice(0, 8000)}
+"""
+
+RULES
+- ${HONESTY}
+- Write "letter", "message" and "follow_up" in the listing's language (Polish or English). Also give "letter_en", an English version of the letter (repeat "letter" if the listing is in English).
+- Be specific to this listing: mirror its key requirements, no clichés, no generic praise.
+- If the listing is for a freelance project or a client brief, write the letter as a short proposal (approach, timeline, price placeholder).
+
+Return:
+- "company", "role", "language" ("pl" or "en"), "source_guess" (the portal, if visible).
+- "fit": {"score": 0-100, "matches": up to 6 strings "requirement → evidence", "missing": up to 5 strings "gap → how to handle it honestly", "red_flags": up to 3 strings (unclear pay, unrealistic scope, etc.)}.
+- "keywords": up to 10 ATS keywords from the listing to put in the CV.
+- "letter": cover letter or proposal, 150-230 words. "letter_en": English version.
+- "message": short recruiter / LinkedIn message, max 70 words.
+- "screening": 4 likely screening or interview questions with strong, honest answers in English [{"q", "a"}].
+- "follow_up": short follow-up email to send 7 days later.
+- "interview": a role-play setup for interview practice {"title", "situation" (one sentence starting with "You're"), "ai" (who the interviewer is), "goal", "twist" (one hard technical or behavioural question based on this listing)}.
+- "phrases": 5 English phrases from the letter and answers worth learning, each {"en", "pl", "example"}.
+${explainRule()} This applies to "missing" and "red_flags".
+Reply with only JSON: {"company":"","role":"","language":"en","source_guess":"","fit":{"score":0,"matches":[""],"missing":[""],"red_flags":[""]},"keywords":[""],"letter":"","letter_en":"","message":"","screening":[{"q":"","a":""}],"follow_up":"","interview":{"title":"","situation":"","ai":"","goal":"","twist":""},"phrases":[{"en":"","pl":"","example":""}]}`;
+}
+
+function cvReviewPrompt(lang) {
+  return `You are an expert CV reviewer for IT networking and cybersecurity roles (Polish and EU market, ATS systems) and an English editor.
+
+${careerContext(12000)}
+
+Target: ${GOAL_LABEL[Store.career.prefs.goal] || GOAL_LABEL.both}. Write the improved CV in ${lang === 'pl' ? 'Polish' : 'English'}.
+${HONESTY}
+Return:
+- "scores": {"ats", "impact", "clarity", "english"}, each 1-10 ("english" rates the language quality of the original CV).
+- "issues": up to 8 {"section", "problem", "fix"}, most important first.
+- "bullets": up to 6 rewritten bullet points {"before", "after"}: action verb, scope, tools, result.
+- "cv": the full improved CV in Markdown with sections Summary, Skills (grouped: Networking, Security, Systems and Cloud, Tools), Experience, Certifications, Education, Languages. At most about 2 pages.
+- "headline": an English LinkedIn headline (max 220 characters).
+- "about": an English LinkedIn About section (120-180 words, first person).
+- "keywords": 10-15 keywords recruiters search for with this profile.
+${explainRule()} This applies to "problem" and "fix".
+Reply with only JSON: {"scores":{"ats":0,"impact":0,"clarity":0,"english":0},"issues":[{"section":"","problem":"","fix":""}],"bullets":[{"before":"","after":""}],"cv":"","headline":"","about":"","keywords":[""]}`;
+}
+
+const strs = (x, n) => arr(x).map(str).filter(Boolean).slice(0, n);
+function normPack(r, listing, link) {
+  r = r || {};
+  const f = r.fit || {}, iv = r.interview || {};
+  return {
+    id: uid(), at: Date.now(), link: str(link).slice(0, 300), listing: listing.slice(0, 2500),
+    company: str(r.company).slice(0, 80) || 'Company', role: str(r.role).slice(0, 120) || 'Role', language: r.language === 'pl' ? 'pl' : 'en', source: str(r.source_guess).slice(0, 40),
+    fit: { score: Math.max(0, Math.min(100, Math.round(Number(f.score) || 0))), matches: strs(f.matches, 6), missing: strs(f.missing, 5), flags: strs(f.red_flags, 3) },
+    keywords: strs(r.keywords, 10), letter: str(r.letter), letter_en: str(r.letter_en) || str(r.letter), message: str(r.message), follow_up: str(r.follow_up),
+    screening: arr(r.screening).map(x => ({ q: str(x && x.q), a: str(x && x.a) })).filter(x => x.q).slice(0, 5),
+    interview: { title: str(iv.title), situation: str(iv.situation), ai: str(iv.ai), goal: str(iv.goal), twist: str(iv.twist) },
+    phrases: arr(r.phrases).map(normPhrase).filter(p => p.en).slice(0, 5)
+  };
+}
+
+async function saveFile(filename, data) {
+  try {
+    const dl = window.claude && typeof window.claude.use === 'function' ? await window.claude.use('downloads') : null;
+    if (!dl) { toast('Saving files isn’t available here. Use Copy instead.'); return; }
+    await dl.save({ filename, data });
+    toast('Saved');
+  } catch (e) {
+    if (e && e.code === 'declined') return;
+    toast(e && e.code === 'rate_limited' ? 'A save is already waiting for your answer.' : 'Couldn’t save the file here. Use Copy instead.');
+  }
+}
+
+const PDFJS = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/';
+function loadScript(src) {
+  return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('load')); document.head.appendChild(s); });
+}
+async function pdfText(file) {
+  if (!window.pdfjsLib) {
+    // The worker script runs on the main thread: the page cannot start workers from another site.
+    if (!window.pdfjsWorker) await loadScript(PDFJS + 'pdf.worker.min.js');
+    await loadScript(PDFJS + 'pdf.min.js');
+  }
+  const lib = window.pdfjsLib;
+  lib.GlobalWorkerOptions.workerSrc = PDFJS + 'pdf.worker.min.js';
+  const doc = await lib.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
+  const pages = [];
+  for (let i = 1; i <= Math.min(doc.numPages, 8); i++) {
+    const tc = await (await doc.getPage(i)).getTextContent();
+    const lines = [];
+    let line = '', lastY = null;
+    tc.items.forEach(it => {
+      const y = it.transform ? it.transform[5] : 0;
+      if (lastY !== null && Math.abs(y - lastY) > 2) { lines.push(line); line = ''; }
+      line += (line && !/\s$/.test(line) && !/^\s/.test(it.str) ? ' ' : '') + it.str;
+      lastY = y;
+    });
+    lines.push(line);
+    pages.push(lines.map(l => l.trim()).join('\n'));
+  }
+  return pages.join('\n\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+function CopyBtn({ text, label }) {
+  return html`<button class="btn sm" onClick=${() => copyText(text)}><${Icon} n="copy" s=${15} /> ${label || 'Copy'}</button>`;
+}
+function TextBlock({ title, text, extra }) {
+  if (!text) return null;
+  return html`<div class="block" style="gap:8px"><div class="block-h"><span class="lbl">${title}</span><div class="row">${extra || null}<${CopyBtn} text=${text} /></div></div><div class="textbox">${text}</div></div>`;
+}
+
+/* main screen */
+function Career({ go, tab }) {
+  const c = Store.career;
+  const [t, setT] = useState(tab || (c.cv ? 'apply' : 'cv'));
+  const due = c.apps.filter(a => a.next && a.next <= dayKey() && (a.status === 'applied' || a.status === 'interview')).length;
+  const tabs = [['apply', 'Apply to a listing'], ['tracker', 'Applications' + (due ? ' (' + due + ')' : '')], ['cv', 'CV'], ['skills', 'Skills and growth'], ['where', 'Where to look'], ['profile', 'Profile']];
+  return html`<div class="page">
+    <header class="page-h"><h1>Career English</h1><p class="lead">Real material from your career as English practice: tailored applications, a stronger CV, interview role-plays and a plan for growth in networking and cybersecurity. Drafts only: you send everything yourself.</p></header>
+    ${c.prefs.assumed ? html`<div class="banner" role="status">Your career profile uses assumptions (IT networking and cybersecurity; job and B2B clients; Poland and remote). <button class="linkbtn" onClick=${() => setT('profile')}>Check your profile →</button></div>` : null}
+    <div class="tabs" role="tablist">${tabs.map(([k, l]) => html`<button role="tab" aria-selected=${t === k} class=${'tab' + (t === k ? ' on' : '')} onClick=${() => setT(k)}>${l}</button>`)}</div>
+    ${t === 'apply' ? html`<${ApplyTab} go=${go} setT=${setT} />` : t === 'tracker' ? html`<${TrackerTab} setT=${setT} go=${go} />` : t === 'cv' ? html`<${CvTab} />` : t === 'skills' ? html`<${SkillsTab} setT=${setT} />` : t === 'where' ? html`<${WhereTab} />` : html`<${CareerProfile} done=${() => setT(c.cv ? 'apply' : 'cv')} />`}
+  </div>`;
+}
+
+function CareerProfile({ done }) {
+  const pf = Store.career.prefs;
+  const [f, setF] = useState(() => Object.assign({}, pf));
+  const upd = (k, v) => setF(Object.assign({}, f, { [k]: v }));
+  function save() {
+    Store.career.prefs = Object.assign({}, f, { assumed: false });
+    commit('career');
+    toast('Career profile saved');
+    done();
+  }
+  const field = (id, label, k, ph) => html`<label class="lbl" for=${id}>${label}</label><input id=${id} class="input" value=${f[k]} onInput=${e => upd(k, e.target.value)} placeholder=${ph} />`;
+  return html`<div class="form" style="max-width:680px">
+    ${field('cp-ind', 'Industry', 'industry', 'e.g. IT: networking and cybersecurity')}
+    ${field('cp-role', 'Current role', 'role', 'e.g. network administrator, junior SOC analyst')}
+    ${field('cp-years', 'Years of experience', 'years', 'e.g. 3 years in networking, 1 in security')}
+    <span class="lbl">What are you looking for?</span>
+    <div class="chips">${[['job', 'A job'], ['clients', 'Freelance / B2B clients'], ['both', 'Both']].map(([k, l]) => html`<button class=${'chip' + (f.goal === k ? ' on' : '')} onClick=${() => upd('goal', k)} aria-pressed=${f.goal === k}>${l}</button>`)}</div>
+    ${field('cp-loc', 'Location and remote', 'location', 'e.g. Wrocław or remote, EU time zones')}
+    ${field('cp-pay', 'Expected salary or rate', 'pay', 'e.g. 15-18k PLN net B2B, or 120 PLN/h')}
+    ${field('cp-certs', 'Certificates', 'certs', 'e.g. CCNA, Security+')}
+    ${field('cp-lang', 'Languages', 'languages', 'e.g. Polish (native), English B2')}
+    <div class="row"><button class="btn primary" onClick=${save}>Save profile</button></div>
+  </div>`;
+}
+
+function CvTab() {
+  const c = Store.career;
+  const [text, setText] = useState('');
+  const [busy, setBusy] = useState('');
+  const [err, setErr] = useState('');
+  const [lang, setLang] = useState('en');
+  const [confirmDel, setConfirmDel] = useState(false);
+  const [replace, setReplace] = useState(false);
+  function store(t, name) {
+    Store.career.cv = t.slice(0, 20000); Store.career.cvName = name || 'Pasted CV'; Store.career.cvAt = Date.now(); Store.career.review = null;
+    commit('career'); setText(''); setReplace(false); toast('CV saved privately to your account');
+  }
+  async function onFile(e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    setErr('');
+    try {
+      if (/\.pdf$/i.test(file.name) || file.type === 'application/pdf') {
+        setBusy('pdf');
+        const t = await pdfText(file);
+        if (words(t) < 30) throw new Error('empty');
+        setText(t);
+      } else if (/\.(txt|md|markdown)$/i.test(file.name) || /^text\//.test(file.type)) {
+        setText(await file.text());
+      } else setErr('Use a PDF, TXT or MD file. For Word files, save as PDF first or paste the text.');
+    } catch (x) { setErr('Couldn’t read text from this file (a scanned PDF has no text layer). Paste the text instead.'); }
+    finally { setBusy(''); }
+  }
+  async function review() {
+    setBusy('review'); setErr('');
+    try {
+      const r = await aiJSON(cvReviewPrompt(lang), { modelTier: 'default' });
+      const sc = (r && r.scores) || {};
+      Store.career.review = {
+        at: Date.now(), lang,
+        scores: { ats: score10(sc.ats), impact: score10(sc.impact), clarity: score10(sc.clarity), english: score10(sc.english) },
+        issues: arr(r && r.issues).map(x => ({ section: str(x && x.section), problem: str(x && x.problem), fix: str(x && x.fix) })).filter(x => x.problem).slice(0, 8),
+        bullets: arr(r && r.bullets).map(x => ({ before: str(x && x.before), after: str(x && x.after) })).filter(x => x.after).slice(0, 6),
+        cv: str(r && r.cv), headline: str(r && r.headline), about: str(r && r.about), keywords: strs(r && r.keywords, 15)
+      };
+      if (!Store.career.review.cv && !Store.career.review.issues.length) throw { code: 'invalid_json' };
+      commit('career');
+    } catch (e) { setErr(errText(e)); }
+    finally { setBusy(''); }
+  }
+  function del() { Store.career.cv = ''; Store.career.cvName = ''; Store.career.cvAt = 0; Store.career.review = null; commit('career'); setConfirmDel(false); toast('CV deleted'); }
+  const rv = c.review;
+  const input = html`<div class="form">
+    <p class="muted">Paste your CV or upload a PDF, TXT or MD file. It’s stored only in your private part of the app’s database (not visible to anyone else) and you can delete it at any time.</p>
+    <div class="row"><label class="btn sm" for="cv-file" style="cursor:pointer"><${Icon} n="plus" s=${15} /> Upload a file</label><input id="cv-file" type="file" accept=".pdf,.txt,.md,application/pdf,text/plain" onChange=${onFile} style="position:absolute;left:-9999px" />${busy === 'pdf' ? html`<${Thinking} label="Reading the PDF" />` : null}</div>
+    <label class="lbl" for="cv-text">CV text</label>
+    <textarea id="cv-text" class="input area" rows="10" value=${text} onInput=${e => setText(e.target.value)} placeholder="Paste your CV here"></textarea>
+    <div class="row"><span class="small muted">${words(text)} words</span><div class="grow"></div>${replace ? html`<button class="btn" onClick=${() => { setReplace(false); setText(''); }}>Cancel</button>` : null}<button class="btn primary" disabled=${words(text) < 30} onClick=${() => store(text.trim(), 'Uploaded or pasted CV')}>Save CV</button></div>
+  </div>`;
+  if (!c.cv || replace) return html`<div class="block">${input}${err ? html`<p class="err" role="alert">${err}</p>` : null}</div>`;
+  return html`<div class="block" style="gap:24px">
+    <div class="row"><span><b>${c.cvName || 'Your CV'}</b> <span class="muted small">· ${words(c.cv)} words · saved ${fmtDay(c.cvAt)}</span></span><div class="grow"></div>
+      <button class="btn sm" onClick=${() => { setText(c.cv); setReplace(true); }}>Edit or replace</button>
+      ${confirmDel ? html`<span class="err small">Delete your CV and its review?</span><button class="btn sm" style="border-color:var(--err);color:var(--err)" onClick=${del}>Yes, delete</button><button class="btn sm" onClick=${() => setConfirmDel(false)}>Cancel</button>` : html`<button class="btn sm" onClick=${() => setConfirmDel(true)}><${Icon} n="trash" s=${15} /> Delete my CV</button>`}</div>
+    <section class="block">
+      <div class="block-h"><h2>Review and improve</h2><div class="row"><div class="chips">${[['en', 'English CV'], ['pl', 'Polish CV']].map(([k, l]) => html`<button class=${'chip' + (lang === k ? ' on' : '')} onClick=${() => setLang(k)} aria-pressed=${lang === k}>${l}</button>`)}</div>${busy === 'review' ? html`<${Thinking} label="Reviewing your CV" />` : html`<button class="btn primary" onClick=${review}>${rv ? 'Review again' : 'Review my CV'}</button>`}</div></div>
+      ${err ? html`<p class="err" role="alert">${err}</p>` : null}
+      ${!rv ? html`<p class="muted">You’ll get scores (ATS, impact, clarity, English), the most important fixes, rewritten bullet points, a full improved CV and a LinkedIn headline and About section.</p>` : html`
+        <p class="small muted">Reviewed ${fmtDay(rv.at)} · ${rv.lang === 'pl' ? 'Polish' : 'English'} version</p>
+        <div class="meters">${[['ats', 'ATS-friendly'], ['impact', 'Impact'], ['clarity', 'Clarity'], ['english', 'English']].filter(([k]) => rv.scores[k] != null).map(([k, l]) => html`<div class="meter"><span>${l}</span><div class="track"><i style=${'width:' + rv.scores[k] * 10 + '%'}></i></div><b>${rv.scores[k]}<small>/10</small></b></div>`)}</div>
+        ${rv.issues.length ? html`<div class="block" style="gap:8px"><span class="lbl">Fix these first</span>${rv.issues.map((x, k) => html`<div class="focus-item"><b>${k + 1}. ${x.section ? x.section + ': ' : ''}${x.problem}</b>${x.fix ? html`<span class="small">${x.fix}</span>` : null}</div>`)}</div>` : null}
+        ${rv.bullets.length ? html`<div class="block" style="gap:8px"><span class="lbl">Stronger bullet points</span>${rv.bullets.map(b => html`<div class="focus-item">${b.before ? html`<span class="small"><del>${b.before}</del></span>` : null}<span><ins>${b.after}</ins></span></div>`)}</div>` : null}
+        <${TextBlock} title="Improved CV (Markdown)" text=${rv.cv} extra=${html`<button class="btn sm" onClick=${() => saveFile('CV-' + (rv.lang === 'pl' ? 'PL' : 'EN') + '.md', rv.cv)}>Save .md</button><button class="btn sm" onClick=${() => saveFile('CV-' + (rv.lang === 'pl' ? 'PL' : 'EN') + '.txt', rv.cv.replace(/[#*_`]/g, ''))}>Save .txt</button>`} />
+        <${TextBlock} title="LinkedIn headline" text=${rv.headline} />
+        <${TextBlock} title="LinkedIn About" text=${rv.about} />
+        ${rv.keywords.length ? html`<div><span class="lbl">Keywords recruiters search for</span><div class="chips" style="margin-top:8px">${rv.keywords.map(k => html`<span class="tag acc">${k}</span>`)}</div></div>` : null}
+      `}
+    </section>
+  </div>`;
+}
+
+function ApplyTab({ go, setT }) {
+  const c = Store.career;
+  const [listing, setListing] = useState(() => lsGet(LS + 'draft.listing') || '');
+  const [link, setLink] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const [openId, setOpenId] = useState(() => (c.packs[0] && Date.now() - c.packs[0].at < 2 * DAY ? c.packs[0].id : null));
+  const ctl = useRef(null);
+  useEffect(() => { const t = setTimeout(() => lsSet(LS + 'draft.listing', listing), 400); return () => clearTimeout(t); }, [listing]);
+  async function prepare() {
+    const t = listing.trim();
+    if (words(t) < 25) { setErr('Paste the full listing text (at least a few lines with the requirements).'); return; }
+    setBusy(true); setErr('');
+    const ac = new AbortController(); ctl.current = ac;
+    try {
+      const p = normPack(await aiJSON(packPrompt(t, link.trim()), { modelTier: 'default', signal: ac.signal }), t, link.trim());
+      if (!p.letter) throw { code: 'invalid_json' };
+      p.phrases.forEach(x => Vocab.add(x, 'career'));
+      if (p.phrases.length) commit('vocab');
+      Store.career.packs = [p].concat(Store.career.packs).slice(0, 12);
+      commit('career');
+      setOpenId(p.id); setListing(''); setLink(''); lsDel(LS + 'draft.listing');
+    } catch (e) { if (!(e && e.code === 'cancelled')) setErr(errText(e)); }
+    finally { setBusy(false); }
+  }
+  const open = c.packs.find(p => p.id === openId);
+  return html`<div class="block" style="gap:24px">
+    ${!c.cv ? html`<div class="nudge" role="note"><${Icon} n="user" s=${20} /><span><b>Add your CV first</b> for applications that use your real experience. Without it the drafts stay generic. <button class="linkbtn" onClick=${() => setT('cv')}>Add my CV →</button></span></div>` : null}
+    <div class="form">
+      <label class="lbl" for="ap-listing">Job listing or client brief</label>
+      <textarea id="ap-listing" class="input area" rows="8" value=${listing} onInput=${e => setListing(e.target.value)} placeholder="Open the listing on JustJoin.it, No Fluff Jobs, LinkedIn, Useme… select all the text, copy and paste it here"></textarea>
+      <label class="lbl" for="ap-link">Link to the listing (optional)</label>
+      <input id="ap-link" class="input" value=${link} onInput=${e => setLink(e.target.value)} placeholder="https://…" />
+      ${err ? html`<p class="err" role="alert">${err}</p>` : null}
+      <div class="row"><span class="small muted">The app can’t open websites itself, so paste the text.</span><div class="grow"></div>
+        ${busy ? html`<${Thinking} label="Preparing your application" /><button class="btn sm" onClick=${() => ctl.current && ctl.current.abort()}><${Icon} n="stop" s=${14} /> Stop</button>` : html`<button class="btn primary" onClick=${prepare}>Prepare my application</button>`}</div>
+    </div>
+    ${open ? html`<${PackView} key=${open.id} pack=${open} go=${go} setT=${setT} close=${() => setOpenId(null)} />` : null}
+    ${c.packs.length ? html`<section class="block"><div class="block-h"><h2>Earlier applications</h2></div>
+      <div class="hlist">${c.packs.map(p => html`<button class="hrow" style="text-align:left;border-left:0;border-right:0;border-bottom:0;background:none;color:var(--ink);width:100%" onClick=${() => { setOpenId(p.id); window.scrollTo(0, 0); }}><span class="hdate">${fmtDay(p.at)}</span><span><b>${p.role}</b> · ${p.company} <span class=${'tag ' + (p.fit.score >= 70 ? 'acc' : '')}>fit ${p.fit.score}</span></span></button>`)}</div></section>` : null}
+  </div>`;
+}
+
+function PackView({ pack, go, setT, close }) {
+  const [edit, setEdit] = useState(false);
+  const [mine, setMine] = useState(pack.letter_en || pack.letter);
+  const [chk, setChk] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const tracked = Store.career.apps.some(a => a.packId === pack.id);
+  function track(status) {
+    const a = { id: uid(), created: Date.now(), company: pack.company, role: pack.role, link: pack.link, source: pack.source, status, date: dayKey(), next: status === 'applied' ? dayKey(new Date(Date.now() + 7 * DAY)) : '', notes: '', packId: pack.id };
+    Store.career.apps = [a].concat(Store.career.apps);
+    commit('career');
+    toast(status === 'applied' ? 'Added to Applications. Follow-up reminder in 7 days.' : 'Saved to Applications');
+  }
+  function practise() {
+    const sc = normScenario({ title: ('Interview: ' + pack.company).slice(0, 60), situation: pack.interview.situation || 'You’re in a job interview for the ' + pack.role + ' role at ' + pack.company + '.', me: 'the candidate', ai: pack.interview.ai || 'the hiring manager at ' + pack.company, goal: pack.interview.goal || 'Show you fit the role and answer follow-up questions.', twist: pack.interview.twist || 'a hard technical question from the listing' });
+    if (!sc) return;
+    Store.profile.customScenarios = [sc].concat(arr(Store.profile.customScenarios)).slice(0, 16);
+    commit('profile');
+    go('speaking', { start: sc.id });
+  }
+  async function checkMine() {
+    const t = mine.trim();
+    if (words(t) < 20) return;
+    setBusy(true); setErr('');
+    try {
+      const r = normWriting(await aiJSON(writingPrompt('business', 'a cover letter for the ' + pack.role + ' role at ' + pack.company, t), { modelTier: 'default' }));
+      if (!r.corrected) r.corrected = t;
+      r.mistakes.forEach(m => { m.repeat = Mistakes.record({ mistake_key: m.mistake_key, mistake_label: m.mistake_label, you_said: m.original, better: m.corrected, more_natural: m.natural, why: m.why, polish_calque: m.polish_calque }); });
+      if (r.mistakes.length) commit('mistakes');
+      r.expressions.forEach(p => Vocab.add(p, 'career'));
+      if (r.expressions.length) commit('vocab');
+      recordSession({ mode: 'writing', title: 'Cover letter', scores: { fluency: null, grammar: r.scores.grammar, vocabulary: r.scores.vocabulary, naturalness: r.scores.naturalness, confidence: null }, corrections: r.mistakes.length, calques: r.mistakes.filter(m => m.polish_calque).length, minutes: Math.max(2, Math.round(words(t) / 12)), words: words(t) });
+      setChk({ res: r, orig: t });
+    } catch (e) { setErr(errText(e)); }
+    finally { setBusy(false); }
+  }
+  const f = pack.fit;
+  return html`<section class="fb" aria-label="Application pack">
+    <div class="block-h"><div><span class="lbl">Application pack · ${fmtDay(pack.at)}${pack.source ? ' · ' + pack.source : ''}</span><h2 class="fb-head">${pack.role}</h2><p class="muted">${pack.company}${pack.link ? html` · <a href=${pack.link} target="_blank" rel="noopener noreferrer">open listing</a>` : null}</p></div><button class="linkbtn" onClick=${close}>Close</button></div>
+    <div class="meter"><span>Fit</span><div class="track"><i style=${'width:' + f.score + '%'}></i></div><b>${f.score}<small>/100</small></b></div>
+    <div class="fb-cols">
+      ${f.matches.length ? html`<div><div class="lbl">Where you match</div><ul>${f.matches.map(x => html`<li>${x}</li>`)}</ul></div>` : null}
+      ${f.missing.length ? html`<div><div class="lbl">Gaps and how to handle them</div><ul>${f.missing.map(x => html`<li>${x}</li>`)}</ul></div>` : null}
+    </div>
+    ${f.flags.length ? html`<div><div class="lbl">Watch out</div><ul>${f.flags.map(x => html`<li>${x}</li>`)}</ul></div>` : null}
+    ${pack.keywords.length ? html`<div><span class="lbl">Put these keywords in your CV</span><div class="chips" style="margin-top:8px">${pack.keywords.map(k => html`<span class="tag acc">${k}</span>`)}</div></div>` : null}
+    <div class="row">
+      ${tracked ? html`<span class="okt small"><${Icon} n="check" s=${15} /> In Applications</span><button class="linkbtn" onClick=${() => setT('tracker')}>Open Applications →</button>` : html`<button class="btn primary" onClick=${() => track('applied')}>I’ve applied: track it</button><button class="btn" onClick=${() => track('saved')}>Save for later</button>`}
+      <button class="btn" onClick=${practise}><${Icon} n="chat" s=${16} /> Practise the interview</button>
+    </div>
+    <${TextBlock} title=${pack.language === 'pl' ? 'Cover letter (Polish, like the listing)' : 'Cover letter'} text=${pack.letter} />
+    ${pack.language === 'pl' ? html`<${TextBlock} title="Cover letter in English" text=${pack.letter_en} />` : null}
+    <${TextBlock} title="Short message to the recruiter" text=${pack.message} />
+    ${pack.screening.length ? html`<div class="block" style="gap:8px"><span class="lbl">Likely questions, with answers to practise</span>${pack.screening.map(x => html`<div class="focus-item"><b>${x.q}</b><span>${x.a}</span><span><${Say} text=${x.a} label="Listen to the answer" /></span></div>`)}</div>` : null}
+    <${TextBlock} title="Follow-up email (send after 7 days)" text=${pack.follow_up} />
+    ${pack.phrases.length ? html`<div class="block" style="gap:8px"><span class="lbl">Phrases worth learning · saved to My vocabulary</span><${PhraseList} list=${pack.phrases} /></div>` : null}
+    <div class="block" style="gap:8px">
+      <div class="block-h"><span class="lbl">Make it yours and learn from it</span>${!edit ? html`<button class="btn sm" onClick=${() => setEdit(true)}>Edit the English letter and check it</button>` : null}</div>
+      ${edit ? html`<textarea id="pk-mine" class="input area" rows="9" value=${mine} onInput=${e => setMine(e.target.value)} aria-label="Your version of the letter"></textarea>
+        <div class="row"><span class="small muted">Change it into your own words, then check your English. Mistakes go to My common mistakes.</span><div class="grow"></div>${busy ? html`<${Thinking} label="Checking" />` : html`<button class="btn primary" onClick=${checkMine}>Check my English</button>`}</div>` : null}
+      ${err ? html`<p class="err" role="alert">${err}</p>` : null}
+      ${chk ? html`<${WritingResult} res=${chk.res} orig=${chk.orig} />` : null}
+    </div>
+    <p class="small muted">Nothing is sent from here. Copy the texts, check names and facts, then apply on the portal yourself.</p>
+  </section>`;
+}
+
+function TrackerTab({ setT, go }) {
+  const c = Store.career;
+  const [f, setF] = useState({ company: '', role: '', link: '', source: '' });
+  const [filter, setFilter] = useState('all');
+  const today = dayKey();
+  function add() {
+    if (!f.company.trim() || !f.role.trim()) return;
+    Store.career.apps = [{ id: uid(), created: Date.now(), company: f.company.trim().slice(0, 80), role: f.role.trim().slice(0, 120), link: f.link.trim().slice(0, 300), source: f.source.trim().slice(0, 40), status: 'applied', date: today, next: dayKey(new Date(Date.now() + 7 * DAY)), notes: '', packId: null }].concat(Store.career.apps);
+    commit('career');
+    setF({ company: '', role: '', link: '', source: '' });
+  }
+  function upd(id, patch) {
+    const a = Store.career.apps.find(x => x.id === id);
+    if (!a) return;
+    Object.assign(a, patch);
+    if (patch.status === 'applied' && !a.next) a.next = dayKey(new Date(Date.now() + 7 * DAY));
+    if (patch.status === 'offer' || patch.status === 'rejected') a.next = '';
+    commit('career');
+  }
+  function remove(id) { Store.career.apps = Store.career.apps.filter(x => x.id !== id); commit('career'); toast('Removed'); }
+  function csv() {
+    const q = v => '"' + String(v || '').replace(/"/g, '""') + '"';
+    const rows = [['Company', 'Role', 'Source', 'Link', 'Status', 'Applied', 'Follow-up', 'Notes']].concat(c.apps.map(a => [a.company, a.role, a.source, a.link, a.status, a.date, a.next, a.notes]));
+    saveFile('applications.csv', rows.map(r => r.map(q).join(',')).join('\n'));
+  }
+  const counts = {};
+  c.apps.forEach(a => { counts[a.status] = (counts[a.status] || 0) + 1; });
+  const list = c.apps.filter(a => filter === 'all' || a.status === filter);
+  const dueN = c.apps.filter(a => a.next && a.next <= today && (a.status === 'applied' || a.status === 'interview')).length;
+  return html`<div class="block" style="gap:20px">
+    <div class="chips">${[['all', 'All', c.apps.length]].concat(APP_STATUS.map(([k, l]) => [k, l, counts[k] || 0])).map(([k, l, n]) => html`<button class=${'chip' + (filter === k ? ' on' : '')} onClick=${() => setFilter(k)} aria-pressed=${filter === k}>${l} · ${n}</button>`)}</div>
+    ${dueN ? html`<p class="pattern" style="font-weight:400">${dueN} follow-up${dueN === 1 ? '' : 's'} due. Open the application pack for a ready follow-up email.</p>` : null}
+    ${list.length ? html`<div class="hlist">${list.map(a => { const due = a.next && a.next <= today && (a.status === 'applied' || a.status === 'interview'); return html`<div class="trow" key=${a.id}>
+      <div class="vmain"><b>${a.role}</b><span class="muted small">${a.company}${a.source ? ' · ' + a.source : ''} · applied ${a.date}</span>${a.link ? html`<a class="small" href=${a.link} target="_blank" rel="noopener noreferrer">open listing</a>` : null}
+        <input id=${'tn-' + a.id} class="input" style="margin-top:6px;font-size:14px;padding:6px 10px" value=${a.notes} onChange=${e => upd(a.id, { notes: e.target.value.slice(0, 300) })} placeholder="Notes (contact person, interview date…)" aria-label="Notes" /></div>
+      <div class="vmeta">
+        <select id=${'ts-' + a.id} value=${a.status} onChange=${e => upd(a.id, { status: e.target.value })} aria-label="Status">${APP_STATUS.map(([k, l]) => html`<option value=${k}>${l}</option>`)}</select>
+        <label class="small muted" for=${'tf-' + a.id}>${due ? html`<b class="not">Follow up</b>` : 'Follow-up'}</label>
+        <input id=${'tf-' + a.id} type="date" class="input" style="font-size:13px;padding:4px 8px;width:auto" value=${a.next || ''} onChange=${e => upd(a.id, { next: e.target.value })} />
+        <div class="row" style="gap:4px">${a.packId && Store.career.packs.some(p => p.id === a.packId) ? html`<button class="btn sm" onClick=${() => setT('apply')}>Pack</button>` : null}<button class="iconbtn" onClick=${() => remove(a.id)} aria-label=${'Delete ' + a.role}><${Icon} n="trash" s=${16} /></button></div>
+      </div>
+    </div>`; })}</div>` : html`<p class="empty">${c.apps.length ? 'Nothing with this status.' : 'No applications yet. Prepare one in “Apply to a listing”, or add one you sent elsewhere.'}</p>`}
+    <section class="block"><div class="block-h"><h2>Add an application</h2>${c.apps.length ? html`<button class="btn sm" onClick=${csv}>Export CSV</button>` : null}</div>
+      <div class="row">
+        <input id="tr-company" class="input" style="flex:1;min-width:150px" value=${f.company} onInput=${e => setF(Object.assign({}, f, { company: e.target.value }))} placeholder="Company" aria-label="Company" />
+        <input id="tr-role" class="input" style="flex:1;min-width:150px" value=${f.role} onInput=${e => setF(Object.assign({}, f, { role: e.target.value }))} placeholder="Role" aria-label="Role" />
+        <input id="tr-source" class="input" style="flex:1;min-width:120px" value=${f.source} onInput=${e => setF(Object.assign({}, f, { source: e.target.value }))} placeholder="Where (e.g. JustJoin.it)" aria-label="Source" />
+        <input id="tr-link" class="input" style="flex:2;min-width:180px" value=${f.link} onInput=${e => setF(Object.assign({}, f, { link: e.target.value }))} placeholder="Link (optional)" aria-label="Link" />
+        <button class="btn" onClick=${add} disabled=${!f.company.trim() || !f.role.trim()}><${Icon} n="plus" s=${16} /> Add</button>
+      </div></section>
+  </div>`;
+}
+
+function SkillsTab({ setT }) {
+  const c = Store.career, k = c.comp;
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  async function build() {
+    setBusy(true); setErr('');
+    try {
+      const r = await aiJSON(competencyPrompt(), { modelTier: 'default', cache: false });
+      const o = r && r.outreach || {};
+      const comp = {
+        at: Date.now(), summary: str(r && r.summary),
+        strengths: arr(r && r.strengths).map(x => ({ skill: str(x && x.skill), evidence: str(x && x.evidence), level: ['basic', 'solid', 'strong'].includes(x && x.level) ? x.level : 'solid' })).filter(x => x.skill).slice(0, 6),
+        gaps: arr(r && r.gaps).map(x => ({ skill: str(x && x.skill), why: str(x && x.why), how: str(x && x.how) })).filter(x => x.skill).slice(0, 5),
+        path: arr(r && r.path).map(x => ({ when: str(x && x.when), step: str(x && x.step), outcome: str(x && x.outcome) })).filter(x => x.step).slice(0, 6),
+        roles: arr(r && r.roles).map(x => ({ title: str(x && x.title), fit: ['high', 'medium', 'stretch'].includes(x && x.fit) ? x.fit : 'medium', why: str(x && x.why) })).filter(x => x.title).slice(0, 6),
+        clients: arr(r && r.clients).map(x => ({ segment: str(x && x.segment), offer: str(x && x.offer), where: str(x && x.where) })).filter(x => x.segment).slice(0, 4),
+        outreach: { linkedin: str(o.linkedin), email: str(o.email) },
+        phrases: arr(r && r.phrases).map(normPhrase).filter(p => p.en).slice(0, 8)
+      };
+      if (!comp.summary && !comp.strengths.length) throw { code: 'invalid_json' };
+      comp.phrases.forEach(p => Vocab.add(p, 'career'));
+      if (comp.phrases.length) commit('vocab');
+      Store.career.comp = comp;
+      commit('career');
+    } catch (e) { setErr(errText(e)); }
+    finally { setBusy(false); }
+  }
+  return html`<div class="block" style="gap:22px">
+    <div class="block-h"><p class="muted" style="max-width:62ch">A map of your strengths and gaps against the networking and security market in Poland and the EU, a 12-month plan, realistic roles and client segments. Based on your CV, profile and the researched market notes (${GUIDE_CHECKED}).</p>
+      ${busy ? html`<${Thinking} label="Building your map" />` : html`<button class=${'btn ' + (k ? 'sm' : 'primary')} onClick=${build}>${k ? 'Rebuild' : 'Build my competency map'}</button>`}</div>
+    ${!c.cv ? html`<p class="small muted">Tip: <button class="linkbtn" onClick=${() => setT('cv')}>add your CV</button> first for a map based on your real experience.</p>` : null}
+    ${err ? html`<p class="err" role="alert">${err}</p>` : null}
+    ${k ? html`
+      <p class="small muted">Built ${fmtDay(k.at)}</p>
+      ${k.summary ? html`<p class="lead" style="color:var(--ink)">${k.summary}</p>` : null}
+      <div class="fb-cols">
+        <div class="block" style="gap:8px"><span class="lbl">Strengths</span>${k.strengths.map(x => html`<div class="focus-item"><div class="row" style="gap:8px"><b>${x.skill}</b><span class=${'tag ' + (x.level === 'strong' ? 'acc' : '')}>${x.level}</span></div><span class="small muted">${x.evidence}</span></div>`)}</div>
+        <div class="block" style="gap:8px"><span class="lbl">Gaps to close</span>${k.gaps.map(x => html`<div class="focus-item"><b>${x.skill}</b><span class="small muted">${x.why}</span><span class="small">${x.how}</span></div>`)}</div>
+      </div>
+      ${k.path.length ? html`<div class="block" style="gap:8px"><span class="lbl">Your next 12 months</span><div class="plan">${k.path.map(x => html`<div class="plan-row" style="grid-template-columns:110px 1fr"><span class="plan-day">${x.when}</span><span><b>${x.step}</b>${x.outcome ? html`<br /><span class="small muted">${x.outcome}</span>` : null}</span></div>`)}</div></div>` : null}
+      ${k.roles.length ? html`<div class="block" style="gap:8px"><span class="lbl">Roles to target</span>${k.roles.map(x => html`<div class="row" style="gap:8px"><span class=${'tag ' + (x.fit === 'high' ? 'acc' : x.fit === 'stretch' ? 'warn' : '')}>${x.fit}</span><b>${x.title}</b><span class="small muted">${x.why}</span></div>`)}</div>` : null}
+      ${k.clients.length ? html`<div class="block" style="gap:8px"><span class="lbl">Client segments (freelance / B2B)</span>${k.clients.map(x => html`<div class="focus-item"><b>${x.segment}</b><span class="small">${x.offer}</span><span class="small muted">${x.where}</span></div>`)}</div>` : null}
+      <${TextBlock} title="LinkedIn message (English)" text=${k.outreach.linkedin} />
+      <${TextBlock} title="Cold email to a Polish company (Polish)" text=${k.outreach.email} />
+      ${k.phrases.length ? html`<div class="block" style="gap:8px"><span class="lbl">English for your job · saved to My vocabulary</span><${PhraseList} list=${k.phrases} /></div>` : null}
+    ` : null}
+  </div>`;
+}
+
+function WhereTab() {
+  return html`<div class="block" style="gap:24px">
+    <p class="muted">Where to find jobs and clients in networking and cybersecurity, and how applying works on each. Items marked <span class="tag acc">checked</span> were confirmed with web research on ${GUIDE_CHECKED}; the others are well-known options to verify yourself. Fees, rules and dates change, so check before you rely on them.</p>
+    ${GUIDE.map(sec => html`<section class="block" style="gap:10px"><h2 style="font-size:19px">${sec.title}</h2>
+      ${sec.items.map(it => html`<div class="focus-item">
+        <div class="row" style="gap:8px"><b>${it.url ? html`<a href=${it.url} target="_blank" rel="noopener noreferrer">${it.name}</a>` : it.name}</b>${it.checked ? html`<span class="tag acc">checked</span>` : html`<span class="tag">verify</span>`}<span class="tag">${it.lang}</span></div>
+        <span>${it.good}</span>
+        <span class="small"><b>How to apply:</b> ${it.how}</span>
+        <span class="small muted"><b>Cost:</b> ${it.cost} · <b>Tip:</b> ${it.tip}</span>
+      </div>`)}
+    </section>`)}
+    <details><summary class="lbl" style="cursor:pointer">Sources (${GUIDE_SOURCES.length})</summary>
+      <ul class="small" style="margin-top:8px;display:flex;flex-direction:column;gap:4px">${GUIDE_SOURCES.map(([t, u]) => html`<li><a href=${u} target="_blank" rel="noopener noreferrer">${t}</a></li>`)}</ul></details>
+  </div>`;
+}
+
 /* ---------- app ---------- */
 function App() {
   const [, setTick] = useState(0);
@@ -3086,14 +3827,15 @@ function App() {
   const [route, setRoute] = useState(() => {
     let h = '';
     try { h = (location.hash || '').slice(1); } catch (e) {}
-    return ['speaking', 'writing', 'daily', 'progress', 'review', 'sprint', 'shadow'].includes(h) ? { name: h } : { name: 'home' };
+    return ['speaking', 'writing', 'daily', 'progress', 'review', 'sprint', 'shadow', 'career'].includes(h) ? { name: h } : { name: 'home' };
   });
   const go = (name, extra) => { if (TTS.ok) { try { speechSynthesis.cancel(); } catch (e) {} } setRoute(Object.assign({ name }, extra || {})); window.scrollTo(0, 0); };
   const p = Store.profile;
   let view;
   if (!p.onboarded && !Persist.settled) view = html`<div class="boot"><${Thinking} label="Loading your progress" /></div>`;
   else if (!p.onboarded || route.name === 'onboard') view = html`<${Onboarding} go=${go} retake=${p.onboarded && route.name === 'onboard'} />`;
-  else if (route.name === 'speaking') view = html`<${Speaking} go=${go} />`;
+  else if (route.name === 'speaking') view = html`<${Speaking} key=${route.start || 'sp'} go=${go} autostart=${route.start} />`;
+  else if (route.name === 'career') view = html`<${Career} key=${route.tab || 'c'} go=${go} tab=${route.tab} />`;
   else if (route.name === 'writing') view = html`<${Writing} />`;
   else if (route.name === 'daily') view = html`<${DailyHost} go=${go} />`;
   else if (route.name === 'review') view = html`<${VocabReview} go=${go} />`;
